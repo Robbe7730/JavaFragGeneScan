@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Reads FASTA files from stdin
@@ -17,6 +19,8 @@ public class FASTAInputReader {
      */
     private FASTAInputReader() {}
 
+    private static final Logger LOGGER = Logger.getLogger(FASTAInputReader.class.getName());
+
     /**
      * Read the FASTA file from stdin
      * @return A LinkedHashMap containing (String name, DNASequence sequence)
@@ -26,7 +30,7 @@ public class FASTAInputReader {
         try {
             return FastaReaderHelper.readFastaDNASequence(inputStream);
         } catch (IOException exception) {
-            exception.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Could not read stdin", exception);
         }
         return Collections.emptyMap();
     }
