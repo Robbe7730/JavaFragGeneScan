@@ -1,1 +1,4 @@
-echo "TODO"
+#!/bin/bash
+
+mvn package
+java -jar target/JavaFragGeneScan-1.0-jar-with-dependencies.jar $@
