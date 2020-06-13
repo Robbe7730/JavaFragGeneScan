@@ -1,6 +1,7 @@
 package be.robbevanherck.javafraggenescan;
 
-import be.robbevanherck.javafraggenescan.util.FASTAInputReader;
+import be.robbevanherck.javafraggenescan.entities.ModelConfig;
+import be.robbevanherck.javafraggenescan.readers.FASTAInputReader;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -9,6 +10,10 @@ import org.biojava.nbio.core.sequence.DNASequence;
 
 import java.io.File;
 import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 /**
  * The entry class of the project
@@ -30,6 +35,25 @@ public class Main {
         }
     }
 
+    /**
+     * ParameterValidator for the -l/--log-level parameter
+     */
+    public static class LogLevelValidator implements IParameterValidator {
+        @Override
+        public void validate(String name, String value) {
+            try {
+                if (Integer.parseInt(value) < 0) {
+                    throw new ParameterException("Log level must be greater than or equal to 0");
+                }
+                if (Integer.parseInt(value) > 4) {
+                    throw new ParameterException("Log level must be less than 5");
+                }
+            } catch (NumberFormatException nfe) {
+                throw new ParameterException("Invalid loglevel", nfe);
+            }
+        }
+    }
+
     @Parameter(names={"-w", "--input-type"}, description = "0 for short sequence reads or 1 for full genome sequences")
     private int inputType;
 
@@ -37,7 +61,7 @@ public class Main {
     private int numThreads;
 
     @Parameter(names={"-t", "--model-parameters"}, description = "File with the model parameters", required = true)
-    private File modelParamFile;
+    private File modelConfFile;
 
     @Parameter(names={"-d", "--output-dna-fasta"}, description = "Output file for the DNA-FASTA. If not present, no output is written")
     private File outputDNAFASTA;
@@ -45,8 +69,11 @@ public class Main {
     @Parameter(names={"-e", "--output-metadata"}, description = "Output file for the metadata. If not present, no output is written")
     private File outputMetaData;
 
-    @Parameter(names = {"-h" , "-?", "--help", "--usage"}, description = "Show this help text and exit", help = true)
+    @Parameter(names={"-h" , "-?", "--help", "--usage"}, description = "Show this help text and exit", help = true)
     private boolean help;
+
+    @Parameter(names={"-l", "--log-level"}, description = "Set the log level (0-4)", validateWith = LogLevelValidator.class)
+    private int logLevel = 2;
 
     /**
      * The entry function
@@ -70,12 +97,19 @@ public class Main {
      * Run the program itself
      */
     public void run() {
-        System.out.printf("Got parameters: inputType = %d, numThreads = %d, modelParamFile = %s%n", inputType, numThreads, modelParamFile.getAbsolutePath());
-        if (outputDNAFASTA != null) {
-            System.out.printf("Also got DNA-FASTA output file %s%n", outputDNAFASTA.getAbsolutePath());
-        }
-        if (outputMetaData != null) {
-            System.out.printf("Also got metadata output file %s%n", outputMetaData.getAbsolutePath());
+        // Set the logging level
+        Level[] levels = {
+                Level.OFF,
+                Level.SEVERE,
+                Level.INFO,
+                Level.FINE,
+                Level.ALL
+        };
+        Logger rootLogger = LogManager.getLogManager().getLogger("");
+        Level newLevel = levels[logLevel];
+        rootLogger.setLevel(newLevel);
+        for (Handler h : rootLogger.getHandlers()) {
+            h.setLevel(newLevel);
         }
 
         // Read the FASTA file containing the sequences from stdin
@@ -84,5 +118,8 @@ public class Main {
         for (Map.Entry<String, DNASequence> keyValue : input.entrySet()) {
             System.out.printf("%s -> %s%n", keyValue.getKey(), keyValue.getValue());
         }
+
+        // Read the model configs
+        ModelConfig conf = new ModelConfig(modelConfFile);
     }
 }
