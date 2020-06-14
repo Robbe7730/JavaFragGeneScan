@@ -111,15 +111,5 @@ public class Main {
         for (Handler h : rootLogger.getHandlers()) {
             h.setLevel(newLevel);
         }
-
-        // Read the FASTA file containing the sequences from stdin
-        Map<String, DNASequence> input = FASTAInputReader.readFastaStdin();
-
-        for (Map.Entry<String, DNASequence> keyValue : input.entrySet()) {
-            System.out.printf("%s -> %s%n", keyValue.getKey(), keyValue.getValue());
-        }
-
-        // Read the model configs
-        ModelConfig conf = new ModelConfig(modelConfFile);
     }
 }

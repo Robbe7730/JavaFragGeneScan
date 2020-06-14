@@ -1,0 +1,244 @@
+Deze notities gaan uit van gewone kansen en geen log-kansen!
+
+to = sequence[t]
+from = sequence[t-1]
+from0 = sequence[t-2]
+from2 = (from0, from)
+
+alpha[X][T] = kans om in staat X te zijn op tijdstip T
+pad[X][T] = vorige staat vanuit staat X op tijdstip T, meestal is dit impliciet in deze notes, maar soms moet dit expleciet genoteerd worden
+
+tr[XY] = kans om van staat X naar Y te gaan (G(ene), S(tart), E(nd), R(? non-coding))
+	-> uitzonderingen: tr[ES'] is overgang van E naar S' en van E' naar S en tr[ES] is overgang van E naar S en E' naar S'
+
+e_M[i][from2][to] = kans op emission van Mi gegeven from2 en to
+tr_II[from][to] = kans op _emission_ van I na overgang van I gegeven from en to
+tr_MI[from][to] = kans op _emission_ van I na overgang van M gegeven from en to
+
+e_M1 analoog aan E_M maar voor de reverse strand
+
+E_sigma, E_mu, E_alpha, E_sigma_r, E_mu_r, E_alpha_r = waarden voor gausscurve in End states
+S_sigma, S_mu, E_alpha, S_sigma_r, S_mu_r, S_alpha_r = waarden voor gausscurve in Start states
+E1_sigma, E1_mu, E1_alpha, E1_sigma_r, E1_mu_r, E1_alpha_r = waarden voor gausscurve in End' states
+S1_sigma, S1_mu, E1_alpha, S1_sigma_r, S1_mu_r, S1_alpha_r = waarden voor gausscurve in Start' states
+
+---
+
+TO M1 STATE (enkel als nog alpha[M1][t] niet ingevuld is)
+- (Start state)
+	alpha[START][t-1] 	// Kans om op START te staan op t-1
+	* e_M[0][from2][to] 	// Kans op emission van M (de kans op transition is 1)
+- (M6 state)
+	alpha[M6][t-1]			// Kans om in M6 te staan op t-1
+	* tr[GG]			// Kans om in een gene state te blijven
+	* tr[MM] * e_M[0][from2][to]	// Kans op transition + emission van M->M
+- (M1-M5 (Mi) state, enkel als geen hele genomen) (gaat door num_d D states)
+	alpha[Mi][t-1]				// Kans om te beginnen in Mi op t-1
+	* tr[MD] * 0.25 			// Kans op transition + emission van M -> D
+	* (tr[DD] * 0.25) ** (num_d-2)		// Kans op num_d - 2 keer transmission en emission van D -> D
+	* tr[DM] * e_M[0][from2][to]		// Kans op transition en emission van D -> M1
+- (I6 state) (t > 1)
+	alpha[I6][t-1]		// Kans om in I6 te staan op t-1
+	* tr[IM] * 0.25		// Kans op transition en emission van I -> M (waarom dit 0.25 is weet ik niet...)
+
+TO M2-M6 (Mx) STATE (enkel als nog alpha[Mx][t] niet ingevuld is)
+- (Mi (i = x-1) state)
+	alpha[Mi][t-1]				// Kans om in Mi te staan op t-1
+	* tr[MM] * e_M[x][from2][to];		// Kans op transition en emission van M->Mx
+- (M1-M6 (Mi) state, enkel als geen hele genomen) (gaat door num_d D states)
+	alpha[Mi][t-1]				// Kans om te beginnen in Mi op t-1
+	* tr[MD] * 0.25 			// Kans op transition + emission van M -> D
+	* (tr[DD] * 0.25) ** (num_d-2)		// Kans op num_d - 2 keer transmission en emission van D -> D
+	* tr[DM] * e_M[x-1][from2][to]		// Kans op transition en emission van D -> Mx
+- (Ix state) (t > 1) (zoek de trinucleotide door de insertions weg te halen, deze mag geen TAA TAG of TGA zijn)
+	alpha[Ix][t-1] *	// Kans op in Ix te staan op t-1
+	tr[IM] * 0.25		// Kans op transtion en emission van I -> M (opniew, waarom dit 0.25 is weet ik niet)
+
+TO I1-I5 (Ix) STATE
+- (Ix state)
+	alpha[Ix][t-1]			// Kans om in Ix te zitten op t-1
+	* tr[II] * tr_II[from][to]	// Kans op transition en emission van I -> I
+- (Mi state)
+	alpha[Mi][t-1]			// Kans om in Mi te zitten op t-1
+	* tr[MI] * tr_MI[from][to]	// Kans op transition en emission van M -> I
+
+TO I6 STATE
+- (I6 state)
+	alpha[I6][t-1]			// Kans om in I6 te zitten op t-1
+	* tr[II] * tr_II[from][to]	// Kans op transtition en emission van I -> I
+- (M6 state)
+	alpha[Mi][t-1]			// Kans om in Mi te zitten op t-1
+	* tr[GG]			// Kans om in de gene state te blijven
+	* tr[MI] * tr_MI[from][to]	// Kans op transition en emission van M -> I
+
+TO M1'/M4' (Mx') STATE (als de 3 vorige nucleotiden TTA, CTA of TCA waren)
+- (Start state)
+	alpha[START1][t-1] 	// Kans om op START te staan op t-1
+	* e_M1[x-1][from2][to] 	// Kans op emission van Mx' (de kans op transition is 1)
+
+TO M1' STATE (enkel als nog alpha[M1'][t] niet ingevuld is)
+- (M6' state)
+	alpha[M6'][t-1]			// Kans om op M6' te staan op t-1
+	* tr[GG]			// Kans om in de gene state te blijven
+	* tr[MM] * e_M1[0][from2][to]	// Kans op transiton en emission van M->M
+- (M1'-M5' (Mi') state, enkel als geen hele genomen) (gaat door num_d D states)
+	alpha[Mi'][t-1]				// Kans om te beginnen in Mi' op t-1
+	* tr[MD] * 0.25 			// Kans op transition + emission van M -> D
+	* (tr[DD] * 0.25) ** (num_d-2)		// Kans op num_d - 2 keer transmission en emission van D -> D
+	* tr[DM] * e_M1[0][from2][to]		// Kans op transition en emission van D -> M1'
+- (I6' state) (t > 1)
+	alpha[I6'][t-1]		// Kans om in I6' te zitten op t-1
+	* tr[IM] * 0.25		// Kans op transition en emission van I -> M
+
+TO M2'-M6' (Mx') STATE (enkel als nog alpha[Mx'][t] niet ingevuld is)
+- (Mi' (i = x - 1) state)
+	alpha[Mi'][t-1]			// Kans om in Mi' te zitten op t-1
+	* tr[MM] * e_M1[x][from2][to]	// Kans op tranition en emission van M->Mx
+- (M1'-M6' (Mi') state, enkel als geen hele genomen) (gaat door num_d D states)
+	alpha[Mi'][t-1]				// Kans om te beginnen in Mi' op t-1
+	* tr[MD] * 0.25 			// Kans op transition + emission van M -> D
+	* (tr[DD] * 0.25) ** (num_d-2)		// Kans op num_d - 2 keer transmission en emission van D -> D
+	* tr[DM] * e_M1[x-1][from2][to]		// Kans op transition en emission van D -> Mx'
+- (Ix' state) (t > 1) (zoek de trinucleotide door de insertions weg te halen, deze mag geen TTA CTA of TCA zijn)
+	alpha[Ix'][t-1]		// Kans om in Ix' te staan op t-1
+	* tr[IM] * 0.25		// Kans op transition en emission van I -> M
+
+TO I1'-I5' (Ix') STATE
+- (Ix' state)
+	alpha[Ix'][t-1]			// Kans om in Ix' te zitten op t-1
+	* tr[II] * tr_II[from][to]	// Kans op transition en emission van I -> I
+- (Mx' state) (t > 4) (path[S'][t-3], path[S'][t-4] en path[S'][t-5] zijn niet R)
+	alpha[Mx'][t-1]			// Kans om in Mx' te zitten op t-1
+	* tr[MI] * tr_MI[from][to]	// Kans op transition en emission van M -> I
+
+TO I6' STATE
+- (I6' state)
+	alpha[I6'][t-1]			// Kans om in I6' te zitten op t-1
+	* tr[II] * tr_II[from][to]	// Kans op transiton en emisson van I -> I
+- (M6' state)
+	alpha[M6'][t-1]			// Kans om in Mx' te zitten op t-1
+	* tr[GG]			// Kans om in de gene state te blijven
+	* tr[MI] * tr_MI[from][to]	// Kans op transition en emission van M -> I
+
+TO R STATE
+- (R state)
+	alpha[R][t-1]			// Kans om in R te zitten op t-1
+	* tr[RR] * tr_RR[from][to]	// Kans op transition en emission van R -> R
+- (E state)
+	alpha[E][t-1]			// Kans om in E te zittn op t-1
+	* tr[ER]			// Kans op transition van E -> R
+- (E' state)
+	alpha[E'][t-1]			// Kans om in E' te zittn op t-1
+	* tr[ER]			// Kans op transition van E -> R
+
+TO E STATE
+bepaalt de alpha[E] voor t, t+1 en t+2 en moet dus enkel uitgevoerd worden als alpha[E][t] nog niet bestaat en als de huidige en 2 volgende nucleotiden TAA TAG of TGA vormen
+alpha[E][t] en alpha[E][t+1] zijn 0
+pad[E][t+1] en pad[E][t+2] zijn E
+alpha[M1][t], alpha[M4][t], alpha[M2][t+1], alpha[M5][t+1], alpha[M3][t+2] en alpha[M6][t+2] zijn 0
+alpha[E][t+2] is het product van 3 delen:
+1. de binnenkomende kans (bepaalt ook het pad voor t), het maximum van
+	(M6 state)
+   		alpha[M6][t-1] * tr[GE] 	// Kans om in M6 te zitten op t-1 * kans op transition G -> E
+	(M3 state)
+		alpha[M3][t-1] * tr[GE]	// Kans om in M3 te zitten op t-1 * kans op transition G -> E
+	(default, geen vorige staat)
+		0
+2. afhankelijk van welk codon gevonden is: !! hier verschilt de paper van de code, dit zijn de getallen uit de paper
+	TAG
+		0.54
+	TAA
+		0.30
+	TGA
+		0.16
+3. afhankelijk van twee gaussian curves
+	t_limit = min(60, t)
+	sub_prod = product voor alle i van -t_limit naar -3 van tE_r_E[i+60][trinucleotide_vanaf(t+i)]
+	start_freq = sub_prod * 58/(t_limit - 2)
+	E_kd_n = E_alpha * e ** (-start_freq - (E_mu**2) / (2 * E_sigma**2))
+	E_kd_r = E_alpha_r * e ** (-start_freq - (E_mu_r**2) / (2 * E_sigma_r**2))
+	resultaat = limit(E_kd_n / (E_kd_n + E_kd_r), 0.01, 0.99)
+
+TO S' STATE
+bepaalt de alpha[S'] voor t, t+1 en t+2 en moet dus enkel uitgevoerd worden als alpha[S'][t] nog niet bestaat en als de huidige en 2 volgende nucleotiden ATT ACT of ATC vormen
+alpha[S'][t] en alpha[S'][t+1] zijn 0
+pad[S'][t] is R
+pad[S'][t+1] en pad[S'][t+2] zijn S'
+alpha[S'][t+2] is het product van 3 delen:
+1. de binnenkomende kans (bepaalt ook het pad voor t), het maximum van
+	(R state)
+		alpha[R][t-1] * tr[RS] 		// Kans om in R te zitten op t-1 * kans op transition R -> S
+	(E' state)
+		alpha[E'][t-1] * tr[ES]		// Kans om in E' te zitten op t-1 * kans op transition E' -> S'
+	(E state)
+		alpha[E][t-1] * tr[ES1]		// Kans om in E te zitten op t-1 * kans op transition E -> S'
+	(default, geen vorige staat)
+		0
+2. afhankelijk van welk codon gevonden is: !! hier verschilt de paper van de code, dit zijn de getallen uit de paper
+	ATC
+		0.54
+	ATT
+		0.30
+	ACT
+		0.16
+3. afhankelijk van twee gaussian curves
+	t_limit = min(60, t)
+	start_freq = product voor alle i van 3 naar 60 van tr_S1[i+60][trinucleotide_vanaf(t+i)]
+	S1_kd_n = S1_alpha * e ** (-start_freq - (S1_mu**2) / (2 * S1_sigma**2))
+	S1_kd_r = S1_alpha_r * e ** (-start_freq - (S1_mu_r**2) / (2 * S1_sigma_r**2))
+	resultaat = limit(S1_kd_n / (S1_kd_n + S1_kd_r), 0.01, 0.99)
+
+TO S STATE
+bepaalt de alpha[S] voor t, t+1 en t+2 en moet dus enkel uitgevoerd worden als alpha[S][t] nog niet bestaat en als de huidige en 2 volgende nucleotiden ATG GTG of TTG vormen
+alpha[S][t] en alpha[S][t+1] zijn 0
+pad[S][t+1] en pad[S][t+2] zijn S
+alpha[S][t+2] is het product van 3 delen:
+1. de binnenkomende kans (bepaalt ook het pad voor t), het maximum van
+	(R state)
+		alpha[R][t-1] * tr[RS] 		// Kans om in R te zitten op t-1 * kans op transition R -> S
+	(E state)
+		alpha[E][t-1] * tr[ES]		// Kans om in E te zitten op t-1 * kans op transition E -> S
+	(E' state)
+		alpha[E'][t-1] * tr[ES1]	// Kans om in E' te zitten op t-1 * kans op transition E' -> S
+	(default, geen vorige staat)
+		0
+2. afhankelijk van welk codon gevonden is:
+	ATG
+		0.83
+	GTG
+		0.10
+	TTG
+		0.07
+3. afhankelijk van twee gaussian curves
+	t_limit = min(30,t)
+	start_freq = product voor all i van -30 naar 30 van tr_S[i+30][trinucleotide_vanaf(t+i)]
+	S_kd_n = S_alpha * e ** (-start_freq - (S_mu**2) / (2 * S_sigma**2))
+	S_kd_r = S_alpha_r * e ** (-start_freq - (S_mu_r**2) / (2 * S_sigma_r ** 2))
+	resultaat = limit(S_kd_n / (S_kd_r + S_kd_n))
+
+
+TO E' STATE
+bepaalt de alpha[E'] voor t, t+1 en t+2 en moet dus enkel uitgevoerd worden als alpha[E'][t] nog niet bestaat en als de huidige en 2 volgende nucleotiden ATG GTG of TTG vormen
+alpha[E'][t] en alpha[E'][t+1] zijn 0
+pad[E'][t+1] en pad[E'][t+2] zijn E'
+alpha[E'][t+2] is het product van 3 delen:
+1. de binnenkomende kans (bepaalt ook het pad voor t), het maximum van
+	(M6 state)
+   		alpha[M6][t-1] * tr[GE] 	// Kans om in M6 te zitten op t-1 * kans op transition G -> E
+	(default, geen vorige staat)
+		0
+2. afhankelijk van welk codon gevonden is:
+	TAC
+		0.83
+	CAC
+		0.10
+	AAC
+		0.07
+3. afhankelijk van twee gaussian curves
+	t_limit = min(30,t)
+	start_freq = product voor all i van -30 naar 30 van tr_E1[i+30][trinucleotide_vanaf(t+i)]
+	E1_kd_n = E1_alpha * e ** (-start_freq - (E1_mu**2) / (2 * E1_sigma**2))
+	E1_kd_r = E1_alpha_r * e ** (-start_freq - (E1_mu_r**2) / (2 * E1_sigma_r ** 2))
+	resultaat = limit(E1_kd_n / (E1_kd_r + E1_kd_n))
+
+
