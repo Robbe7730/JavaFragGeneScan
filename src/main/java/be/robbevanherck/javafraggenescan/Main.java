@@ -1,15 +1,11 @@
 package be.robbevanherck.javafraggenescan;
 
-import be.robbevanherck.javafraggenescan.entities.ModelConfig;
-import be.robbevanherck.javafraggenescan.readers.FASTAInputReader;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import org.biojava.nbio.core.sequence.DNASequence;
 
 import java.io.File;
-import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
