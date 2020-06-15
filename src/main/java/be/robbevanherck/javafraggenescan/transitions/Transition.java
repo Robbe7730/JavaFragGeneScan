@@ -1,6 +1,5 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
-import be.robbevanherck.javafraggenescan.entities.HMMParameters;
 import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
 import be.robbevanherck.javafraggenescan.entities.HMMState;
 
@@ -20,10 +19,9 @@ public abstract class Transition {
 
     /**
      * Calculate a step in the Viterbi algorithm, altering the current ViterbiStep
-     * @param params The parameters for the HMM
      * @param curr The current step in the Viterbi algorithm, to be filled in
      */
-    public void calculateStateTransition(HMMParameters params, ViterbiStep curr) {
+    public void calculateStateTransition(ViterbiStep curr) {
         curr.setValueFor(this.toState, calculateProbability());
     }
 

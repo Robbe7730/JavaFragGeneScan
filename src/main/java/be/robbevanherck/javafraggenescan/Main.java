@@ -9,6 +9,7 @@ import com.beust.jcommander.ParameterException;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * The entry class of the project
@@ -92,13 +93,13 @@ public class Main {
         //TODO read form files
         HMMParameters parameters = new HMMParameters(Collections.emptyMap());
 
-        // This is one step and needs to be parallelized
+        //TODO This needs to be parallelized and use actual data
         ViterbiAlgorithm algorithm = new ViterbiAlgorithm(parameters);
-        algorithm.run(new AminoAcid[]{
+        algorithm.run(List.of(
                 AminoAcid.A,
                 AminoAcid.C,
                 AminoAcid.G,
                 AminoAcid.T
-        });
+        ));
     }
 }

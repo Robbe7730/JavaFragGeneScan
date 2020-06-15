@@ -1,27 +1,63 @@
 package be.robbevanherck.javafraggenescan.entities;
 
+import be.robbevanherck.javafraggenescan.TransitionRepository;
+import be.robbevanherck.javafraggenescan.transitions.Transition;
+
 import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * Represents (the result of) a single step of the Viterbi algorithm
+ * Represents (the result and context of) a single step of the Viterbi algorithm
  */
 public class ViterbiStep {
     private final EnumMap<HMMState, Float> probabilities;
     private final EnumMap<HMMState, HMMState> paths;
     private final AminoAcid input;
     private final ViterbiStep previous;
+    private final HMMParameters parameters;
+
 
     /**
-     * Create a ViterbiStep with no values
+     * Keep track of the disabled states, for example if a stop codon is matched at time t, there is no possibility
+     * for an M1/M4 state at time t, nor M2/M5 at t+1, nor M3/M6 at t+2
+     */
+    private Set<HMMState> disabledStates;
+
+    /**
+     * The progression of disabled states, a disabled state of M1 will for example always lead to a disabled state of
+     * M2 in the next step. If a state is not a key of this map, that means that there is no next disabled state.
+     */
+    private final Map<HMMState, HMMState> disabledStateProgression = Map.of(
+            HMMState.MATCH_1, HMMState.MATCH_2,
+            HMMState.MATCH_2, HMMState.MATCH_3,
+            HMMState.MATCH_4, HMMState.MATCH_5,
+            HMMState.MATCH_5, HMMState.MATCH_6
+    );
+
+    /**
+     * Create a ViterbiStep with a previous step
+     * @param parameters The parameters for the HMM
      * @param input The input for this step
      * @param previous The previous step
      */
-    public ViterbiStep(AminoAcid input, ViterbiStep previous) {
+    public ViterbiStep(HMMParameters parameters, AminoAcid input, ViterbiStep previous) {
         this.input = input;
         this.previous = previous;
+        this.parameters = parameters;
 
         probabilities = new EnumMap<>(HMMState.class);
         paths = new EnumMap<>(HMMState.class);
+    }
+
+    /**
+     * Create a ViterbiStep without a previous step
+     * @param parameters The parameters for the HMM
+     * @param input The input for this step
+     */
+    public ViterbiStep(HMMParameters parameters, AminoAcid input) {
+        this(parameters, input, null);
     }
 
     /**
@@ -74,5 +110,44 @@ public class ViterbiStep {
      */
     public ViterbiStep getPrevious() {
         return previous;
+    }
+
+    /**
+     * Set which states are disabled in this states
+     * @param disabledStates Set of disabled states
+     */
+    public void setDisabledStates(Set<HMMState> disabledStates) {
+        this.disabledStates = disabledStates;
+    }
+
+    /**
+     * Calculate the next state and return that
+     * @param input The input for the step
+     * @return The new step
+     */
+    public ViterbiStep calculateNext(AminoAcid input) {
+        ViterbiStep ret =  new ViterbiStep(this.parameters, input, this);
+
+        // Make sure the disabled states are propagated
+        if (!disabledStates.isEmpty()) {
+            Set<HMMState> newDisabledStates = new HashSet<>();
+            for (HMMState disabledState : disabledStates) {
+                if (disabledStateProgression.containsKey(disabledState)) {
+                    newDisabledStates.add(disabledStateProgression.get(disabledState));
+                }
+            }
+            ret.setDisabledStates(newDisabledStates);
+        }
+
+        // Calculate the values
+        for (Transition transition : TransitionRepository.getInstance().getTransitions()) {
+            transition.calculateStateTransition(ret);
+        }
+
+        return ret;
+    }
+
+    public HMMParameters getParameters() {
+        return parameters;
     }
 }

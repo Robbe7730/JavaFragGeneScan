@@ -33,4 +33,6 @@ public enum HMMState {
     END,
     END_REVERSE,
     NON_MATCHING,
+
+    NO_STATE
 }

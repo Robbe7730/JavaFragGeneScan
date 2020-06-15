@@ -14,14 +14,14 @@ public class MatchForwardFirstTransition extends MatchForwardTransition {
     }
 
     @Override
-    public void calculateStateTransition(HMMParameters params, ViterbiStep curr) {
+    public void calculateStateTransition(ViterbiStep curr) {
         //TODO if being blocked by END state
 
         Triple<AminoAcid> tripleEndingAtT = new Triple<>(curr.getPrevious().getPrevious().getInput(), curr.getPrevious().getInput(), curr.getInput());
 
         // FROM START STATE
         float bestScore = curr.getPrevious().getValueFor(HMMState.START) *
-                params.getMatchEmissionFor(tripleEndingAtT, HMMState.MATCH_1);
+                curr.getParameters().getMatchEmissionFor(tripleEndingAtT, HMMState.MATCH_1);
 
         curr.setValueFor(HMMState.MATCH_1, bestScore);
     }

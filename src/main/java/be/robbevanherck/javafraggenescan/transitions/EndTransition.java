@@ -1,7 +1,5 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
-import be.robbevanherck.javafraggenescan.entities.HMMParameters;
-import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
 import be.robbevanherck.javafraggenescan.entities.HMMState;
 
 /**
