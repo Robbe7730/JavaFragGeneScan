@@ -3,10 +3,7 @@ package be.robbevanherck.javafraggenescan.entities;
 import be.robbevanherck.javafraggenescan.TransitionRepository;
 import be.robbevanherck.javafraggenescan.transitions.Transition;
 
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents (the result and context of) a single step of the Viterbi algorithm
@@ -46,6 +43,7 @@ public class ViterbiStep {
         this.input = input;
         this.previous = previous;
         this.parameters = parameters;
+        this.disabledStates = new HashSet<>();
 
         probabilities = new EnumMap<>(HMMState.class);
         paths = new EnumMap<>(HMMState.class);
@@ -141,7 +139,11 @@ public class ViterbiStep {
 
         // Calculate the values
         for (Transition transition : TransitionRepository.getInstance().getTransitions()) {
-            transition.calculateStateTransition(ret);
+            if (!disabledStates.contains(transition.getToState())) {
+                transition.calculateStateTransition(ret);
+            } else {
+                ret.setValueFor(transition.getToState(), 0);
+            }
         }
 
         return ret;
