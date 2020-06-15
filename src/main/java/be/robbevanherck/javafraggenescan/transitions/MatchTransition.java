@@ -15,6 +15,38 @@ public abstract class MatchTransition extends Transition {
         super(toState);
     }
 
+    @Override
+    public double calculateProbability(ViterbiStep currentStep) {
+        ViterbiStep previous = currentStep.getPrevious();
+        HMMParameters parameters = currentStep.getParameters();
+
+        // If we're in the first 2 steps, we can't be in an M(2-6) state
+        if (previous.getPrevious() == null) {
+            // currentStep.getPrevious() can never be null, as the first step is initialized and not calculated
+            return 0;
+        }
+
+        Triple<AminoAcid> codonEndingAtT = new Triple<>(
+                previous.getPrevious().getInput(),
+                previous.getInput(),
+                currentStep.getInput()
+        );
+
+        /* FROM M STATE */
+
+        double bestValue = getProbabilityFromMatch(parameters, previous, codonEndingAtT);
+
+        /* FROM M STATE, GOING THROUGH (numD) D STATES */
+
+        bestValue = Math.max(bestValue, getProbabilityThroughDeletions(parameters, previous, codonEndingAtT));
+
+        /* FROM I STATE */
+
+        bestValue = Math.max(bestValue, getProbabilityFromInsertion(parameters, previous, currentStep));
+
+        return bestValue;
+    }
+
     /**
      * Calculate the probability of going from an I' state to the destination M' state
      * @param parameters The parameters for HMM
@@ -57,4 +89,24 @@ public abstract class MatchTransition extends Transition {
      * @return true if this can be a stop codon, false otherwise
      */
     protected abstract boolean isStopCodon(Triple<AminoAcid> tripleToCheck);
+
+    /**
+     * Calculate the probability to go from an M state to the target M state
+     * @param parameters The HMM parameters
+     * @param previous The previous step
+     * @param codonEndingAtT The codon starting at t-2 and ending at t
+     * @return The probability
+     */
+    // As long as there is no generified function to get emissions, this stays abstract
+    protected abstract double getProbabilityFromMatch(HMMParameters parameters, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT);
+
+    /**
+     * Calculate the probability of going from an M state, through some amount of D states to the destination M state
+     * @param parameters The parameters for HMM
+     * @param previous The previous Viterbi step
+     * @param codonEndingAtT The coding starting at t-2 to t
+     * @return The probability
+     */
+    // As long as there is no generified function to get emissions, this stays abstract
+    protected abstract  double getProbabilityThroughDeletions(HMMParameters parameters, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT);
 }

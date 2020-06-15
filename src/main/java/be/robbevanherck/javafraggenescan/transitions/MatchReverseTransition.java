@@ -17,44 +17,25 @@ public class MatchReverseTransition extends MatchTransition {
 
     @Override
     public double calculateProbability(ViterbiStep currentStep) {
-        double bestValue = 0;
+        double bestValue = super.calculateProbability(currentStep);
         ViterbiStep previous = currentStep.getPrevious();
         HMMParameters parameters = currentStep.getParameters();
-
-        // If we're in the first 2 steps, we can't be in an M(2-6)' state
-        if (previous.getPrevious() == null) {
-            // currentStep.getPrevious() can never be null, as the first step is initialized and not calculated
-            return 0;
-        }
-
         Triple<AminoAcid> codonEndingAtT = new Triple<>(
                 previous.getPrevious().getInput(),
                 previous.getInput(),
                 currentStep.getInput()
         );
 
-        /* FROM START' STATE */
+        /* FROM START STATE */
 
+        // If we can come from a start state, check that probability too
         if (canComeFromStartState(currentStep)) {
-            bestValue = previous.getValueFor(HMMState.START_REVERSE) *                              // Probability to be in the Start' state at t-1
-                        parameters.getReverseMatchEmissionProbability(toState, codonEndingAtT);     // Probability of emission from M' state (transition is guaranteed)
+            bestValue = Math.max(bestValue,
+                    previous.getValueFor(HMMState.START_REVERSE) *                             // Probability to be in the Start' state at t-1
+                    parameters.getReverseMatchEmissionProbability(toState, codonEndingAtT)     // Probability of emission from M' state (transition is guaranteed)
+            );
         }
 
-        /* FROM M' STATE */
-
-        bestValue = Math.max(bestValue,
-                previous.getValueFor(HMMState.previousState(toState)) *                         // Probability to be in the M' state at t-1
-                parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_MATCH) *      // Probability of inner transition M -> M
-                parameters.getReverseMatchEmissionProbability(toState, codonEndingAtT)          // Probability of emission from M' sate
-        );
-
-        /* FROM M STATE, GOING THROUGH (numD) D STATES */
-
-        bestValue = Math.max(bestValue, getProbabilityThroughDeletions(parameters, previous, codonEndingAtT));
-
-        /* FROM I STATE */
-
-        bestValue = Math.max(bestValue, getProbabilityFromInsertion(parameters, previous, currentStep));
         return bestValue;
     }
 
@@ -77,13 +58,7 @@ public class MatchReverseTransition extends MatchTransition {
         );
     }
 
-    /**
-     * Calculate the probability of going from an M' state, through some amount of D' states to the destination M' state
-     * @param parameters The parameters for HMM
-     * @param previous The previous Viterbi step
-     * @param codonEndingAtT The coding starting at t-2 to t
-     * @return The probability
-     */
+    @Override
     protected double getProbabilityThroughDeletions(HMMParameters parameters, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT) {
         double bestValue = 0;
         if (!parameters.wholeGenome()) {
@@ -103,5 +78,12 @@ public class MatchReverseTransition extends MatchTransition {
             }
         }
         return bestValue;
+    }
+
+    @Override
+    protected double getProbabilityFromMatch(HMMParameters parameters, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT) {
+        return previous.getValueFor(HMMState.previousState(toState)) *                                  // Probability to be in the M' state at t-1
+                        parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_MATCH) *      // Probability of inner transition M -> M
+                        parameters.getReverseMatchEmissionProbability(toState, codonEndingAtT);         // Probability of emission from M' sate
     }
 }
