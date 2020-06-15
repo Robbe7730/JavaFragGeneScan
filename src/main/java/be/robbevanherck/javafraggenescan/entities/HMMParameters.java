@@ -11,6 +11,7 @@ import java.util.Map;
  */
 public class HMMParameters {
     private final Map<HMMInnerTransition, Double> innerTransitions;
+    private final Map<HMMOuterTransition, Double> outerTransitions;
     private final Map<HMMState, Map<Triple<AminoAcid>, Double>> matchEmissions;
     private final boolean wholeGenome;
 
@@ -22,6 +23,7 @@ public class HMMParameters {
     public HMMParameters(int countGC, boolean wholeGenome) {
         this.matchEmissions = MatchEmissionRepository.getMatchEmissions(countGC);
         this.innerTransitions = InputFileRepository.getInnerTransitions();
+        this.outerTransitions = InputFileRepository.getOuterTransitions();
         this.wholeGenome = wholeGenome;
     }
 
@@ -42,6 +44,15 @@ public class HMMParameters {
      */
     public double getInnerTransitionProbability(HMMInnerTransition transition) {
         return innerTransitions.get(transition);
+    }
+
+    /**
+     * Get the probability of a outer state transition
+     * @param transition The transition
+     * @return The probability for that transition
+     */
+    public double getOuterTransitionProbability(HMMOuterTransition transition) {
+        return outerTransitions.get(transition);
     }
 
     /**

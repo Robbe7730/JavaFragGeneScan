@@ -71,6 +71,8 @@ public class ViterbiStep {
         for(Map.Entry<HMMState, Double> entry : InputFileRepository.getInitialProbabilities().entrySet()) {
             this.setValueFor(entry.getKey(), entry.getValue());
         }
+
+        //TODO check for start and stop state
     }
 
     /**

@@ -2,6 +2,7 @@ package be.robbevanherck.javafraggenescan;
 
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.HMMParameters;
+import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -115,6 +116,6 @@ public class Main {
 
         // Run the algorithm
         ViterbiAlgorithm algorithm = new ViterbiAlgorithm(parameters);
-        algorithm.run(input);
+        ViterbiStep finalStep = algorithm.run(input);
     }
 }
