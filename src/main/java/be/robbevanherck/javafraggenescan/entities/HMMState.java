@@ -55,6 +55,18 @@ public enum HMMState {
                 return HMMState.MATCH_6;
             case MATCH_6:
                 return HMMState.MATCH_1;
+            case MATCH_REVERSE_1:
+                return HMMState.MATCH_REVERSE_2;
+            case MATCH_REVERSE_2:
+                return HMMState.MATCH_REVERSE_3;
+            case MATCH_REVERSE_3:
+                return HMMState.MATCH_REVERSE_4;
+            case MATCH_REVERSE_4:
+                return HMMState.MATCH_REVERSE_5;
+            case MATCH_REVERSE_5:
+                return HMMState.MATCH_REVERSE_6;
+            case MATCH_REVERSE_6:
+                return HMMState.MATCH_REVERSE_1;
             default:
                 return NO_STATE;
         }
@@ -81,6 +93,18 @@ public enum HMMState {
                 return HMMState.INSERT_4;
             case MATCH_6:
                 return HMMState.INSERT_5;
+            case MATCH_REVERSE_1:
+                return HMMState.INSERT_REVERSE_6;
+            case MATCH_REVERSE_2:
+                return HMMState.INSERT_REVERSE_1;
+            case MATCH_REVERSE_3:
+                return HMMState.INSERT_REVERSE_2;
+            case MATCH_REVERSE_4:
+                return HMMState.INSERT_REVERSE_3;
+            case MATCH_REVERSE_5:
+                return HMMState.INSERT_REVERSE_4;
+            case MATCH_REVERSE_6:
+                return HMMState.INSERT_REVERSE_5;
             default:
                 return NO_STATE;
         }

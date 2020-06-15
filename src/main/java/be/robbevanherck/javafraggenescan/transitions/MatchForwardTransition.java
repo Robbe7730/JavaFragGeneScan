@@ -50,7 +50,8 @@ public class MatchForwardTransition extends MatchTransition {
         return bestValue;
     }
 
-    private boolean isStopCodon(Triple<AminoAcid> codonWithoutInsertions) {
+    @Override
+    protected boolean isStopCodon(Triple<AminoAcid> codonWithoutInsertions) {
         return (codonWithoutInsertions.getFirstValue() == AminoAcid.T && (                                                              // The first acid is always T
                 (codonWithoutInsertions.getSecondValue() == AminoAcid.A && codonWithoutInsertions.getThirdValue() == AminoAcid.A) ||    // TAA
                 (codonWithoutInsertions.getSecondValue() == AminoAcid.A && codonWithoutInsertions.getThirdValue() == AminoAcid.G) ||    // TAG
@@ -84,42 +85,6 @@ public class MatchForwardTransition extends MatchTransition {
             }
         }
         return bestValue;
-    }
-
-    /**
-     * Calculate the probability of going from an I state to the destination M state
-     * @param parameters The parameters for HMM
-     * @param previous The previous Viterbi step
-     * @param currentStep The current Viterbi step
-     * @return The probability
-     */
-    protected double getProbabilityFromInsertion(HMMParameters parameters, ViterbiStep previous, ViterbiStep currentStep) {
-        // This is the codon that is present if you ignore the insertions
-        Triple<AminoAcid> codonWithoutInsertions = new Triple<>(
-                AminoAcid.INVALID,
-                AminoAcid.INVALID,
-                AminoAcid.INVALID
-        );
-
-        Pair<AminoAcid> aminoAcidBeforeInsert = currentStep.getAminoAcidsBeforeInsert(HMMState.insertStateForMatching(toState));
-
-        // Depending on what state we're going to find how the codon would have looked
-        if ((aminoAcidBeforeInsert != null) && (toState == HMMState.MATCH_3 || toState == HMMState.MATCH_6)) {
-            codonWithoutInsertions = aminoAcidBeforeInsert.append(currentStep.getInput());
-        } else if ((aminoAcidBeforeInsert != null) && (toState == HMMState.MATCH_2 || toState == HMMState.MATCH_5)) {
-            codonWithoutInsertions = new Triple<>(
-                    aminoAcidBeforeInsert.getSecondValue(),
-                    currentStep.getInput(),
-                    currentStep.getNextInput()
-            );
-        }
-
-        // If it's a stop codon, we can't be in an M state, but should be in an END state
-        if (!isStopCodon(codonWithoutInsertions)) {
-            return previous.getValueFor(HMMState.insertStateForMatching(toState)) *                                     // Probability to be in state Ix at t-1
-                            parameters.getInnerTransitionProbability(HMMInnerTransition.INSERT_MATCH) * 0.25;   // Probability for transmission + emission for I -> M
-        }
-        return 0;
     }
 
 }

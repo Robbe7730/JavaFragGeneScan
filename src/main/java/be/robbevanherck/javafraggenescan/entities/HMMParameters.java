@@ -1,7 +1,8 @@
 package be.robbevanherck.javafraggenescan.entities;
 
-import be.robbevanherck.javafraggenescan.repositories.MatchEmissionRepository;
+import be.robbevanherck.javafraggenescan.repositories.ForwardMatchEmissionRepository;
 import be.robbevanherck.javafraggenescan.repositories.InputFileRepository;
+import be.robbevanherck.javafraggenescan.repositories.ReverseMatchEmissionRepository;
 
 import java.io.File;
 import java.util.Map;
@@ -12,7 +13,8 @@ import java.util.Map;
 public class HMMParameters {
     private final Map<HMMInnerTransition, Double> innerTransitions;
     private final Map<HMMOuterTransition, Double> outerTransitions;
-    private final Map<HMMState, Map<Triple<AminoAcid>, Double>> matchEmissions;
+    private final Map<HMMState, Map<Triple<AminoAcid>, Double>> forwardMatchEmissions;
+    private final Map<HMMState, Map<Triple<AminoAcid>, Double>> reverseMatchEmissions;
     private final Map<Pair<AminoAcid>, Double> insertInsertEmissions;
     private final Map<Pair<AminoAcid>, Double> matchInsertEmissions;
     private final boolean wholeGenome;
@@ -23,7 +25,8 @@ public class HMMParameters {
      * @param wholeGenome Whether the input are whole genomes
      */
     public HMMParameters(int countGC, boolean wholeGenome) {
-        this.matchEmissions = MatchEmissionRepository.getMatchEmissions(countGC);
+        this.forwardMatchEmissions = ForwardMatchEmissionRepository.getForwardMatchEmissionProbabilities(countGC);
+        this.reverseMatchEmissions = ReverseMatchEmissionRepository.getReverseMatchEmissionProbabilities(countGC);
         this.innerTransitions = InputFileRepository.getInnerTransitions();
         this.outerTransitions = InputFileRepository.getOuterTransitions();
         this.insertInsertEmissions = InputFileRepository.getInsertInsertEmissions();
@@ -36,7 +39,8 @@ public class HMMParameters {
      * @param inputFile The file given as a command-line argument
      */
     public static void setup(File inputFile) {
-        MatchEmissionRepository.setup();
+        ForwardMatchEmissionRepository.setup();
+        ReverseMatchEmissionRepository.setup();
         InputFileRepository.setup(inputFile);
     }
 
@@ -55,7 +59,7 @@ public class HMMParameters {
      * @return The probability
      */
     public double getMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
-        return matchEmissions.get(state).get(aminoAcidEndingInT);
+        return forwardMatchEmissions.get(state).get(aminoAcidEndingInT);
     }
 
     /**
@@ -93,5 +97,15 @@ public class HMMParameters {
      */
     public double getMatchInsertEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
         return matchInsertEmissions.get(new Pair<>(previousInput, currentInput));
+    }
+
+    /**
+     * Get the probability for an M' state to emit its value
+     * @param aminoAcidEndingInT The trinucleotide starting at t-2 and ending at t
+     * @param state The state the transition is going to
+     * @return The probability
+     */
+    public double getReverseMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
+        return reverseMatchEmissions.get(state).get(aminoAcidEndingInT);
     }
 }

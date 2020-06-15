@@ -16,7 +16,7 @@ public class ViterbiAlgorithm {
 
     public static final List<Transition> TRANSITIONS = List.of(
             // M state
-            new MatchForwardFirstTransition(),                          // M1
+            new MatchForwardFirstTransition(),                         // M1
             new MatchForwardTransition(HMMState.MATCH_2),              // M2
             new MatchForwardTransition(HMMState.MATCH_3),              // M3
             new MatchForwardTransition(HMMState.MATCH_4),              // M4
@@ -29,15 +29,15 @@ public class ViterbiAlgorithm {
             new InsertForwardTransition(HMMState.INSERT_3),            // I3
             new InsertForwardTransition(HMMState.INSERT_4),            // I4
             new InsertForwardTransition(HMMState.INSERT_5),            // I5
-            new InsertForwardSixthTransition(),                         // I6
+            new InsertForwardSixthTransition(),                        // I6
 
             // M' state
-            new MatchReverseTransition(HMMState.MATCH_REVERSE_1),      // M1'
+            new MatchReverseFirstTransition(),                         // M1'
             new MatchReverseTransition(HMMState.MATCH_REVERSE_2),      // M2'
             new MatchReverseTransition(HMMState.MATCH_REVERSE_3),      // M3'
             new MatchReverseTransition(HMMState.MATCH_REVERSE_4),      // M4'
             new MatchReverseTransition(HMMState.MATCH_REVERSE_5),      // M5'
-            new MatchReverseSixthTransition(),                          // M6'
+            new MatchReverseTransition(HMMState.MATCH_REVERSE_6),      // M6'
 
             // I' state
             new InsertReverseTransition(HMMState.INSERT_REVERSE_1),    // I1'
@@ -45,22 +45,22 @@ public class ViterbiAlgorithm {
             new InsertReverseTransition(HMMState.INSERT_REVERSE_3),    // I3'
             new InsertReverseTransition(HMMState.INSERT_REVERSE_4),    // I4'
             new InsertReverseTransition(HMMState.INSERT_REVERSE_5),    // I5'
-            new InsertReverseSixthTransition(),                         // I6'
+            new InsertReverseSixthTransition(),                        // I6'
 
             // R state (non-coding)
-            new NonCodingTransition(),                                  // R
+            new NonCodingTransition(),                                 // R
 
             // End state
-            new EndForwardTransition(),                                 // E
+            new EndForwardTransition(),                                // E
 
             // Start' state
-            new StartReverseTransition(),                               // S'
+            new StartReverseTransition(),                              // S'
 
             // Start state
-            new StartForwardTransition(),                               // S
+            new StartForwardTransition(),                              // S
 
             // End' state
-            new EndReverseTransition()                                  // E'
+            new EndReverseTransition()                                 // E'
     );
 
     /**

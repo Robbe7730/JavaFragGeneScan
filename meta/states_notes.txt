@@ -27,16 +27,16 @@ S1_sigma, S1_mu, E1_alpha, S1_sigma_r, S1_mu_r, S1_alpha_r = waarden voor gaussc
 TO M1 STATE (enkel als nog alpha[M1][t] niet ingevuld is)
 - (Start state)
 	alpha[START][t-1] 	// Kans om op START te staan op t-1
-	* e_M[0][from2][to] 	// Kans op emission van M (de kans op transition is 1)
+	* e_M[1][from2][to] 	// Kans op emission van M (de kans op transition is 1)
 - (M6 state)
 	alpha[M6][t-1]			// Kans om in M6 te staan op t-1
 	* tr[GG]			// Kans om in een gene state te blijven
-	* tr[MM] * e_M[0][from2][to]	// Kans op transition + emission van M->M
+	* tr[MM] * e_M[1][from2][to]	// Kans op transition + emission van M->M
 - (M1-M5 (Mi) state, enkel als geen hele genomen) (gaat door num_d D states)
 	alpha[Mi][t-1]				// Kans om te beginnen in Mi op t-1
 	* tr[MD] * 0.25 			// Kans op transition + emission van M -> D
 	* (tr[DD] * 0.25) ** (num_d-2)		// Kans op num_d - 2 keer transmission en emission van D -> D
-	* tr[DM] * e_M[0][from2][to]		// Kans op transition en emission van D -> M1
+	* tr[DM] * e_M[1][from2][to]		// Kans op transition en emission van D -> M1
 - (I6 state) (t > 1)
 	alpha[I6][t-1]		// Kans om in I6 te staan op t-1
 	* tr[IM] * 0.25		// Kans op transition en emission van I -> M (waarom dit 0.25 is weet ik niet...)
@@ -49,7 +49,7 @@ TO M2-M6 (Mx) STATE (enkel als nog alpha[Mx][t] niet ingevuld is)
 	alpha[Mi][t-1]				// Kans om te beginnen in Mi op t-1
 	* tr[MD] * 0.25 			// Kans op transition + emission van M -> D
 	* (tr[DD] * 0.25) ** (num_d-2)		// Kans op num_d - 2 keer transmission en emission van D -> D
-	* tr[DM] * e_M[x-1][from2][to]		// Kans op transition en emission van D -> Mx
+	* tr[DM] * e_M[x][from2][to]		// Kans op transition en emission van D -> Mx
 - (Ix state) (t > 1) (zoek de trinucleotide door de insertions weg te halen, deze mag geen TAA TAG of TGA zijn)
 	alpha[Ix][t-1]		// Kans op in Ix te staan op t-1
 	* tr[IM] * 0.25		// Kans op transtion en emission van I -> M (opniew, waarom dit 0.25 is weet ik niet)
@@ -72,7 +72,7 @@ TO I6 STATE
 	* tr[MI] * tr_MI[from][to]	// Kans op transition en emission van M -> I
 
 TO M1'/M4' (Mx') STATE (als de 3 vorige nucleotiden TTA, CTA of TCA waren)
-- (Start state)
+- (Start' state)
 	alpha[START1][t-1] 	// Kans om op START te staan op t-1
 	* e_M1[x-1][from2][to] 	// Kans op emission van Mx' (de kans op transition is 1)
 
