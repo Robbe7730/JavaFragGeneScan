@@ -1,5 +1,7 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
+import be.robbevanherck.javafraggenescan.entities.HMMOuterTransition;
+import be.robbevanherck.javafraggenescan.entities.HMMParameters;
 import be.robbevanherck.javafraggenescan.entities.HMMState;
 import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
 
@@ -15,8 +17,8 @@ public class InsertForwardSixthTransition extends InsertForwardTransition {
     }
 
     @Override
-    public double calculateProbability(ViterbiStep currentStep) {
-        //TODO
-        return 0;
+    protected double getProbabilityFromMatch(HMMParameters parameters, ViterbiStep previous, ViterbiStep currentStep) {
+        return super.getProbabilityFromMatch(parameters, previous, currentStep) *           // The probability is the same as the other I states
+                parameters.getOuterTransitionProbability(HMMOuterTransition.GENE_GENE);     // Except for the extra outer transition probability
     }
 }
