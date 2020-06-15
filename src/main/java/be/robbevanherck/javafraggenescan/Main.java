@@ -9,6 +9,7 @@ import com.beust.jcommander.ParameterException;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -95,11 +96,12 @@ public class Main {
 
         //TODO This needs to be parallelized and use actual data
         ViterbiAlgorithm algorithm = new ViterbiAlgorithm(parameters);
-        algorithm.run(List.of(
+        List<AminoAcid> input = new LinkedList<>(List.of(
                 AminoAcid.A,
                 AminoAcid.C,
                 AminoAcid.G,
                 AminoAcid.T
         ));
+        algorithm.run(input);
     }
 }
