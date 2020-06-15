@@ -37,7 +37,7 @@ public class MatchForwardTransition extends MatchTransition {
         HMMState previousMState = HMMState.previousState(toState);
         double bestValue = previous.getValueFor(previousMState) *                           // Probability to be in state previousMState at t-1
                 parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_MATCH) *  // Probability for transition M -> M
-                parameters.getMatchEmissionFor(codonEndingAtT, toState);                    // Probability for an emission of M
+                parameters.getMatchEmissionFor(toState, codonEndingAtT);                    // Probability for an emission of M
 
         /* FROM M STATE, GOING THROUGH (numD) D STATES */
 
@@ -50,7 +50,7 @@ public class MatchForwardTransition extends MatchTransition {
                                 parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_DELETE) * 0.25 *                      // Probability of transition + emission of M -> D
                                 Math.pow((parameters.getInnerTransitionProbability(HMMInnerTransition.DELETE_DELETE) * 0.25), numD) *   // Probability of numD transitions and emissions of D -> D
                                 parameters.getInnerTransitionProbability(HMMInnerTransition.DELETE_MATCH) *                             // Probability of transition of M -> D
-                                parameters.getMatchEmissionFor(codonEndingAtT, currState)                                               // Probability of emission of M
+                                parameters.getMatchEmissionFor(currState, codonEndingAtT)                                               // Probability of emission of M
                 );
 
                 numD++;

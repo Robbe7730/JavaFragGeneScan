@@ -32,7 +32,7 @@ public enum HMMState {
     START_REVERSE,
     END,
     END_REVERSE,
-    NON_MATCHING,
+    NON_CODING,
 
     NO_STATE;
 
@@ -103,6 +103,76 @@ public enum HMMState {
                 return HMMState.MATCH_5;
             case 6:
                 return HMMState.MATCH_6;
+            default:
+                return NO_STATE;
+        }
+    }
+
+    /**
+     * Create a HMMState from a string (like they are in the input files)
+     * @param stateString The string to convert
+     * @return The HMMState or NO_STATE if the string is invalid
+     */
+    public static HMMState fromString(String stateString) {
+        switch (stateString) {
+            case "S":
+                return START;
+            case "E":
+                return END;
+            case "R":
+                return NON_CODING;
+            case "S_1":
+                return START_REVERSE;
+            case "E_1":
+                return END_REVERSE;
+            case "M1":
+                return MATCH_1;
+            case "M2":
+                return MATCH_2;
+            case "M3":
+                return MATCH_3;
+            case "M4":
+                return MATCH_4;
+            case "M5":
+                return MATCH_5;
+            case "M6":
+                return MATCH_6;
+            case "M1_1":
+                return MATCH_REVERSE_1;
+            case "M2_1":
+                return MATCH_REVERSE_2;
+            case "M3_1":
+                return MATCH_REVERSE_3;
+            case "M4_1":
+                return MATCH_REVERSE_4;
+            case "M5_1":
+                return MATCH_REVERSE_5;
+            case "M6_1":
+                return MATCH_REVERSE_6;
+            case "I1":
+                return INSERT_1;
+            case "I2":
+                return INSERT_2;
+            case "I3":
+                return INSERT_3;
+            case "I4":
+                return INSERT_4;
+            case "I5":
+                return INSERT_5;
+            case "I6":
+                return INSERT_6;
+            case "I1_1":
+                return INSERT_REVERSE_1;
+            case "I2_1":
+                return INSERT_REVERSE_2;
+            case "I3_1":
+                return INSERT_REVERSE_3;
+            case "I4_1":
+                return INSERT_REVERSE_4;
+            case "I5_1":
+                return INSERT_REVERSE_5;
+            case "I6_1":
+                return INSERT_REVERSE_6;
             default:
                 return NO_STATE;
         }

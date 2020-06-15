@@ -1,6 +1,7 @@
 package be.robbevanherck.javafraggenescan.entities;
 
-import be.robbevanherck.javafraggenescan.repositories.TransitionRepository;
+import be.robbevanherck.javafraggenescan.ViterbiAlgorithm;
+import be.robbevanherck.javafraggenescan.repositories.InputFileRepository;
 import be.robbevanherck.javafraggenescan.transitions.Transition;
 
 import java.util.*;
@@ -64,8 +65,12 @@ public class ViterbiStep {
      * @param nextInput The input for the next step
      */
     public ViterbiStep(HMMParameters parameters, AminoAcid input, AminoAcid nextInput) {
-        //TODO fill in initial values
         this(parameters, input, nextInput, null);
+
+        // Fill in the initial values
+        for(Map.Entry<HMMState, Double> entry : InputFileRepository.getInitialProbabilities().entrySet()) {
+            this.setValueFor(entry.getKey(), entry.getValue());
+        }
     }
 
     /**
@@ -149,7 +154,7 @@ public class ViterbiStep {
         }
 
         // Calculate the values
-        for (Transition transition : TransitionRepository.getInstance().getTransitions()) {
+        for (Transition transition : ViterbiAlgorithm.TRANSITIONS) {
             if (!disabledStates.contains(transition.getToState())) {
                 transition.calculateStateTransition(ret);
             } else {

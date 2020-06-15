@@ -32,4 +32,29 @@ public class Triple<T> {
     public T getThirdValue() {
         return thirdValue;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Triple<?> triple = (Triple<?>) o;
+
+        if (firstValue != null ? !firstValue.equals(triple.firstValue) : triple.firstValue != null) return false;
+        if (secondValue != null ? !secondValue.equals(triple.secondValue) : triple.secondValue != null) return false;
+        return thirdValue != null ? thirdValue.equals(triple.thirdValue) : triple.thirdValue == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = firstValue != null ? firstValue.hashCode() : 0;
+        result = 31 * result + (secondValue != null ? secondValue.hashCode() : 0);
+        result = 31 * result + (thirdValue != null ? thirdValue.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Triple(" + firstValue + "," + secondValue + "," + thirdValue + ')';
+    }
 }

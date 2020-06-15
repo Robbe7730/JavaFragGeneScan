@@ -29,4 +29,24 @@ public enum AminoAcid {
                 return INVALID;
         }
     }
+
+    /**
+     * Create an AminoAcid from a single-letter string
+     * @param letter Either A, C, G or T
+     * @return The corresponding AminoAcid or INVALID if the string doesn't match
+     */
+    public static AminoAcid fromString(String letter) {
+        switch (letter) {
+            case "A":
+                return A;
+            case "C":
+                return C;
+            case "G":
+                return G;
+            case "T":
+                return T;
+            default:
+                return INVALID;
+        }
+    }
 }

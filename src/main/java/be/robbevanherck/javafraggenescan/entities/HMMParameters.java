@@ -1,14 +1,16 @@
 package be.robbevanherck.javafraggenescan.entities;
 
 import be.robbevanherck.javafraggenescan.repositories.MatchEmissionRepository;
+import be.robbevanherck.javafraggenescan.repositories.InputFileRepository;
 
+import java.io.File;
 import java.util.Map;
 
 /**
  * Contains all the parameters for the Hidden Markov Model
  */
 public class HMMParameters {
-    // private final Map<HMMInnerTransition, Double> innerTransitions;
+    private final Map<HMMInnerTransition, Double> innerTransitions;
     private final Map<HMMState, Map<Triple<AminoAcid>, Double>> matchEmissions;
     private final boolean wholeGenome;
 
@@ -19,6 +21,7 @@ public class HMMParameters {
      */
     public HMMParameters(int countGC, boolean wholeGenome) {
         this.matchEmissions = MatchEmissionRepository.getMatchEmissions(countGC);
+        this.innerTransitions = InputFileRepository.getInnerTransitions();
         this.wholeGenome = wholeGenome;
     }
 
@@ -28,7 +31,7 @@ public class HMMParameters {
      * @param state The state the transition is going to
      * @return The probability
      */
-    public double getMatchEmissionFor(Triple<AminoAcid> aminoAcidEndingInT, HMMState state) {
+    public double getMatchEmissionFor(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
         return matchEmissions.get(state).get(aminoAcidEndingInT);
     }
 
@@ -38,8 +41,7 @@ public class HMMParameters {
      * @return The probability for that transition
      */
     public double getInnerTransitionProbability(HMMInnerTransition transition) {
-        // return innerTransitions.get(transition);
-        return 0;
+        return innerTransitions.get(transition);
     }
 
     /**
@@ -48,5 +50,14 @@ public class HMMParameters {
      */
     public boolean wholeGenome() {
         return wholeGenome;
+    }
+
+    /**
+     * Setup all the repositories, should only be called once as this reads a lot of files
+     * @param inputFile The file given as a command-line argument
+     */
+    public static void setup(File inputFile) {
+        MatchEmissionRepository.setup();
+        InputFileRepository.setup(inputFile);
     }
 }

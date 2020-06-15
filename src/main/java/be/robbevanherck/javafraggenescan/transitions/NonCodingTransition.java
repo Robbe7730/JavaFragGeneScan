@@ -11,7 +11,7 @@ public class NonCodingTransition extends Transition {
      * Create a new NonCodingTransition
      */
     public NonCodingTransition() {
-        super(HMMState.NON_MATCHING);
+        super(HMMState.NON_CODING);
     }
 
     @Override

@@ -18,13 +18,14 @@ import java.util.Scanner;
 public class MatchEmissionRepository {
     private MatchEmissionRepository() {}
 
-    private static MatchEmissionRepository instance;
     private static Map<Integer, Map<HMMState, Map<Triple<AminoAcid>, Double>>> matchEmissions;
 
     /**
      * Setup the repository by reading the file
      */
     public static void setup() {
+        matchEmissions = new HashMap<>();
+
         File file = new File("train/gene");
         try(Scanner s = new Scanner(file)) {
             while(s.hasNext()) {
@@ -34,7 +35,7 @@ public class MatchEmissionRepository {
 
                 // For every M state
                 for (int mStateIndex = 0; mStateIndex < 6; mStateIndex++) {
-                    HMMState mState = HMMState.matchStateFromInt(mStateIndex);
+                    HMMState mState = HMMState.matchStateFromInt(mStateIndex+1);
                     Map<Triple<AminoAcid>, Double> probabilities = new HashMap<>();
 
                     // For each tri-nucleotide
@@ -63,10 +64,6 @@ public class MatchEmissionRepository {
                 AminoAcid.fromInt((trinucleotideIndex / 4) % 4),
                 AminoAcid.fromInt(trinucleotideIndex % 4)
         );
-    }
-
-    public static MatchEmissionRepository getInstance() {
-        return instance;
     }
 
     /**

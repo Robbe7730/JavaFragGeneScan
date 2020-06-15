@@ -85,12 +85,18 @@ public class Main {
             return;
         }
         main.run();
+
     }
 
     /**
      * Run the program itself
      */
     public void run() {
+        // Read in all the files
+        HMMParameters.setup(modelConfFile);
+
+        // ---- EVERYTHING BENEATH THIS LINE IS TO BE THREADED ----
+
         //TODO This needs to be parallelized and use actual data
         List<AminoAcid> input = new LinkedList<>(List.of(
                 AminoAcid.A,
@@ -107,6 +113,7 @@ public class Main {
         // Create the parameters
         HMMParameters parameters = new HMMParameters(countGC, inputType == 1);
 
+        // Run the algorithm
         ViterbiAlgorithm algorithm = new ViterbiAlgorithm(parameters);
         algorithm.run(input);
     }
