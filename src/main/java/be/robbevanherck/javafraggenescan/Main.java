@@ -1,15 +1,14 @@
 package be.robbevanherck.javafraggenescan;
 
+import be.robbevanherck.javafraggenescan.entities.AminoAcid;
+import be.robbevanherck.javafraggenescan.entities.HMMParameters;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 import java.io.File;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
+import java.util.Collections;
 
 /**
  * The entry class of the project
@@ -53,8 +52,8 @@ public class Main {
     @Parameter(names={"-w", "--input-type"}, description = "0 for short sequence reads or 1 for full genome sequences")
     private int inputType;
 
-    @Parameter(names={"-p", "--num-threads"}, description = "The number of threads to use", required = true, validateWith = ThreadValidator.class)
-    private int numThreads;
+    @Parameter(names={"-p", "--num-threads"}, description = "The number of threads to use", validateWith = ThreadValidator.class)
+    private int numThreads = 1;
 
     @Parameter(names={"-t", "--model-parameters"}, description = "File with the model parameters", required = true)
     private File modelConfFile;
@@ -67,9 +66,6 @@ public class Main {
 
     @Parameter(names={"-h" , "-?", "--help", "--usage"}, description = "Show this help text and exit", help = true)
     private boolean help;
-
-    @Parameter(names={"-l", "--log-level"}, description = "Set the log level (0-4)", validateWith = LogLevelValidator.class)
-    private int logLevel = 2;
 
     /**
      * The entry function
@@ -93,19 +89,16 @@ public class Main {
      * Run the program itself
      */
     public void run() {
-        // Set the logging level
-        Level[] levels = {
-                Level.OFF,
-                Level.SEVERE,
-                Level.INFO,
-                Level.FINE,
-                Level.ALL
-        };
-        Logger rootLogger = LogManager.getLogManager().getLogger("");
-        Level newLevel = levels[logLevel];
-        rootLogger.setLevel(newLevel);
-        for (Handler h : rootLogger.getHandlers()) {
-            h.setLevel(newLevel);
-        }
+        //TODO read form files
+        HMMParameters parameters = new HMMParameters(Collections.emptyMap());
+
+        // This is one step and needs to be parallelized
+        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(parameters);
+        algorithm.run(new AminoAcid[]{
+                AminoAcid.A,
+                AminoAcid.C,
+                AminoAcid.G,
+                AminoAcid.T
+        });
     }
 }

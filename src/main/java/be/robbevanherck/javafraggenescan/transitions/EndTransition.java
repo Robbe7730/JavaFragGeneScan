@@ -1,7 +1,8 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
-import be.robbevanherck.javafraggenescan.entity.ViterbiStep;
-import be.robbevanherck.javafraggenescan.enums.StateEnum;
+import be.robbevanherck.javafraggenescan.entities.HMMParameters;
+import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
+import be.robbevanherck.javafraggenescan.entities.HMMState;
 
 /**
  * Represents a transition to the E or E' state
@@ -12,12 +13,7 @@ public abstract class EndTransition extends StartEndTransition {
      *
      * @param toState The state to which this transition goes
      */
-    EndTransition(StateEnum toState) {
+    EndTransition(HMMState toState) {
         super(toState);
-    }
-
-    @Override
-    public void calculateStateTransition(ViterbiStep previous, ViterbiStep curr) {
-        //TODO
     }
 }

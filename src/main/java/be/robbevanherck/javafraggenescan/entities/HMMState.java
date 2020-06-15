@@ -1,9 +1,9 @@
-package be.robbevanherck.javafraggenescan.enums;
+package be.robbevanherck.javafraggenescan.entities;
 
 /**
  * All the possible states the HMM can be in
  */
-public enum StateEnum {
+public enum HMMState {
     MATCH_1,
     MATCH_2,
     MATCH_3,

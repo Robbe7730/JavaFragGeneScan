@@ -1,21 +1,21 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
-import be.robbevanherck.javafraggenescan.entity.ViterbiStep;
-import be.robbevanherck.javafraggenescan.enums.StateEnum;
+import be.robbevanherck.javafraggenescan.entities.HMMState;
 
 /**
  * Represents the transition to the S state
  */
-public class StartForwardTransition extends EndTransition {
+public class StartForwardTransition extends StartTransition {
     /**
      * Create a new StartForwardTransition
      */
-    StartForwardTransition() {
-        super(StateEnum.START);
+    public StartForwardTransition() {
+        super(HMMState.START);
     }
 
     @Override
-    public void calculateStateTransition(ViterbiStep previous, ViterbiStep curr) {
+    public float calculateProbability() {
         //TODO
+        return 0;
     }
 }

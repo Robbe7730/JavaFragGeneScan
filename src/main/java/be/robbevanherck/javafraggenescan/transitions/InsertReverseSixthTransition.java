@@ -1,7 +1,6 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
-import be.robbevanherck.javafraggenescan.entity.ViterbiStep;
-import be.robbevanherck.javafraggenescan.enums.StateEnum;
+import be.robbevanherck.javafraggenescan.entities.HMMState;
 
 /**
  * Represents a transition to the I6' state
@@ -10,12 +9,13 @@ public class InsertReverseSixthTransition extends MatchReverseTransition {
     /**
      * Create a new InsertReverseSixthTransition
      */
-    InsertReverseSixthTransition() {
-        super(StateEnum.INSERT_REVERSE_6);
+    public InsertReverseSixthTransition() {
+        super(HMMState.INSERT_REVERSE_6);
     }
 
     @Override
-    public void calculateStateTransition(ViterbiStep previous, ViterbiStep curr) {
+    public float calculateProbability() {
         //TODO
+        return 0;
     }
 }

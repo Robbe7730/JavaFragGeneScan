@@ -1,7 +1,6 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
-import be.robbevanherck.javafraggenescan.entity.ViterbiStep;
-import be.robbevanherck.javafraggenescan.enums.StateEnum;
+import be.robbevanherck.javafraggenescan.entities.HMMState;
 
 /**
  * Represents a transition to a reverse M state
@@ -12,12 +11,13 @@ public class MatchReverseTransition extends MatchTransition {
      *
      * @param toState The state to which this transition goes
      */
-    MatchReverseTransition(StateEnum toState) {
+    public MatchReverseTransition(HMMState toState) {
         super(toState);
     }
 
     @Override
-    public void calculateStateTransition(ViterbiStep previous, ViterbiStep curr) {
+    public float calculateProbability() {
         //TODO
+        return 0;
     }
 }
