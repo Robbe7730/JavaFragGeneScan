@@ -62,10 +62,12 @@ public enum HMMState {
 
     /**
      * Get the corresponding insert state from a match state
-     * @param state The current state
-     * @return The previous state
+     * Mx -> I(x-1)
+     * @param state The current matching state
+     * @return The insert state or NO_STATE if the input is invalid
      */
-    public static HMMState insertStateFor(HMMState state) {
+    public static HMMState insertStateForMatching(HMMState state) {
+        // Would this make more sense as Mx -> Ix and use previousState?
         switch (state) {
             case MATCH_1:
                 return HMMState.INSERT_6;
@@ -79,6 +81,31 @@ public enum HMMState {
                 return HMMState.INSERT_4;
             case MATCH_6:
                 return HMMState.INSERT_5;
+            default:
+                return NO_STATE;
+        }
+    }
+
+    /**
+     * Get the corresponding matching state from a insert state
+     * Ix -> Mx
+     * @param state The current insert state
+     * @return The matching state or NO_STATE if the argument is invalid
+     */
+    public static HMMState matchingStateForInsert(HMMState state) {
+        switch (state) {
+            case INSERT_1:
+                return HMMState.MATCH_1;
+            case INSERT_2:
+                return HMMState.MATCH_2;
+            case INSERT_3:
+                return HMMState.MATCH_3;
+            case INSERT_4:
+                return HMMState.MATCH_4;
+            case INSERT_5:
+                return HMMState.MATCH_5;
+            case INSERT_6:
+                return HMMState.MATCH_6;
             default:
                 return NO_STATE;
         }

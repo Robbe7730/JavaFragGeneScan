@@ -117,5 +117,7 @@ public class Main {
         // Run the algorithm
         ViterbiAlgorithm algorithm = new ViterbiAlgorithm(parameters);
         ViterbiStep finalStep = algorithm.run(input);
+
+        System.out.println(finalStep);
     }
 }

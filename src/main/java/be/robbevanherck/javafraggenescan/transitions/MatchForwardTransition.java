@@ -37,7 +37,7 @@ public class MatchForwardTransition extends MatchTransition {
         HMMState previousMState = HMMState.previousState(toState);
         double bestValue = previous.getValueFor(previousMState) *                           // Probability to be in state previousMState at t-1
                 parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_MATCH) *  // Probability for transition M -> M
-                parameters.getMatchEmissionFor(toState, codonEndingAtT);                    // Probability for an emission of M
+                parameters.getMatchEmissionProbability(toState, codonEndingAtT);                    // Probability for an emission of M
 
         /* FROM M STATE, GOING THROUGH (numD) D STATES */
 
@@ -76,7 +76,7 @@ public class MatchForwardTransition extends MatchTransition {
                                 parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_DELETE) * 0.25 *                      // Probability of transition + emission of M -> D
                                 Math.pow((parameters.getInnerTransitionProbability(HMMInnerTransition.DELETE_DELETE) * 0.25), numD) *   // Probability of numD transitions and emissions of D -> D
                                 parameters.getInnerTransitionProbability(HMMInnerTransition.DELETE_MATCH) *                             // Probability of transition of M -> D
-                                parameters.getMatchEmissionFor(currState, codonEndingAtT)                                               // Probability of emission of M
+                                parameters.getMatchEmissionProbability(currState, codonEndingAtT)                                               // Probability of emission of M
                 );
 
                 numD++;
@@ -101,7 +101,7 @@ public class MatchForwardTransition extends MatchTransition {
                 AminoAcid.INVALID
         );
 
-        Pair<AminoAcid> aminoAcidBeforeInsert = currentStep.getAminoAcidsBeforeInsert(HMMState.insertStateFor(toState));
+        Pair<AminoAcid> aminoAcidBeforeInsert = currentStep.getAminoAcidsBeforeInsert(HMMState.insertStateForMatching(toState));
 
         // Depending on what state we're going to find how the codon would have looked
         if ((aminoAcidBeforeInsert != null) && (toState == HMMState.MATCH_3 || toState == HMMState.MATCH_6)) {
@@ -116,7 +116,7 @@ public class MatchForwardTransition extends MatchTransition {
 
         // If it's a stop codon, we can't be in an M state, but should be in an END state
         if (!isStopCodon(codonWithoutInsertions)) {
-            return previous.getValueFor(HMMState.insertStateFor(toState)) *                                     // Probability to be in state Ix at t-1
+            return previous.getValueFor(HMMState.insertStateForMatching(toState)) *                                     // Probability to be in state Ix at t-1
                             parameters.getInnerTransitionProbability(HMMInnerTransition.INSERT_MATCH) * 0.25;   // Probability for transmission + emission for I -> M
         }
         return 0;

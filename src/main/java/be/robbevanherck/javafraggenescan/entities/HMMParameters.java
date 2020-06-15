@@ -13,6 +13,8 @@ public class HMMParameters {
     private final Map<HMMInnerTransition, Double> innerTransitions;
     private final Map<HMMOuterTransition, Double> outerTransitions;
     private final Map<HMMState, Map<Triple<AminoAcid>, Double>> matchEmissions;
+    private final Map<Pair<AminoAcid>, Double> insertInsertEmissions;
+    private final Map<Pair<AminoAcid>, Double> matchInsertEmissions;
     private final boolean wholeGenome;
 
     /**
@@ -24,7 +26,26 @@ public class HMMParameters {
         this.matchEmissions = MatchEmissionRepository.getMatchEmissions(countGC);
         this.innerTransitions = InputFileRepository.getInnerTransitions();
         this.outerTransitions = InputFileRepository.getOuterTransitions();
+        this.insertInsertEmissions = InputFileRepository.getInsertInsertEmissions();
+        this.matchInsertEmissions = InputFileRepository.getMatchInsertEmissions();
         this.wholeGenome = wholeGenome;
+    }
+
+    /**
+     * Setup all the repositories, should only be called once as this reads a lot of files
+     * @param inputFile The file given as a command-line argument
+     */
+    public static void setup(File inputFile) {
+        MatchEmissionRepository.setup();
+        InputFileRepository.setup(inputFile);
+    }
+
+    /**
+     * Return if the input are whole genomes
+     * @return true if whole genomes, false if parts
+     */
+    public boolean wholeGenome() {
+        return wholeGenome;
     }
 
     /**
@@ -33,7 +54,7 @@ public class HMMParameters {
      * @param state The state the transition is going to
      * @return The probability
      */
-    public double getMatchEmissionFor(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
+    public double getMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
         return matchEmissions.get(state).get(aminoAcidEndingInT);
     }
 
@@ -56,19 +77,21 @@ public class HMMParameters {
     }
 
     /**
-     * Return if the input are whole genomes
-     * @return true if whole genomes, false if parts
+     * Get the probability a transition I -> I to emit its value
+     * @param previousInput The input of the previous state
+     * @param currentInput The input of the current state
+     * @return The probability
      */
-    public boolean wholeGenome() {
-        return wholeGenome;
+    public double getInsertInsertEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
+        return insertInsertEmissions.get(new Pair<>(previousInput, currentInput));
     }
-
     /**
-     * Setup all the repositories, should only be called once as this reads a lot of files
-     * @param inputFile The file given as a command-line argument
+     * Get the probability a transition M -> I to emit its value
+     * @param previousInput The input of the previous state
+     * @param currentInput The input of the current state
+     * @return The probability
      */
-    public static void setup(File inputFile) {
-        MatchEmissionRepository.setup();
-        InputFileRepository.setup(inputFile);
+    public double getMatchInsertEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
+        return matchInsertEmissions.get(new Pair<>(previousInput, currentInput));
     }
 }

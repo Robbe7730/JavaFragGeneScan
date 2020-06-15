@@ -2,8 +2,6 @@ package be.robbevanherck.javafraggenescan.transitions;
 
 import be.robbevanherck.javafraggenescan.entities.*;
 
-import java.security.spec.MGF1ParameterSpec;
-
 /**
  * Represents a transition to the M1 state
  */
@@ -33,7 +31,7 @@ public class MatchForwardFirstTransition extends MatchForwardTransition {
 
         /* FROM START STATE */
         double bestValue = previous.getValueFor(HMMState.START) *               // Probability to be in a START state at t-1
-            parameters.getMatchEmissionFor(HMMState.MATCH_1, codonEndingAtT);   // Probability of emission of M
+            parameters.getMatchEmissionProbability(HMMState.MATCH_1, codonEndingAtT);   // Probability of emission of M
 
         /* FROM M6 STATE */
 
@@ -41,12 +39,12 @@ public class MatchForwardFirstTransition extends MatchForwardTransition {
                 previous.getValueFor(HMMState.MATCH_6) *                                    // Probability to be in a M6 state at t-1
                 parameters.getOuterTransitionProbability(HMMOuterTransition.GENE_GENE) *    // Probability of an outer transition G -> G
                 parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_MATCH) *  // Probability of an inner transition M -> M
-                parameters.getMatchEmissionFor(HMMState.MATCH_1, codonEndingAtT)            // Probability of emission of M1
+                parameters.getMatchEmissionProbability(HMMState.MATCH_1, codonEndingAtT)            // Probability of emission of M1
         );
 
         /* FROM M STATE, GOING THROUGH (numD) D STATES */
 
-        bestValue = Math.max(bestValue, super.getProbabilityThroughDeletions(parameters, previous, codonEndingAtT));
+        bestValue = Math.max(bestValue, getProbabilityThroughDeletions(parameters, previous, codonEndingAtT));
 
         /* FROM I STATE */
 

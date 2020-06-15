@@ -1,10 +1,12 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
+import be.robbevanherck.javafraggenescan.entities.HMMInnerTransition;
+import be.robbevanherck.javafraggenescan.entities.HMMParameters;
 import be.robbevanherck.javafraggenescan.entities.HMMState;
 import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
 
 /**
- * Represents a transition to a forward M state
+ * Represents a transition to a forward I state
  */
 public class InsertForwardTransition extends InsertTransition {
     /**
@@ -18,7 +20,25 @@ public class InsertForwardTransition extends InsertTransition {
 
     @Override
     public double calculateProbability(ViterbiStep currentStep) {
-        //TODO
-        return 0;
+        ViterbiStep previous = currentStep.getPrevious();
+        HMMParameters parameters = currentStep.getParameters();
+
+        return Math.max(
+                getProbabilityFromInsertion(parameters, previous, currentStep),
+                getProbabilityFromMatch(parameters, previous, currentStep)
+        );
+    }
+
+    private double getProbabilityFromInsertion(HMMParameters parameters, ViterbiStep previous, ViterbiStep currentStep) {
+        return  previous.getValueFor(toState) *                                                             // Probability to be in a Ix state at t-1
+                parameters.getInnerTransitionProbability(HMMInnerTransition.INSERT_INSERT) *                // Probability for a transition I -> I
+                parameters.getInsertInsertEmissionProbability(previous.getInput(), currentStep.getInput()); // Probability for an emission for I -> I
+    }
+
+    private double getProbabilityFromMatch(HMMParameters parameters, ViterbiStep previous, ViterbiStep currentStep) {
+        HMMState correspondingMatchingState = HMMState.matchingStateForInsert(toState);
+        return  previous.getValueFor(correspondingMatchingState) *                                          // Probability to be in a Mx state at t-1
+                parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_INSERT) *                 // Probability for a transition M -> I
+                parameters.getMatchInsertEmissionProbability(previous.getInput(), currentStep.getInput());  // Probability for an emission for I -> I
     }
 }
