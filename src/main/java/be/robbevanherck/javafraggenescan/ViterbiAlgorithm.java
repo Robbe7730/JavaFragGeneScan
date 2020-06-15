@@ -27,10 +27,11 @@ public class ViterbiAlgorithm {
      */
     public ViterbiStep run(List<AminoAcid> input) {
 
-        ViterbiStep currentStep = new ViterbiStep(parameters, input.remove(0));
-        for (AminoAcid c : input) {
-            currentStep = currentStep.calculateNext(c);
+        ViterbiStep currentStep = new ViterbiStep(parameters, input.get(0), input.get(1));
+        for (int i = 1; i < input.size() - 1; i++) {
+            currentStep = currentStep.calculateNext(input.get(i), input.get(i+1));
         }
+        currentStep = currentStep.calculateNext(input.get(input.size() - 1), null);
         return currentStep;
     }
 }

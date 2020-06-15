@@ -14,7 +14,7 @@ public class MatchForwardFirstTransition extends MatchForwardTransition {
     }
 
     @Override
-    public float calculateProbability() {
+    public double calculateProbability(ViterbiStep currentStep) {
         //TODO
         return 0;
     }

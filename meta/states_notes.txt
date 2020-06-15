@@ -51,8 +51,8 @@ TO M2-M6 (Mx) STATE (enkel als nog alpha[Mx][t] niet ingevuld is)
 	* (tr[DD] * 0.25) ** (num_d-2)		// Kans op num_d - 2 keer transmission en emission van D -> D
 	* tr[DM] * e_M[x-1][from2][to]		// Kans op transition en emission van D -> Mx
 - (Ix state) (t > 1) (zoek de trinucleotide door de insertions weg te halen, deze mag geen TAA TAG of TGA zijn)
-	alpha[Ix][t-1] *	// Kans op in Ix te staan op t-1
-	tr[IM] * 0.25		// Kans op transtion en emission van I -> M (opniew, waarom dit 0.25 is weet ik niet)
+	alpha[Ix][t-1]		// Kans op in Ix te staan op t-1
+	* tr[IM] * 0.25		// Kans op transtion en emission van I -> M (opniew, waarom dit 0.25 is weet ik niet)
 
 TO I1-I5 (Ix) STATE
 - (Ix state)

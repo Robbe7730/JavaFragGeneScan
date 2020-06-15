@@ -9,12 +9,17 @@ import java.util.*;
  * Represents (the result and context of) a single step of the Viterbi algorithm
  */
 public class ViterbiStep {
-    private final EnumMap<HMMState, Float> probabilities;
+    private final EnumMap<HMMState, Double> probabilities;
     private final EnumMap<HMMState, HMMState> paths;
     private final AminoAcid input;
+    private final AminoAcid nextInput;
     private final ViterbiStep previous;
     private final HMMParameters parameters;
 
+    /**
+     * The aminoAcids that came right before the given insertion, used to verify that we aren't in a stop state when calculating I -> M
+     */
+    private final Map<HMMState, Pair<AminoAcid>> aminoAcidsBeforeInsertion;
 
     /**
      * Keep track of the disabled states, for example if a stop codon is matched at time t, there is no possibility
@@ -37,25 +42,30 @@ public class ViterbiStep {
      * Create a ViterbiStep with a previous step
      * @param parameters The parameters for the HMM
      * @param input The input for this step
+     * @param nextInput The input for the next step
      * @param previous The previous step
      */
-    public ViterbiStep(HMMParameters parameters, AminoAcid input, ViterbiStep previous) {
-        this.input = input;
-        this.previous = previous;
+    public ViterbiStep(HMMParameters parameters, AminoAcid input, AminoAcid nextInput, ViterbiStep previous) {
         this.parameters = parameters;
+        this.input = input;
+        this.nextInput = nextInput;
+        this.previous = previous;
         this.disabledStates = new HashSet<>();
+        this.aminoAcidsBeforeInsertion = new EnumMap<>(HMMState.class);
 
         probabilities = new EnumMap<>(HMMState.class);
         paths = new EnumMap<>(HMMState.class);
     }
 
     /**
-     * Create a ViterbiStep without a previous step
+     * Create the initial ViterbiStep
      * @param parameters The parameters for the HMM
      * @param input The input for this step
+     * @param nextInput The input for the next step
      */
-    public ViterbiStep(HMMParameters parameters, AminoAcid input) {
-        this(parameters, input, null);
+    public ViterbiStep(HMMParameters parameters, AminoAcid input, AminoAcid nextInput) {
+        //TODO fill in initial values
+        this(parameters, input, nextInput, null);
     }
 
     /**
@@ -63,7 +73,7 @@ public class ViterbiStep {
      * @param state The state to look up
      * @return The probability to be in this state
      */
-    public float getValueFor(HMMState state) {
+    public double getValueFor(HMMState state) {
         return probabilities.get(state);
     }
 
@@ -72,7 +82,7 @@ public class ViterbiStep {
      * @param state The state of which to modify the probability
      * @param value The new probability
      */
-    public void setValueFor(HMMState state, float value) {
+    public void setValueFor(HMMState state, double value) {
         probabilities.put(state, value);
     }
 
@@ -121,10 +131,11 @@ public class ViterbiStep {
     /**
      * Calculate the next state and return that
      * @param input The input for the step
+     * @param nextInput The input for the step after that
      * @return The new step
      */
-    public ViterbiStep calculateNext(AminoAcid input) {
-        ViterbiStep ret =  new ViterbiStep(this.parameters, input, this);
+    public ViterbiStep calculateNext(AminoAcid input, AminoAcid nextInput) {
+        ViterbiStep ret =  new ViterbiStep(this.parameters, input, nextInput, this);
 
         // Make sure the disabled states are propagated
         if (!disabledStates.isEmpty()) {
@@ -149,7 +160,32 @@ public class ViterbiStep {
         return ret;
     }
 
+    /**
+     * Get the HMM parameters
+     * @return The parameters
+     */
     public HMMParameters getParameters() {
         return parameters;
+    }
+
+    /**
+     * Get the pair of amino-acids before the given insertion
+     * @param state The insertion state to lookup what came before
+     * @return The pair of amino-acids
+     */
+    public Pair<AminoAcid> getAminoAcidsBeforeInsert(HMMState state) {
+        return aminoAcidsBeforeInsertion.get(state);
+    }
+    /**
+     * Set the pair of amino-acids before the given insertion
+     * @param state The insertion state to set what came before
+     * @param aminoAcids The amino-acids that came before the insertion
+     */
+    public void setAminoAcidsBeforeInsert(HMMState state, Pair<AminoAcid> aminoAcids) {
+        aminoAcidsBeforeInsertion.put(state, aminoAcids);
+    }
+
+    public AminoAcid getNextInput() {
+        return nextInput;
     }
 }

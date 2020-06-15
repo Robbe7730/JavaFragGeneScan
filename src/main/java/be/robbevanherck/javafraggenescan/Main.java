@@ -92,7 +92,7 @@ public class Main {
      */
     public void run() {
         //TODO read form files
-        HMMParameters parameters = new HMMParameters(Collections.emptyMap());
+        HMMParameters parameters = new HMMParameters(Collections.emptyMap(), Collections.emptyMap(), inputType == 1);
 
         //TODO This needs to be parallelized and use actual data
         ViterbiAlgorithm algorithm = new ViterbiAlgorithm(parameters);

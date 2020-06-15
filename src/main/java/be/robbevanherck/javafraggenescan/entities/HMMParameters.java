@@ -6,14 +6,20 @@ import java.util.Map;
  * Contains all the parameters for the Hidden Markov Model
  */
 public class HMMParameters {
-    private final Map<Triple<AminoAcid>, Map<HMMState, Float>> matchEmissions;
+    private final Map<HMMInnerTransition, Double> innerTransitions;
+    private final Map<Triple<AminoAcid>, Map<HMMState, Double>> matchEmissions;
+    private final boolean wholeGenome;
 
     /**
      * Create the parameters
      * @param matchEmissions The probabilities for an M state to emit, given a pair of 2
+     * @param innerTransitions The probabilities for an inner transitions
+     * @param wholeGenome Whether the input are whole genomes
      */
-    public HMMParameters(Map<Triple<AminoAcid>, Map<HMMState, Float>> matchEmissions) {
+    public HMMParameters(Map<Triple<AminoAcid>, Map<HMMState, Double>> matchEmissions, Map<HMMInnerTransition, Double> innerTransitions, boolean wholeGenome) {
         this.matchEmissions = matchEmissions;
+        this.innerTransitions = innerTransitions;
+        this.wholeGenome = wholeGenome;
     }
 
     /**
@@ -22,7 +28,24 @@ public class HMMParameters {
      * @param state The state the transition is going to
      * @return The probability
      */
-    public float getMatchEmissionFor(Triple<AminoAcid> aminoAcidEndingInT, HMMState state) {
+    public double getMatchEmissionFor(Triple<AminoAcid> aminoAcidEndingInT, HMMState state) {
         return matchEmissions.get(aminoAcidEndingInT).get(state);
+    }
+
+    /**
+     * Get the probability of a inner state transition
+     * @param transition The transition
+     * @return The probability for that transition
+     */
+    public double getInnerTransitionProbability(HMMInnerTransition transition) {
+        return innerTransitions.get(transition);
+    }
+
+    /**
+     * Return if the input are whole genomes
+     * @return true if whole genomes, false if parts
+     */
+    public boolean wholeGenome() {
+        return wholeGenome;
     }
 }

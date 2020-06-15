@@ -34,5 +34,53 @@ public enum HMMState {
     END_REVERSE,
     NON_MATCHING,
 
-    NO_STATE
+    NO_STATE;
+
+    /**
+     * Get the previous state from a state
+     * @param state The current state
+     * @return The previous state
+     */
+    public static HMMState previousState(HMMState state) {
+        switch (state) {
+            case MATCH_1:
+                return HMMState.MATCH_2;
+            case MATCH_2:
+                return HMMState.MATCH_3;
+            case MATCH_3:
+                return HMMState.MATCH_4;
+            case MATCH_4:
+                return HMMState.MATCH_5;
+            case MATCH_5:
+                return HMMState.MATCH_6;
+            case MATCH_6:
+                return HMMState.MATCH_1;
+            default:
+                return NO_STATE;
+        }
+    }
+
+    /**
+     * Get the corresponding insert state from a match state
+     * @param state The current state
+     * @return The previous state
+     */
+    public static HMMState insertStateFor(HMMState state) {
+        switch (state) {
+            case MATCH_1:
+                return HMMState.INSERT_6;
+            case MATCH_2:
+                return HMMState.INSERT_1;
+            case MATCH_3:
+                return HMMState.INSERT_2;
+            case MATCH_4:
+                return HMMState.INSERT_3;
+            case MATCH_5:
+                return HMMState.INSERT_4;
+            case MATCH_6:
+                return HMMState.INSERT_5;
+            default:
+                return NO_STATE;
+        }
+    }
 }
