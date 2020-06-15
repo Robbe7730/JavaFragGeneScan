@@ -1,4 +1,4 @@
-package be.robbevanherck.javafraggenescan;
+package be.robbevanherck.javafraggenescan.repositories;
 
 import be.robbevanherck.javafraggenescan.entities.HMMState;
 import be.robbevanherck.javafraggenescan.transitions.*;

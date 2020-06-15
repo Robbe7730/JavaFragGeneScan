@@ -1,24 +1,24 @@
 package be.robbevanherck.javafraggenescan.entities;
 
+import be.robbevanherck.javafraggenescan.repositories.MatchEmissionRepository;
+
 import java.util.Map;
 
 /**
  * Contains all the parameters for the Hidden Markov Model
  */
 public class HMMParameters {
-    private final Map<HMMInnerTransition, Double> innerTransitions;
-    private final Map<Triple<AminoAcid>, Map<HMMState, Double>> matchEmissions;
+    // private final Map<HMMInnerTransition, Double> innerTransitions;
+    private final Map<HMMState, Map<Triple<AminoAcid>, Double>> matchEmissions;
     private final boolean wholeGenome;
 
     /**
      * Create the parameters
-     * @param matchEmissions The probabilities for an M state to emit, given a pair of 2
-     * @param innerTransitions The probabilities for an inner transitions
+     * @param countGC The percentage of G/C amino-acids in the input compared to the length of the input
      * @param wholeGenome Whether the input are whole genomes
      */
-    public HMMParameters(Map<Triple<AminoAcid>, Map<HMMState, Double>> matchEmissions, Map<HMMInnerTransition, Double> innerTransitions, boolean wholeGenome) {
-        this.matchEmissions = matchEmissions;
-        this.innerTransitions = innerTransitions;
+    public HMMParameters(int countGC, boolean wholeGenome) {
+        this.matchEmissions = MatchEmissionRepository.getMatchEmissions(countGC);
         this.wholeGenome = wholeGenome;
     }
 
@@ -29,7 +29,7 @@ public class HMMParameters {
      * @return The probability
      */
     public double getMatchEmissionFor(Triple<AminoAcid> aminoAcidEndingInT, HMMState state) {
-        return matchEmissions.get(aminoAcidEndingInT).get(state);
+        return matchEmissions.get(state).get(aminoAcidEndingInT);
     }
 
     /**
@@ -38,7 +38,8 @@ public class HMMParameters {
      * @return The probability for that transition
      */
     public double getInnerTransitionProbability(HMMInnerTransition transition) {
-        return innerTransitions.get(transition);
+        // return innerTransitions.get(transition);
+        return 0;
     }
 
     /**

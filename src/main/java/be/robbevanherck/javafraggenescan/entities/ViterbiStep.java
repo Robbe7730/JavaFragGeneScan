@@ -1,6 +1,6 @@
 package be.robbevanherck.javafraggenescan.entities;
 
-import be.robbevanherck.javafraggenescan.TransitionRepository;
+import be.robbevanherck.javafraggenescan.repositories.TransitionRepository;
 import be.robbevanherck.javafraggenescan.transitions.Transition;
 
 import java.util.*;

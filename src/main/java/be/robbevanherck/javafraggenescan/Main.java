@@ -91,17 +91,23 @@ public class Main {
      * Run the program itself
      */
     public void run() {
-        //TODO read form files
-        HMMParameters parameters = new HMMParameters(Collections.emptyMap(), Collections.emptyMap(), inputType == 1);
-
         //TODO This needs to be parallelized and use actual data
-        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(parameters);
         List<AminoAcid> input = new LinkedList<>(List.of(
                 AminoAcid.A,
                 AminoAcid.C,
                 AminoAcid.G,
                 AminoAcid.T
         ));
+        // The amount of times G or C occurs in the input
+        int countGC = Collections.frequency(input, AminoAcid.C) + Collections.frequency(input, AminoAcid.G);
+
+        // The percentage
+        countGC = ((countGC * 100) / input.size());
+
+        // Create the parameters
+        HMMParameters parameters = new HMMParameters(countGC, inputType == 1);
+
+        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(parameters);
         algorithm.run(input);
     }
 }
