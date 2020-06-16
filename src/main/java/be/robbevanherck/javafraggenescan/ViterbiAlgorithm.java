@@ -6,12 +6,14 @@ import be.robbevanherck.javafraggenescan.entities.HMMState;
 import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
 import be.robbevanherck.javafraggenescan.transitions.*;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Main class for everything related to the Viterbi algorithm
  */
 public class ViterbiAlgorithm {
+    private final List<AminoAcid> input;
     HMMParameters parameters;
 
     public static final List<Transition> TRANSITIONS = List.of(
@@ -65,24 +67,30 @@ public class ViterbiAlgorithm {
 
     /**
      * Create a new ViterbiAlgorithm
-     * @param parameters The parameters for the HMM
+     * @param input The input for this calculation
+     * @param wholeGenome If the input are whole genomes or partial genomes
      */
-    public ViterbiAlgorithm(HMMParameters parameters) {
-        this.parameters = parameters;
+    public ViterbiAlgorithm(List<AminoAcid> input, boolean wholeGenome) {
+        // The amount of times G or C occurs in the input
+        int countGC = Collections.frequency(input, AminoAcid.C) + Collections.frequency(input, AminoAcid.G);
+
+        // The percentage
+        countGC = ((countGC * 100) / input.size());
+
+        // Create the parameters
+        this.parameters = new HMMParameters(countGC, wholeGenome);
+        this.input = input;
     }
 
     /**
      * Run the entire algorithm, clears the state when completed
-     * @param input The input for the algorithm
      * @return The last step, which can be used for backtracking
      */
-    public ViterbiStep run(List<AminoAcid> input) {
-
+    public ViterbiStep run() {
         ViterbiStep currentStep = new ViterbiStep(parameters, input);
-        for (int i = 1; i < input.size() - 1; i++) {
-            currentStep = currentStep.calculateNext(input.get(i), input.get(i+1));
+        for (int i = 1; i < input.size(); i++) {
+            currentStep = currentStep.calculateNext();
         }
-        currentStep = currentStep.calculateNext(input.get(input.size() - 1), null);
         return currentStep;
     }
 }

@@ -117,11 +117,9 @@ public class ViterbiStep {
 
     /**
      * Calculate the next state and return that
-     * @param input The input for the step
-     * @param nextInput The input for the step after that
      * @return The new step
      */
-    public ViterbiStep calculateNext(AminoAcid input, AminoAcid nextInput) {
+    public ViterbiStep calculateNext() {
 
         Map<Integer, Map<HMMState, PathProbability>> newOverriddenValues = new HashMap<>();
         Map<HMMState, PathProbability> currentOverriddenValues = new EnumMap<>(HMMState.class);
@@ -185,5 +183,25 @@ public class ViterbiStep {
 
     public List<AminoAcid> getNextValues() {
         return nextValues;
+    }
+
+    /**
+     * Print out the step
+     */
+    public void print() {
+        for (HMMState state : HMMState.values()) {
+            if (state != HMMState.NO_STATE) {
+                System.out.print(pathProbabilities.get(state).getPreviousState());
+                System.out.print("\t");
+            }
+        }
+        System.out.println();
+        for (HMMState state : HMMState.values()) {
+            if (state != HMMState.NO_STATE) {
+                System.out.print(pathProbabilities.get(state).getProbability());
+                System.out.print("\t");
+            }
+        }
+        System.out.println();
     }
 }
