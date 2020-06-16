@@ -1,9 +1,6 @@
 package be.robbevanherck.javafraggenescan;
 
-import be.robbevanherck.javafraggenescan.entities.AminoAcid;
-import be.robbevanherck.javafraggenescan.entities.HMMParameters;
-import be.robbevanherck.javafraggenescan.entities.HMMState;
-import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
+import be.robbevanherck.javafraggenescan.entities.*;
 import be.robbevanherck.javafraggenescan.transitions.*;
 
 import java.util.Collections;
@@ -13,7 +10,7 @@ import java.util.List;
  * Main class for everything related to the Viterbi algorithm
  */
 public class ViterbiAlgorithm {
-    private final List<AminoAcid> input;
+    private final ViterbiAlgorithmInput input;
     HMMParameters parameters;
 
     public static final List<Transition> TRANSITIONS = List.of(
@@ -70,12 +67,14 @@ public class ViterbiAlgorithm {
      * @param input The input for this calculation
      * @param wholeGenome If the input are whole genomes or partial genomes
      */
-    public ViterbiAlgorithm(List<AminoAcid> input, boolean wholeGenome) {
+    public ViterbiAlgorithm(ViterbiAlgorithmInput input, boolean wholeGenome) {
+        List<AminoAcid> acidList = input.getInputAcids();
+
         // The amount of times G or C occurs in the input
-        int countGC = Collections.frequency(input, AminoAcid.C) + Collections.frequency(input, AminoAcid.G);
+        int countGC = Collections.frequency(acidList, AminoAcid.C) + Collections.frequency(acidList, AminoAcid.G);
 
         // The percentage
-        countGC = ((countGC * 100) / input.size());
+        countGC = ((countGC * 100) / acidList.size());
 
         // Create the parameters
         this.parameters = new HMMParameters(countGC, wholeGenome);
@@ -87,8 +86,8 @@ public class ViterbiAlgorithm {
      * @return The last step, which can be used for backtracking
      */
     public ViterbiStep run() {
-        ViterbiStep currentStep = new ViterbiStep(parameters, input);
-        for (int i = 1; i < input.size(); i++) {
+        ViterbiStep currentStep = new ViterbiStep(parameters, input.getInputAcids());
+        for (int i = 1; i < input.getInputAcids().size(); i++) {
             currentStep = currentStep.calculateNext();
         }
         return currentStep;

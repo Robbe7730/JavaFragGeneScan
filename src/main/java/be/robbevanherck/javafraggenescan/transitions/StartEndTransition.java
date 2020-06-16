@@ -30,9 +30,13 @@ public abstract class StartEndTransition extends Transition {
     @Override
     public PathProbability calculatePathProbability(ViterbiStep currentStep) {
         PathProbability pathProbability = getIncomingProbability(currentStep);
-        double probability = pathProbability.getProbability() *
-                getCodonDependantProbability(getCodonEndingAtT(currentStep)) *
-                getGaussianProbability(currentStep);
+        Triple<AminoAcid> codonEndingAtT = getCodonEndingAtT(currentStep);
+        double probability = 0;
+        if (codonEndingAtT != null) {
+            probability = pathProbability.getProbability() *
+                    getCodonDependantProbability(codonEndingAtT) *
+                    getGaussianProbability(currentStep);
+        }
         pathProbability.setProbability(probability);
         return pathProbability;
     }

@@ -77,8 +77,8 @@ public class EndReverseTransition extends EndTransition {
         AminoAcid secondValue = currStep.getInput();
         AminoAcid thirdValue = currStep.getNextInput();
 
-        for(int i = 0; i <= 30; i++) {
-            tempProduct *= parameters.getReverseEndPWMProbability(30 + nucleotidesChecked, new Triple<>(
+        for(int i = 0; i <= 30 && (i+2) < currStep.getNextValues().size(); i++) {
+            tempProduct *= parameters.getReverseEndPWMProbability(nucleotidesChecked, new Triple<>(
                     firstValue,
                     secondValue,
                     thirdValue

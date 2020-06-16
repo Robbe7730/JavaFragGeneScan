@@ -72,8 +72,8 @@ public class StartForwardTransition extends StartTransition {
         AminoAcid secondValue = currStep.getInput();
         AminoAcid thirdValue = currStep.getNextInput();
 
-        for(int i = 0; i <= 30; i++) {
-            tempProduct *= parameters.getForwardStartPWMProbability(30 + nucleotidesChecked, new Triple<>(
+        for(int i = 0; i < 31 && (i+2) < currStep.getNextValues().size(); i++) {
+            tempProduct *= parameters.getForwardStartPWMProbability(nucleotidesChecked, new Triple<>(
                     firstValue,
                     secondValue,
                     thirdValue

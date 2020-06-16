@@ -1,17 +1,14 @@
 package be.robbevanherck.javafraggenescan;
 
-import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.HMMParameters;
-import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
+import be.robbevanherck.javafraggenescan.entities.ViterbiAlgorithmInput;
+import be.robbevanherck.javafraggenescan.repositories.InputRepository;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * The entry class of the project
@@ -73,8 +70,9 @@ public class Main {
     /**
      * The entry function
      * @param args Command-line arguments
+     * @throws InterruptedException When interrupted
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         Main main = new Main();
         JCommander jCommander = JCommander.newBuilder()
                 .addObject(main)
@@ -91,19 +89,18 @@ public class Main {
 
     /**
      * Run the program itself
+     * @throws InterruptedException When interrupted
      */
-    public void run() {
+    public void run() throws InterruptedException {
         // Read in all the files
         HMMParameters.setup(modelConfFile);
+        InputRepository.createInstance();
 
-        //TODO This needs to be parallelized and use actual data
-        List<AminoAcid> input = new LinkedList<>(List.of(
-                AminoAcid.A,
-                AminoAcid.C,
-                AminoAcid.G,
-                AminoAcid.T
-        ));
-        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, inputType == 1);
-        algorithm.run();
+        while(!InputRepository.getInstance().isEmpty()) {
+            ViterbiAlgorithmInput input = InputRepository.getInstance().getNextInput();
+
+            ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, inputType == 1);
+            algorithm.run();
+        }
     }
 }
