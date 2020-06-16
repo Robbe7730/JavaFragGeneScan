@@ -14,7 +14,8 @@ public class MatchReverseFirstTransition extends MatchReverseTransition {
     }
 
     @Override
-    public double calculateProbability(ViterbiStep currentStep) {
-        return 0;
+    protected double getProbabilityFromMatch(HMMParameters parameters, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT) {
+        return super.getProbabilityFromMatch(parameters, previous, codonEndingAtT) *        // The probability of staying in the M state is the same as the other M states
+                parameters.getOuterTransitionProbability(HMMOuterTransition.GENE_GENE);     // times the probability to remain in outer state G
     }
 }
