@@ -2,6 +2,7 @@ package be.robbevanherck.javafraggenescan.repositories;
 
 import be.robbevanherck.javafraggenescan.InvalidTrainingFileException;
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
+import be.robbevanherck.javafraggenescan.entities.Pair;
 import be.robbevanherck.javafraggenescan.entities.Triple;
 
 import java.io.File;
@@ -61,8 +62,19 @@ public abstract class CGDependentRepository<T> {
     protected abstract int readIndex(Scanner s);
 
     /**
-     * Create a Triple of the combination of 3 aminoacid indices
-     * @param trinucleotideIndex The combination of 3 aminoacid indices
+     * Create a Pair of the combination of 2 amino-acid indices
+     * @param dinucleotideIndex 2 amino-acid indices (0-16)
+     * @return The pair
+     */
+    protected Pair<AminoAcid> createDinucleotide(int dinucleotideIndex) {
+        return new Pair<>(
+                AminoAcid.fromInt((dinucleotideIndex / 4) % 4),
+                AminoAcid.fromInt(dinucleotideIndex % 4)
+        );
+    }
+    /**
+     * Create a Triple of the combination of 3 amino-acid indices
+     * @param trinucleotideIndex The combination of 3 amino-acid indices (0-64)
      * @return The triple
      */
     protected Triple<AminoAcid> createTrinucleotide(int trinucleotideIndex) {

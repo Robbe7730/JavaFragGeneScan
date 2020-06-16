@@ -20,7 +20,7 @@ public class EndReverseTransition extends EndTransition {
     }
 
     @Override
-    protected double getIncomingProbability(ViterbiStep currStep) {
+    protected PathProbability getIncomingProbability(ViterbiStep currStep) {
         return getProbabilityFromMatchState(HMMState.MATCH_REVERSE_6, currStep);
     }
 

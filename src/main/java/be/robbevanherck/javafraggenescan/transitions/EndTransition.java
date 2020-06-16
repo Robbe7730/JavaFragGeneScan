@@ -15,8 +15,9 @@ public abstract class EndTransition extends StartEndTransition {
         super(toState);
     }
 
-    protected double getProbabilityFromMatchState(HMMState mState, ViterbiStep previous) {
-        return previous.getValueFor(mState) *                                                           // Probability to be in mState state at t-1
-                previous.getParameters().getOuterTransitionProbability(HMMOuterTransition.GENE_END);    // Probability of outer transition G -> E
+    protected PathProbability getProbabilityFromMatchState(HMMState mState, ViterbiStep previous) {
+        double probability = previous.getProbabilityFor(mState) *                                                           // Probability to be in mState state at t-1
+                                    previous.getParameters().getOuterTransitionProbability(HMMOuterTransition.GENE_END);    // Probability of outer transition G -> E
+        return new PathProbability(mState, probability);
     }
 }

@@ -20,21 +20,21 @@ public abstract class StartEndTransition extends Transition {
     @Override
     public void calculateStateTransition(ViterbiStep currentStep) {
         if (isStartStopCodon(getCodonStartingAtT(currentStep))) {
-            overrideFutureValues(currentStep);
-            // We calculate the probability for t+2, when the start/stop codon ends
-            currentStep.setValueFor(toState, calculateProbability(currentStep), 2);
+            PathProbability pathProbability = calculatePathProbability(currentStep);
+            overrideFutureValues(currentStep, pathProbability);
         } else {
-            currentStep.setValueFor(toState, 0);
+            currentStep.setValueFor(toState, new PathProbability(HMMState.NO_STATE, 0));
         }
     }
 
     @Override
-    public double calculateProbability(ViterbiStep currentStep) {
-
-        // All start and stop probabilities are made of these probabilities
-        return getIncomingProbability(currentStep) *
+    public PathProbability calculatePathProbability(ViterbiStep currentStep) {
+        PathProbability pathProbability = getIncomingProbability(currentStep);
+        double probability = pathProbability.getProbability() *
                 getCodonDependantProbability(getCodonEndingAtT(currentStep)) *
                 getGaussianProbability(currentStep);
+        pathProbability.setProbability(probability);
+        return pathProbability;
     }
 
     /**
@@ -49,7 +49,7 @@ public abstract class StartEndTransition extends Transition {
      * @param currStep The current Viterbi Step
      * @return The probability
      */
-    protected abstract double getIncomingProbability(ViterbiStep currStep);
+    protected abstract PathProbability getIncomingProbability(ViterbiStep currStep);
 
     /**
      * Get the extra probability based on the current codon
@@ -89,14 +89,13 @@ public abstract class StartEndTransition extends Transition {
 
     /**
      * Used to override future values (mainly t+1 and t+2)
-     * @param currStep The current Viterbi step
+     * @param currentStep The current Viterbi step
+     * @param pathProbability The pre-calculated path-probability combination
      */
-    protected void overrideFutureValues(ViterbiStep currStep) {
-        // It is impossible to come from the non-last ending position, so set these values to 0
-        currStep.setValueFor(toState, 0);
-        currStep.setValueFor(toState, 0, 1);
-
-
-        // TODO why not block M states from other states?
+    protected void overrideFutureValues(ViterbiStep currentStep, PathProbability pathProbability) {
+        // We calculate the probability for t+2 and path for t, so this needs to be split up
+        currentStep.setValueFor(toState, new PathProbability(pathProbability.getPreviousState(), 0));
+        currentStep.setValueFor(toState, new PathProbability(HMMState.START, 0));
+        currentStep.setValueFor(toState, new PathProbability(HMMState.START, pathProbability.getProbability()), 2);
     }
 }

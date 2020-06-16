@@ -1,10 +1,8 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
 import be.robbevanherck.javafraggenescan.entities.HMMState;
+import be.robbevanherck.javafraggenescan.entities.PathProbability;
 import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Represents a transition to an S or S' state
@@ -20,12 +18,12 @@ public abstract class StartTransition extends StartEndTransition {
     }
 
     @Override
-    protected double getIncomingProbability(ViterbiStep currStep) {
-        return Collections.max(List.of(
+    protected PathProbability getIncomingProbability(ViterbiStep currStep) {
+        return PathProbability.max(
                 getProbabilityFromNonCodingState(currStep),
                 getProbabilityFromForwardEndState(currStep),
                 getProbabilityFromReverseEndState(currStep)
-        ));
+        );
     }
 
     /**
@@ -33,19 +31,19 @@ public abstract class StartTransition extends StartEndTransition {
      * @param currStep The current Viterbi step
      * @return The probability
      */
-    protected abstract double getProbabilityFromReverseEndState(ViterbiStep currStep);
+    protected abstract PathProbability getProbabilityFromReverseEndState(ViterbiStep currStep);
 
     /**
      * Get the probability to go from an E state to the S state
      * @param currStep The current Viterbi step
      * @return The probability
      */
-    protected abstract double getProbabilityFromForwardEndState(ViterbiStep currStep);
+    protected abstract PathProbability getProbabilityFromForwardEndState(ViterbiStep currStep);
 
     /**
      * Get the probability to go from an R state to the S state
      * @param currStep The current Viterbi step
      * @return The probability
      */
-    protected abstract double getProbabilityFromNonCodingState(ViterbiStep currStep);
+    protected abstract PathProbability getProbabilityFromNonCodingState(ViterbiStep currStep);
 }

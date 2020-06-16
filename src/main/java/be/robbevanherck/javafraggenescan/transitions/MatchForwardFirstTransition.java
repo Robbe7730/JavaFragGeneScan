@@ -14,13 +14,13 @@ public class MatchForwardFirstTransition extends MatchForwardTransition {
     }
 
     @Override
-    public double calculateProbability(ViterbiStep currentStep) {
+    public PathProbability calculatePathProbability(ViterbiStep currentStep) {
         ViterbiStep previous = currentStep.getPrevious();
         HMMParameters parameters = currentStep.getParameters();
 
         // If we're in the first 2 steps, we can't be in an M state
         if (previous.getPrevious() == null) {
-            return 0;
+            return new PathProbability(HMMState.NO_STATE, 0);
         }
 
         Triple<AminoAcid> codonEndingAtT = new Triple<>(
@@ -30,25 +30,27 @@ public class MatchForwardFirstTransition extends MatchForwardTransition {
         );
 
         /* FROM START STATE */
-        double bestValue = previous.getValueFor(HMMState.START) *               // Probability to be in a START state at t-1
-            parameters.getMatchEmissionProbability(HMMState.MATCH_1, codonEndingAtT);   // Probability of emission of M
+        double probability = previous.getProbabilityFor(HMMState.START) *                   // Probability to be in a START state at t-1
+                parameters.getMatchEmissionProbability(HMMState.MATCH_1, codonEndingAtT);   // Probability of emission of M
+        PathProbability bestValue = new PathProbability(HMMState.START, probability);
 
         /* FROM M6 STATE */
 
-        bestValue = Math.max(bestValue,
-                previous.getValueFor(HMMState.MATCH_6) *                                    // Probability to be in a M6 state at t-1
-                parameters.getOuterTransitionProbability(HMMOuterTransition.GENE_GENE) *    // Probability of an outer transition G -> G
-                parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_MATCH) *  // Probability of an inner transition M -> M
-                parameters.getMatchEmissionProbability(HMMState.MATCH_1, codonEndingAtT)            // Probability of emission of M1
+        probability = previous.getProbabilityFor(HMMState.MATCH_6) *                                    // Probability to be in a M6 state at t-1
+                parameters.getOuterTransitionProbability(HMMOuterTransition.GENE_GENE) *                // Probability of an outer transition G -> G
+                parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_MATCH) *              // Probability of an inner transition M -> M
+                parameters.getMatchEmissionProbability(HMMState.MATCH_1, codonEndingAtT);                // Probability of emission of M1
+        bestValue = PathProbability.max(bestValue,
+            new PathProbability(HMMState.MATCH_6, probability)
         );
 
         /* FROM M STATE, GOING THROUGH (numD) D STATES */
 
-        bestValue = Math.max(bestValue, getProbabilityThroughDeletions(parameters, previous, codonEndingAtT));
+        bestValue = PathProbability.max(bestValue, getProbabilityThroughDeletions(parameters, previous, codonEndingAtT));
 
         /* FROM I STATE */
 
-        bestValue = Math.max(bestValue, getProbabilityFromInsertion(parameters, previous, currentStep));
+        bestValue = PathProbability.max(bestValue, getProbabilityFromInsertion(parameters, previous, currentStep));
 
         return bestValue;
     }

@@ -10,8 +10,7 @@ import java.util.*;
  * Represents (the result and context of) a single step of the Viterbi algorithm
  */
 public class ViterbiStep {
-    private final EnumMap<HMMState, Double> probabilities;
-    private final EnumMap<HMMState, HMMState> paths; // TODO
+    private final EnumMap<HMMState, PathProbability> pathProbabilities;
     private final ViterbiStep previous;
     private final HMMParameters parameters;
     private final List<AminoAcid> nextValues;
@@ -25,7 +24,7 @@ public class ViterbiStep {
      * Keep track of the overridden values, for example if a stop codon is matched at time t, there is no possibility
      * for an M1/M4 state at time t, nor M2/M5 at t+1, nor M3/M6 at t+2, so these values have to be 0
      */
-    private final Map<Integer, Map<HMMState, Double>> overriddenValues;
+    private final Map<Integer, Map<HMMState, PathProbability>> overriddenValues;
 
     /**
      * Create a ViterbiStep with a previous step
@@ -34,15 +33,14 @@ public class ViterbiStep {
      * @param overriddenValues The values that are overridden
      * @param nextValues The next values in the sequence
      */
-    public ViterbiStep(HMMParameters parameters, ViterbiStep previous, Map<Integer, Map<HMMState, Double>> overriddenValues, List<AminoAcid> nextValues) {
+    public ViterbiStep(HMMParameters parameters, ViterbiStep previous, Map<Integer, Map<HMMState, PathProbability>> overriddenValues, List<AminoAcid> nextValues) {
         this.parameters = parameters;
         this.previous = previous;
         this.aminoAcidsBeforeInsertion = new EnumMap<>(HMMState.class);
         this.overriddenValues = overriddenValues;
         this.nextValues = nextValues;
 
-        probabilities = new EnumMap<>(HMMState.class);
-        paths = new EnumMap<>(HMMState.class);
+        pathProbabilities = new EnumMap<>(HMMState.class);
     }
 
     /**
@@ -54,7 +52,7 @@ public class ViterbiStep {
         this(parameters, null, new HashMap<>(), inputs);
 
         // Fill in the initial values
-        for(Map.Entry<HMMState, Double> entry : InputFileRepository.getInstance().getInitialProbabilities().entrySet()) {
+        for(Map.Entry<HMMState, PathProbability> entry : InputFileRepository.getInstance().getInitialProbabilities().entrySet()) {
             this.setValueFor(entry.getKey(), entry.getValue());
         }
 
@@ -66,8 +64,8 @@ public class ViterbiStep {
      * @param state The state to look up
      * @return The probability to be in this state
      */
-    public double getValueFor(HMMState state) {
-        return probabilities.get(state);
+    public double getProbabilityFor(HMMState state) {
+        return pathProbabilities.get(state).getProbability();
     }
 
     /**
@@ -75,26 +73,8 @@ public class ViterbiStep {
      * @param state The state of which to modify the probability
      * @param value The new probability
      */
-    public void setValueFor(HMMState state, double value) {
-        probabilities.put(state, value);
-    }
-
-    /**
-     * Get the previous state for the given state
-     * @param state The state to look up
-     * @return The previous state for the given state
-     */
-    public HMMState getBacktrackPathFor(HMMState state) {
-        return paths.get(state);
-    }
-
-    /**
-     * Set the previous state for the given state
-     * @param state The state to modify
-     * @param previousState The new previous state
-     */
-    public void getBacktrackPathFor(HMMState state, HMMState previousState) {
-        paths.put(state, previousState);
+    public void setValueFor(HMMState state, PathProbability value) {
+        pathProbabilities.put(state, value);
     }
 
     /**
@@ -119,11 +99,11 @@ public class ViterbiStep {
      * @param value The value
      * @param delay The delay when to set the value
      */
-    public void setValueFor(HMMState state, double value, int delay) {
+    public void setValueFor(HMMState state, PathProbability value, int delay) {
         if (delay == 0) {
             this.setValueFor(state, value);
         } else {
-            Map<HMMState, Double> values = this.overriddenValues.get(delay);
+            Map<HMMState, PathProbability> values = this.overriddenValues.get(delay);
 
             if (values == null) {
                 values = new EnumMap<>(HMMState.class);
@@ -143,11 +123,11 @@ public class ViterbiStep {
      */
     public ViterbiStep calculateNext(AminoAcid input, AminoAcid nextInput) {
 
-        Map<Integer, Map<HMMState, Double>> newOverriddenValues = new HashMap<>();
-        Map<HMMState, Double> currentOverriddenValues = new EnumMap<>(HMMState.class);
+        Map<Integer, Map<HMMState, PathProbability>> newOverriddenValues = new HashMap<>();
+        Map<HMMState, PathProbability> currentOverriddenValues = new EnumMap<>(HMMState.class);
 
         // Make sure the disabled states are propagated
-        for (Map.Entry<Integer, Map<HMMState, Double>> entry : this.overriddenValues.entrySet()) {
+        for (Map.Entry<Integer, Map<HMMState, PathProbability>> entry : this.overriddenValues.entrySet()) {
             if (entry.getKey() == 0) {
                 currentOverriddenValues = entry.getValue();
             } else {

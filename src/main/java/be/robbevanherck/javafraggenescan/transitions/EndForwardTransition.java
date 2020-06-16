@@ -21,8 +21,8 @@ public class EndForwardTransition extends EndTransition {
     }
 
     @Override
-    protected double getIncomingProbability(ViterbiStep currStep) {
-        return Math.max(
+    protected PathProbability getIncomingProbability(ViterbiStep currStep) {
+        return PathProbability.max(
                 getProbabilityFromMatchState(HMMState.MATCH_6, currStep.getPrevious()),
                 getProbabilityFromMatchState(HMMState.MATCH_3, currStep.getPrevious())
         );
@@ -84,15 +84,15 @@ public class EndForwardTransition extends EndTransition {
     }
 
     @Override
-    protected void overrideFutureValues(ViterbiStep currStep) {
-        super.overrideFutureValues(currStep);
+    protected void overrideFutureValues(ViterbiStep currStep, PathProbability pathProbability) {
+        super.overrideFutureValues(currStep, pathProbability);
 
-        // It is also not possible to have 3 exact matches for this codon, so we
-        currStep.setValueFor(HMMState.MATCH_1, 0);
-        currStep.setValueFor(HMMState.MATCH_2, 0, 1);
-        currStep.setValueFor(HMMState.MATCH_3, 0, 2);
-        currStep.setValueFor(HMMState.MATCH_4, 0);
-        currStep.setValueFor(HMMState.MATCH_5, 0, 1);
-        currStep.setValueFor(HMMState.MATCH_6, 0, 2);
+        // It is also not possible to have 3 exact matches for this codon, so we override them here
+        currStep.setValueFor(HMMState.MATCH_1, new PathProbability(HMMState.NO_STATE, 0));
+        currStep.setValueFor(HMMState.MATCH_2, new PathProbability(HMMState.NO_STATE, 0), 1);
+        currStep.setValueFor(HMMState.MATCH_3, new PathProbability(HMMState.NO_STATE, 0), 2);
+        currStep.setValueFor(HMMState.MATCH_4, new PathProbability(HMMState.NO_STATE, 0));
+        currStep.setValueFor(HMMState.MATCH_5, new PathProbability(HMMState.NO_STATE, 0), 1);
+        currStep.setValueFor(HMMState.MATCH_6, new PathProbability(HMMState.NO_STATE, 0), 2);
     }
 }

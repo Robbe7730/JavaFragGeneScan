@@ -18,7 +18,7 @@ public class InputFileRepository {
     private final Map<HMMOuterTransition, Double> outerTransitions;
     private final Map<Pair<AminoAcid>, Double> matchInsertEmissions;
     private final Map<Pair<AminoAcid>, Double> insertInsertEmissions;
-    private final Map<HMMState, Double> initialProbabilities;
+    private final Map<HMMState, PathProbability> initialProbabilities;
     private static InputFileRepository instance;
 
     private InputFileRepository(File file) {
@@ -89,7 +89,7 @@ public class InputFileRepository {
 
                     HMMState state = HMMState.fromString(stateString);
 
-                    initialProbabilities.put(state, stateProbability);
+                    initialProbabilities.put(state, new PathProbability(HMMState.NO_STATE, stateProbability));
                 }
             }
         } catch (FileNotFoundException fnef) {
@@ -125,7 +125,7 @@ public class InputFileRepository {
         return insertInsertEmissions;
     }
 
-    public Map<HMMState, Double> getInitialProbabilities() {
+    public Map<HMMState, PathProbability> getInitialProbabilities() {
         return initialProbabilities;
     }
 }

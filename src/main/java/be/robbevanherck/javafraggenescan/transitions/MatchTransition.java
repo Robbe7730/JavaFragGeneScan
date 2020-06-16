@@ -16,31 +16,32 @@ public abstract class MatchTransition extends Transition {
     }
 
     @Override
-    public double calculateProbability(ViterbiStep currentStep) {
+    public PathProbability calculatePathProbability(ViterbiStep currentStep) {
         ViterbiStep previous = currentStep.getPrevious();
         HMMParameters parameters = currentStep.getParameters();
 
         // If we're in the first 2 steps, we can't be in an M(2-6) state
         if (previous.getPrevious() == null) {
             // currentStep.getPrevious() can never be null, as the first step is initialized and not calculated
-            return 0;
+            return new PathProbability(HMMState.NO_STATE, 0);
         }
+
 
         /* FROM M STATE */
 
-        double bestValue = getProbabilityFromMatch(parameters, previous, getCodonEndingAtT(currentStep));
+        PathProbability bestValue = getProbabilityFromMatch(parameters, previous, getCodonEndingAtT(currentStep));
 
         /* FROM M STATE, GOING THROUGH (numD) D STATES */
 
-        bestValue = Math.max(bestValue, getProbabilityThroughDeletions(parameters, previous, getCodonEndingAtT(currentStep)));
+        bestValue = PathProbability.max(bestValue, getProbabilityThroughDeletions(parameters, previous, getCodonEndingAtT(currentStep)));
 
         /* FROM I STATE */
 
-        bestValue = Math.max(bestValue, getProbabilityFromInsertion(parameters, previous, currentStep));
+        bestValue = PathProbability.max(bestValue, getProbabilityFromInsertion(parameters, previous, currentStep));
 
         /* FROM START STATE */
 
-        bestValue = Math.max(bestValue, getProbabilityFromStart(currentStep, previous, getCodonEndingAtT(currentStep)));
+        bestValue = PathProbability.max(bestValue, getProbabilityFromStart(currentStep, previous, getCodonEndingAtT(currentStep)));
 
         return bestValue;
     }
@@ -52,7 +53,7 @@ public abstract class MatchTransition extends Transition {
      * @param currentStep The current Viterbi step
      * @return The probability
      */
-    protected double getProbabilityFromInsertion(HMMParameters parameters, ViterbiStep previous, ViterbiStep currentStep) {
+    protected PathProbability getProbabilityFromInsertion(HMMParameters parameters, ViterbiStep previous, ViterbiStep currentStep) {
         // This is the codon that is present if you ignore the insertions
         Triple<AminoAcid> codonWithoutInsertions = new Triple<>(
                 AminoAcid.INVALID,
@@ -73,12 +74,15 @@ public abstract class MatchTransition extends Transition {
             );
         }
 
+        HMMState insertionState = HMMState.insertStateForMatching(toState);
+
         // If it's a stop codon, we can't be in an M' state, but should be in an END' state
         if (!isStopCodon(codonWithoutInsertions)) {
-            return previous.getValueFor(HMMState.insertStateForMatching(toState)) *                     // Probability to be in state Ix at t-1
+            double probability = previous.getProbabilityFor(insertionState) *                           // Probability to be in state Ix at t-1
                     parameters.getInnerTransitionProbability(HMMInnerTransition.INSERT_MATCH) * 0.25;   // Probability for transmission + emission for I -> M
+            return new PathProbability(insertionState, probability);
         }
-        return 0;
+        return new PathProbability(insertionState, 0);
     }
 
     /**
@@ -96,7 +100,7 @@ public abstract class MatchTransition extends Transition {
      * @return The probability
      */
     // As long as there is no generified function to get emissions, this stays abstract
-    protected abstract double getProbabilityFromMatch(HMMParameters parameters, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT);
+    protected abstract PathProbability getProbabilityFromMatch(HMMParameters parameters, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT);
 
     /**
      * Calculate the probability of going from an M state, through some amount of D states to the destination M state
@@ -106,7 +110,7 @@ public abstract class MatchTransition extends Transition {
      * @return The probability
      */
     // As long as there is no generified function to get emissions, this stays abstract
-    protected abstract  double getProbabilityThroughDeletions(HMMParameters parameters, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT);
+    protected abstract PathProbability getProbabilityThroughDeletions(HMMParameters parameters, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT);
 
     /**
      * Calculate the probability of going from a Start state to the destination M state
@@ -116,5 +120,5 @@ public abstract class MatchTransition extends Transition {
      * @return The probability
      */
     // As long as there is no generified function to get emissions, this stays abstract
-    protected abstract double getProbabilityFromStart(ViterbiStep currentStep, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT);
+    protected abstract PathProbability getProbabilityFromStart(ViterbiStep currentStep, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT);
 }

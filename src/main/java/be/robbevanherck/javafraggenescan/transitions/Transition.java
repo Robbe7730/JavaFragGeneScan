@@ -1,9 +1,6 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
-import be.robbevanherck.javafraggenescan.entities.AminoAcid;
-import be.robbevanherck.javafraggenescan.entities.Triple;
-import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
-import be.robbevanherck.javafraggenescan.entities.HMMState;
+import be.robbevanherck.javafraggenescan.entities.*;
 
 /**
  * The top-level interface for transition handlers
@@ -24,7 +21,7 @@ public abstract class Transition {
      * @param curr The current step in the Viterbi algorithm, to be filled in
      */
     public void calculateStateTransition(ViterbiStep curr) {
-        curr.setValueFor(this.toState, calculateProbability(curr));
+        curr.setValueFor(this.toState, calculatePathProbability(curr));
     }
 
     /**
@@ -37,10 +34,10 @@ public abstract class Transition {
 
     /**
      * Calculate the probability of this transition
-     * @return The probability
      * @param currentStep The current step
+     * @return The path-probability combination
      */
-    public abstract double calculateProbability(ViterbiStep currentStep);
+    public abstract PathProbability calculatePathProbability(ViterbiStep currentStep);
 
     /**
      * Get the codon starting at t-2 and ending at t

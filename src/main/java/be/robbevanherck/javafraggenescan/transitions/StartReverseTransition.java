@@ -75,20 +75,23 @@ public class StartReverseTransition extends StartTransition {
     }
 
     @Override
-    protected double getProbabilityFromReverseEndState(ViterbiStep currStep) {
-        return currStep.getPrevious().getValueFor(HMMState.END_REVERSE) *                                       // Probability to be in an E' state at t-1
+    protected PathProbability getProbabilityFromReverseEndState(ViterbiStep currStep) {
+        double probability = currStep.getPrevious().getProbabilityFor(HMMState.END_REVERSE) *                   // Probability to be in an E' state at t-1
                 currStep.getParameters().getOuterTransitionProbability(HMMOuterTransition.END_START_SAME);      // Probability for a transition E' -> S'
+        return new PathProbability(HMMState.END_REVERSE, probability);
     }
 
     @Override
-    protected double getProbabilityFromForwardEndState(ViterbiStep currStep) {
-        return currStep.getPrevious().getValueFor(HMMState.END) *                                               // Probability to be in an E state at t-1
+    protected PathProbability getProbabilityFromForwardEndState(ViterbiStep currStep) {
+        double probability = currStep.getPrevious().getProbabilityFor(HMMState.END) *                           // Probability to be in an E state at t-1
                 currStep.getParameters().getOuterTransitionProbability(HMMOuterTransition.END_START_REVERSE);   // Probability for a transition E -> S'
+        return new PathProbability(HMMState.END, probability);
     }
 
     @Override
-    protected double getProbabilityFromNonCodingState(ViterbiStep currStep) {
-        return currStep.getPrevious().getValueFor(HMMState.NON_CODING) *                                        // Probability to be in an R state at t-1
+    protected PathProbability getProbabilityFromNonCodingState(ViterbiStep currStep) {
+        double probability = currStep.getPrevious().getProbabilityFor(HMMState.NON_CODING) *                    // Probability to be in an R state at t-1
                 currStep.getParameters().getOuterTransitionProbability(HMMOuterTransition.NONCODING_START);     // Probability for a transition R -> S'
+        return new PathProbability(HMMState.NON_CODING, probability);
     }
 }

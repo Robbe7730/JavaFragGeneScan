@@ -15,6 +15,7 @@ public class HMMParameters {
     private final Map<HMMState, Map<Triple<AminoAcid>, Double>> reverseMatchEmissions;
     private final Map<Pair<AminoAcid>, Double> insertInsertEmissions;
     private final Map<Pair<AminoAcid>, Double> matchInsertEmissions;
+    private final Map<Pair<AminoAcid>, Double> nonCodingNonCodingEmissions;
     private final boolean wholeGenome;
     private final Map<Integer, Map<Triple<AminoAcid>, Double>> forwardStopPWM;
     private final Map<Integer, Map<Triple<AminoAcid>, Double>> reverseStopPWM;
@@ -30,6 +31,8 @@ public class HMMParameters {
     public HMMParameters(int countGC, boolean wholeGenome) {
         this.forwardMatchEmissions = ForwardMatchEmissionRepository.getInstance().getValues(countGC);
         this.reverseMatchEmissions = ReverseMatchEmissionRepository.getInstance().getValues(countGC);
+
+        this.nonCodingNonCodingEmissions = NonCodingEmissionRepository.getInstance().getValues(countGC);
 
         this.forwardStopPWM = ForwardEndRepository.getInstance().getValues(countGC);
         this.reverseStopPWM = ReverseEndRepository.getInstance().getValues(countGC);
@@ -52,6 +55,8 @@ public class HMMParameters {
     public static void setup(File inputFile) {
         ForwardMatchEmissionRepository.createInstance();
         ReverseMatchEmissionRepository.createInstance();
+
+        NonCodingEmissionRepository.createInstance();
 
         ForwardEndRepository.createInstance();
         ReverseEndRepository.createInstance();
@@ -118,6 +123,18 @@ public class HMMParameters {
     public double getMatchInsertEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
         return matchInsertEmissions.get(new Pair<>(previousInput, currentInput));
     }
+
+
+    /**
+     * Get the probability a transition R -> R to emit its value
+     * @param previousInput The input of the previous state
+     * @param currentInput The input of the current state
+     * @return The probability
+     */
+    public double getNonCodingNonCodingEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
+        return nonCodingNonCodingEmissions.get(new Pair<>(previousInput, currentInput));
+    }
+
 
     /**
      * Get the probability for an M' state to emit its value
