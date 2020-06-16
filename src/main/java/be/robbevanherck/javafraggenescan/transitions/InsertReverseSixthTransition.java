@@ -1,12 +1,11 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
-import be.robbevanherck.javafraggenescan.entities.HMMState;
-import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
+import be.robbevanherck.javafraggenescan.entities.*;
 
 /**
  * Represents a transition to the I6' state
  */
-public class InsertReverseSixthTransition extends MatchReverseTransition {
+public class InsertReverseSixthTransition extends InsertReverseTransition {
     /**
      * Create a new InsertReverseSixthTransition
      */
@@ -15,8 +14,8 @@ public class InsertReverseSixthTransition extends MatchReverseTransition {
     }
 
     @Override
-    public double calculateProbability(ViterbiStep currentStep) {
-        //TODO
-        return 0;
+    protected double getProbabilityFromMatch(HMMParameters parameters, ViterbiStep previous, ViterbiStep currStep) {
+        return super.getProbabilityFromMatch(parameters, previous, currStep) *              // The probability is the same as the other I states
+                parameters.getOuterTransitionProbability(HMMOuterTransition.GENE_GENE);     // Except for the extra outer transition probability
     }
 }
