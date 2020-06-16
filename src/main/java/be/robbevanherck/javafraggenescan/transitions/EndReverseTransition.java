@@ -1,10 +1,7 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
 import be.robbevanherck.javafraggenescan.StartStopUtil;
-import be.robbevanherck.javafraggenescan.entities.AminoAcid;
-import be.robbevanherck.javafraggenescan.entities.HMMState;
-import be.robbevanherck.javafraggenescan.entities.Triple;
-import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
+import be.robbevanherck.javafraggenescan.entities.*;
 
 /**
  * Represents a transition to the E' state
@@ -43,6 +40,60 @@ public class EndReverseTransition extends EndTransition {
 
     @Override
     protected double getGaussianProbability(ViterbiStep currStep) {
-        return 0;
+        HMMParameters parameters = currStep.getParameters();
+
+        // Make sure the previous steps exist
+        if (currStep.getPrevious().getPrevious() == null) {
+            return 0;
+        }
+        ViterbiStep firstStep = currStep;
+        ViterbiStep secondStep = firstStep.getPrevious();
+        ViterbiStep thirdStep = secondStep.getPrevious();
+
+        int nucleotidesChecked = 1;
+        double tempProduct = parameters.getReverseEndPWMProbability(58, new Triple<>(
+                firstStep.getInput(),
+                secondStep.getInput(),
+                thirdStep.getInput()
+        ));
+
+        // Instead of going from -30 to 30, I first go from 0 to -30 (using previous) and then from 0 to 30 (using nextValues)
+
+        while (thirdStep != null && nucleotidesChecked < 30) {
+            tempProduct *= parameters.getReverseEndPWMProbability(29 - nucleotidesChecked, new Triple<>(
+                    firstStep.getInput(),
+                    secondStep.getInput(),
+                    thirdStep.getInput()
+            ));
+
+            firstStep = secondStep;
+            secondStep = thirdStep;
+            thirdStep = thirdStep.getPrevious();
+
+            nucleotidesChecked++;
+        }
+
+        AminoAcid firstValue = currStep.getPrevious().getInput();
+        AminoAcid secondValue = currStep.getInput();
+        AminoAcid thirdValue = currStep.getNextInput();
+
+        for(int i = 0; i <= 30; i++) {
+            tempProduct *= parameters.getReverseEndPWMProbability(30 + nucleotidesChecked, new Triple<>(
+                    firstValue,
+                    secondValue,
+                    thirdValue
+            ));
+
+            firstValue = secondValue;
+            secondValue = thirdValue;
+            thirdValue = currStep.getNextValues().get(i+2);
+
+            nucleotidesChecked++;
+        }
+
+        double startFrequency = tempProduct * (58.0 / nucleotidesChecked);
+
+        return calculateStatisticalProbability(parameters, startFrequency);
     }
+
 }

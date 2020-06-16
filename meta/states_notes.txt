@@ -224,15 +224,15 @@ pad[E'][t+1] en pad[E'][t+2] zijn E'
 alpha[E'][t+2] is het product van 3 delen:
 1. de binnenkomende kans (bepaalt ook het pad voor t), het maximum van
 	(M6 state)
-   		alpha[M6][t-1] * tr[GE] 	// Kans om in M6 te zitten op t-1 * kans op transition G -> E
+   		alpha[M6'][t-1] * tr[GE] 	// Kans om in M6' te zitten op t-1 * kans op transition G -> E
 	(default, geen vorige staat)
 		0
 2. afhankelijk van welk codon gevonden is:
-	TAC
+	CAT
 		0.83
 	CAC
 		0.10
-	AAC
+	CAA
 		0.07
 3. afhankelijk van twee gaussian curves
 	t_limit = min(30,t)

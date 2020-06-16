@@ -78,7 +78,7 @@ public class ViterbiAlgorithm {
      */
     public ViterbiStep run(List<AminoAcid> input) {
 
-        ViterbiStep currentStep = new ViterbiStep(parameters, input.get(0), input.get(1));
+        ViterbiStep currentStep = new ViterbiStep(parameters, input);
         for (int i = 1; i < input.size() - 1; i++) {
             currentStep = currentStep.calculateNext(input.get(i), input.get(i+1));
         }

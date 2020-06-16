@@ -60,4 +60,21 @@ public abstract class Transition {
                 currentStep.getInput()
         );
     }
+
+    /**
+     * Get the codon starting at t and ending at t+2
+     * @param currentStep The current Viterbi Step
+     * @return The triple of amino-acids
+     */
+    protected Triple<AminoAcid> getCodonStartingAtT(ViterbiStep currentStep) {
+        if (currentStep.getNextValues().size() < 3) {
+            return null;
+        }
+
+        return new Triple<>(
+                currentStep.getInput(),
+                currentStep.getNextValues().get(1),
+                currentStep.getNextValues().get(2)
+        );
+    }
 }

@@ -11,11 +11,10 @@ import java.util.*;
  */
 public class ViterbiStep {
     private final EnumMap<HMMState, Double> probabilities;
-    private final EnumMap<HMMState, HMMState> paths;
-    private final AminoAcid input;
-    private final AminoAcid nextInput;
+    private final EnumMap<HMMState, HMMState> paths; // TODO
     private final ViterbiStep previous;
     private final HMMParameters parameters;
+    private final List<AminoAcid> nextValues;
 
     /**
      * The aminoAcids that came right before the given insertion, used to verify that we aren't in a stop state when calculating I -> M
@@ -23,36 +22,24 @@ public class ViterbiStep {
     private final Map<HMMState, Pair<AminoAcid>> aminoAcidsBeforeInsertion;
 
     /**
-     * Keep track of the disabled states, for example if a stop codon is matched at time t, there is no possibility
-     * for an M1/M4 state at time t, nor M2/M5 at t+1, nor M3/M6 at t+2
+     * Keep track of the overridden values, for example if a stop codon is matched at time t, there is no possibility
+     * for an M1/M4 state at time t, nor M2/M5 at t+1, nor M3/M6 at t+2, so these values have to be 0
      */
-    private Set<HMMState> disabledStates;
-
-    /**
-     * The progression of disabled states, a disabled state of M1 will for example always lead to a disabled state of
-     * M2 in the next step. If a state is not a key of this map, that means that there is no next disabled state.
-     */
-    private final Map<HMMState, HMMState> disabledStateProgression = Map.of(
-            HMMState.MATCH_1, HMMState.MATCH_2,
-            HMMState.MATCH_2, HMMState.MATCH_3,
-            HMMState.MATCH_4, HMMState.MATCH_5,
-            HMMState.MATCH_5, HMMState.MATCH_6
-    );
+    private final Map<Integer, Map<HMMState, Double>> overriddenValues;
 
     /**
      * Create a ViterbiStep with a previous step
      * @param parameters The parameters for the HMM
-     * @param input The input for this step
-     * @param nextInput The input for the next step
      * @param previous The previous step
+     * @param overriddenValues The values that are overridden
+     * @param nextValues The next values in the sequence
      */
-    public ViterbiStep(HMMParameters parameters, AminoAcid input, AminoAcid nextInput, ViterbiStep previous) {
+    public ViterbiStep(HMMParameters parameters, ViterbiStep previous, Map<Integer, Map<HMMState, Double>> overriddenValues, List<AminoAcid> nextValues) {
         this.parameters = parameters;
-        this.input = input;
-        this.nextInput = nextInput;
         this.previous = previous;
-        this.disabledStates = new HashSet<>();
         this.aminoAcidsBeforeInsertion = new EnumMap<>(HMMState.class);
+        this.overriddenValues = overriddenValues;
+        this.nextValues = nextValues;
 
         probabilities = new EnumMap<>(HMMState.class);
         paths = new EnumMap<>(HMMState.class);
@@ -61,11 +48,10 @@ public class ViterbiStep {
     /**
      * Create the initial ViterbiStep
      * @param parameters The parameters for the HMM
-     * @param input The input for this step
-     * @param nextInput The input for the next step
+     * @param inputs The inputs starting from (including) this step
      */
-    public ViterbiStep(HMMParameters parameters, AminoAcid input, AminoAcid nextInput) {
-        this(parameters, input, nextInput, null);
+    public ViterbiStep(HMMParameters parameters, List<AminoAcid> inputs) {
+        this(parameters, null, new HashMap<>(), inputs);
 
         // Fill in the initial values
         for(Map.Entry<HMMState, Double> entry : InputFileRepository.getInstance().getInitialProbabilities().entrySet()) {
@@ -116,7 +102,7 @@ public class ViterbiStep {
      * @return The input
      */
     public AminoAcid getInput() {
-        return input;
+        return nextValues.get(0);
     }
 
     /**
@@ -128,11 +114,25 @@ public class ViterbiStep {
     }
 
     /**
-     * Set which states are disabled in this states
-     * @param disabledStates Set of disabled states
+     * Set a value at t+delay
+     * @param state The HMMState of which to set the value
+     * @param value The value
+     * @param delay The delay when to set the value
      */
-    public void setDisabledStates(Set<HMMState> disabledStates) {
-        this.disabledStates = disabledStates;
+    public void setValueFor(HMMState state, double value, int delay) {
+        if (delay == 0) {
+            this.setValueFor(state, value);
+        } else {
+            Map<HMMState, Double> values = this.overriddenValues.get(delay);
+
+            if (values == null) {
+                values = new EnumMap<>(HMMState.class);
+            }
+
+            values.put(state, value);
+
+            this.overriddenValues.put(delay, values);
+        }
     }
 
     /**
@@ -142,25 +142,32 @@ public class ViterbiStep {
      * @return The new step
      */
     public ViterbiStep calculateNext(AminoAcid input, AminoAcid nextInput) {
-        ViterbiStep ret =  new ViterbiStep(this.parameters, input, nextInput, this);
+
+        Map<Integer, Map<HMMState, Double>> newOverriddenValues = new HashMap<>();
+        Map<HMMState, Double> currentOverriddenValues = new EnumMap<>(HMMState.class);
 
         // Make sure the disabled states are propagated
-        if (!disabledStates.isEmpty()) {
-            Set<HMMState> newDisabledStates = new HashSet<>();
-            for (HMMState disabledState : disabledStates) {
-                if (disabledStateProgression.containsKey(disabledState)) {
-                    newDisabledStates.add(disabledStateProgression.get(disabledState));
-                }
+        for (Map.Entry<Integer, Map<HMMState, Double>> entry : this.overriddenValues.entrySet()) {
+            if (entry.getKey() == 0) {
+                currentOverriddenValues = entry.getValue();
+            } else {
+                newOverriddenValues.put(entry.getKey() - 1, entry.getValue());
             }
-            ret.setDisabledStates(newDisabledStates);
         }
+
+        // Get the remaining values
+        LinkedList<AminoAcid> newNextValues = new LinkedList<>(nextValues);
+        newNextValues.remove();
+
+        // Create the step
+        ViterbiStep ret =  new ViterbiStep(this.parameters, this, newOverriddenValues, newNextValues);
 
         // Calculate the values
         for (Transition transition : ViterbiAlgorithm.TRANSITIONS) {
-            if (!disabledStates.contains(transition.getToState())) {
+            if (!currentOverriddenValues.containsKey(transition.getToState())) {
                 transition.calculateStateTransition(ret);
             } else {
-                ret.setValueFor(transition.getToState(), 0);
+                ret.setValueFor(transition.getToState(), currentOverriddenValues.get(transition.getToState()));
             }
         }
 
@@ -193,6 +200,10 @@ public class ViterbiStep {
     }
 
     public AminoAcid getNextInput() {
-        return nextInput;
+        return nextValues.get(1);
+    }
+
+    public List<AminoAcid> getNextValues() {
+        return nextValues;
     }
 }

@@ -1,10 +1,7 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
 import be.robbevanherck.javafraggenescan.StartStopUtil;
-import be.robbevanherck.javafraggenescan.entities.AminoAcid;
-import be.robbevanherck.javafraggenescan.entities.HMMState;
-import be.robbevanherck.javafraggenescan.entities.Triple;
-import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
+import be.robbevanherck.javafraggenescan.entities.*;
 
 /**
  * Represents a transition to the E state
@@ -48,6 +45,54 @@ public class EndForwardTransition extends EndTransition {
 
     @Override
     protected double getGaussianProbability(ViterbiStep currStep) {
-        return 0;
+        HMMParameters parameters = currStep.getParameters();
+
+        // Make sure the previous steps exist
+        if (currStep.getPrevious().getPrevious() == null) {
+            return 0;
+        }
+        ViterbiStep firstStep = currStep;
+        ViterbiStep secondStep = firstStep.getPrevious();
+        ViterbiStep thirdStep = secondStep.getPrevious();
+
+        int nucleotidesChecked = 1;
+        double tempProduct = parameters.getForwardEndPWMProbability(58, new Triple<>(
+                firstStep.getInput(),
+                secondStep.getInput(),
+                thirdStep.getInput()
+        ));
+
+        // TODO I'm not sure why this is 58 instead of 61, but I followed the original code
+        // Read from the PWM until we reach te beginning or the end of our window
+        while (thirdStep != null && nucleotidesChecked <= 58) {
+            tempProduct *= parameters.getForwardEndPWMProbability(58 - nucleotidesChecked, new Triple<>(
+                    firstStep.getInput(),
+                    secondStep.getInput(),
+                    thirdStep.getInput()
+            ));
+
+            firstStep = secondStep;
+            secondStep = thirdStep;
+            thirdStep = thirdStep.getPrevious();
+
+            nucleotidesChecked++;
+        }
+
+        double startFrequency = tempProduct * (58.0 / nucleotidesChecked);
+
+        return calculateStatisticalProbability(parameters, startFrequency);
+    }
+
+    @Override
+    protected void overrideFutureValues(ViterbiStep currStep) {
+        super.overrideFutureValues(currStep);
+
+        // It is also not possible to have 3 exact matches for this codon, so we
+        currStep.setValueFor(HMMState.MATCH_1, 0);
+        currStep.setValueFor(HMMState.MATCH_2, 0, 1);
+        currStep.setValueFor(HMMState.MATCH_3, 0, 2);
+        currStep.setValueFor(HMMState.MATCH_4, 0);
+        currStep.setValueFor(HMMState.MATCH_5, 0, 1);
+        currStep.setValueFor(HMMState.MATCH_6, 0, 2);
     }
 }

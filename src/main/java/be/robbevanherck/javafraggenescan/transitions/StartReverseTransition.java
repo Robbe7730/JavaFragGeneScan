@@ -36,7 +36,42 @@ public class StartReverseTransition extends StartTransition {
 
     @Override
     protected double getGaussianProbability(ViterbiStep currStep) {
-        return 0;
+        HMMParameters parameters = currStep.getParameters();
+
+        // Make sure the previous steps exist
+        if (currStep.getPrevious().getPrevious() == null) {
+            return 0;
+        }
+        ViterbiStep firstStep = currStep;
+        ViterbiStep secondStep = firstStep.getPrevious();
+        ViterbiStep thirdStep = secondStep.getPrevious();
+
+        int nucleotidesChecked = 1;
+        double tempProduct = parameters.getReverseStartPWMProbability(58, new Triple<>(
+                firstStep.getInput(),
+                secondStep.getInput(),
+                thirdStep.getInput()
+        ));
+
+        // TODO I'm not sure why this is 58 instead of 61, but I followed the original code
+        // Read from the PWM until we reach te beginning or the end of our window
+        while (thirdStep != null && nucleotidesChecked <= 58) {
+            tempProduct *= parameters.getReverseStartPWMProbability(58 - nucleotidesChecked, new Triple<>(
+                    firstStep.getInput(),
+                    secondStep.getInput(),
+                    thirdStep.getInput()
+            ));
+
+            firstStep = secondStep;
+            secondStep = thirdStep;
+            thirdStep = thirdStep.getPrevious();
+
+            nucleotidesChecked++;
+        }
+
+        double startFrequency = tempProduct * (58.0 / nucleotidesChecked);
+
+        return calculateStatisticalProbability(parameters, startFrequency);
     }
 
     @Override

@@ -1,9 +1,7 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
-import be.robbevanherck.javafraggenescan.entities.AminoAcid;
-import be.robbevanherck.javafraggenescan.entities.HMMState;
-import be.robbevanherck.javafraggenescan.entities.Triple;
-import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
+import be.robbevanherck.javafraggenescan.entities.*;
+import be.robbevanherck.javafraggenescan.repositories.GaussianArgumentsRepository;
 import org.sonatype.inject.Nullable;
 
 /**
@@ -20,14 +18,23 @@ public abstract class StartEndTransition extends Transition {
     }
 
     @Override
-    public double calculateProbability(ViterbiStep currentStep) {
-        if (isStartStopCodon(getCodonEndingAtT(currentStep))) {
-            // All start and stop probabilities are made of these probabilities
-            return getIncomingProbability(currentStep) *
-                    getCodonDependantProbability(getCodonEndingAtT(currentStep)) *
-                    getGaussianProbability(currentStep);
+    public void calculateStateTransition(ViterbiStep currentStep) {
+        if (isStartStopCodon(getCodonStartingAtT(currentStep))) {
+            overrideFutureValues(currentStep);
+            // We calculate the probability for t+2, when the start/stop codon ends
+            currentStep.setValueFor(toState, calculateProbability(currentStep), 2);
+        } else {
+            currentStep.setValueFor(toState, 0);
         }
-        return 0;
+    }
+
+    @Override
+    public double calculateProbability(ViterbiStep currentStep) {
+
+        // All start and stop probabilities are made of these probabilities
+        return getIncomingProbability(currentStep) *
+                getCodonDependantProbability(getCodonEndingAtT(currentStep)) *
+                getGaussianProbability(currentStep);
     }
 
     /**
@@ -57,4 +64,39 @@ public abstract class StartEndTransition extends Transition {
      * @return The probability
      */
     protected abstract double getGaussianProbability(ViterbiStep currStep);
+
+    /**
+     * Calculate the statistical value I don't understand
+     * @param parameters The HMM parameters
+     * @param startFrequency The input calculated before this step
+     * @return The probability
+     */
+    protected double calculateStatisticalProbability(HMMParameters parameters, double startFrequency) {
+        // Get all the arguments ready
+        double sigma = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.SIGMA);
+        double mu = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.MU);
+        double alpha = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.ALPHA);
+        double sigmaR = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.SIGMA_R);
+        double muR = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.MU_R);
+        double alphaR = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.ALPHA_R);
+
+        // Do some crazy statistics I don't understand
+        double eKdN = alpha * Math.exp(-Math.pow(startFrequency - mu, 2) / (2 * Math.pow(sigma, 2)));
+        double eKdR = alphaR * Math.exp(-Math.pow(startFrequency - muR, 2) / (2 * Math.pow(sigmaR, 2)));
+
+        return Math.max(Math.min(eKdN / (eKdN + eKdR), 0.99), 0.01);
+    }
+
+    /**
+     * Used to override future values (mainly t+1 and t+2)
+     * @param currStep The current Viterbi step
+     */
+    protected void overrideFutureValues(ViterbiStep currStep) {
+        // It is impossible to come from the non-last ending position, so set these values to 0
+        currStep.setValueFor(toState, 0);
+        currStep.setValueFor(toState, 0, 1);
+
+
+        // TODO why not block M states from other states?
+    }
 }
