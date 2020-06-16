@@ -14,19 +14,14 @@ import java.util.Scanner;
  * Repository for the data in the input HMM file
  */
 public class InputFileRepository {
-    private InputFileRepository() {}
+    private final Map<HMMInnerTransition, Double> innerTransitions;
+    private final Map<HMMOuterTransition, Double> outerTransitions;
+    private final Map<Pair<AminoAcid>, Double> matchInsertEmissions;
+    private final Map<Pair<AminoAcid>, Double> insertInsertEmissions;
+    private final Map<HMMState, Double> initialProbabilities;
+    private static InputFileRepository instance;
 
-    private static Map<HMMInnerTransition, Double> innerTransitions;
-    private static Map<HMMOuterTransition, Double> outerTransitions;
-    private static Map<Pair<AminoAcid>, Double> matchInsertEmissions;
-    private static Map<Pair<AminoAcid>, Double> insertInsertEmissions;
-    private static Map<HMMState, Double> initialProbabilities;
-
-    /**
-     * Setup the repository by reading the file
-     * @param file The file, given as a command-line argument
-     */
-    public static void setup(File file) {
+    private InputFileRepository(File file) {
         innerTransitions = new EnumMap<>(HMMInnerTransition.class);
         outerTransitions = new EnumMap<>(HMMOuterTransition.class);
         matchInsertEmissions = new HashMap<>();
@@ -102,23 +97,35 @@ public class InputFileRepository {
         }
     }
 
-    public static Map<HMMOuterTransition, Double> getOuterTransitions() {
+    /**
+     * Setup the repository by reading the file
+     * @param file The file, given as a command-line argument
+     */
+    public static void createInstance(File file) {
+        instance = new InputFileRepository(file);
+    }
+
+    public static InputFileRepository getInstance() {
+        return instance;
+    }
+
+    public Map<HMMOuterTransition, Double> getOuterTransitions() {
         return outerTransitions;
     }
 
-    public static Map<HMMInnerTransition, Double> getInnerTransitions() {
+    public Map<HMMInnerTransition, Double> getInnerTransitions() {
         return innerTransitions;
     }
 
-    public static Map<Pair<AminoAcid>, Double> getMatchInsertEmissions() {
+    public Map<Pair<AminoAcid>, Double> getMatchInsertEmissions() {
         return matchInsertEmissions;
     }
 
-    public static Map<Pair<AminoAcid>, Double> getInsertInsertEmissions() {
+    public Map<Pair<AminoAcid>, Double> getInsertInsertEmissions() {
         return insertInsertEmissions;
     }
 
-    public static Map<HMMState, Double> getInitialProbabilities() {
+    public Map<HMMState, Double> getInitialProbabilities() {
         return initialProbabilities;
     }
 }

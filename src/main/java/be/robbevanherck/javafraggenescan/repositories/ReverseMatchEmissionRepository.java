@@ -1,33 +1,47 @@
 package be.robbevanherck.javafraggenescan.repositories;
 
-import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.HMMState;
-import be.robbevanherck.javafraggenescan.entities.Triple;
-
-import java.util.Map;
 
 /**
  * Repository for the data in the 'rgene' file
  */
 public class ReverseMatchEmissionRepository extends MatchEmissionRepository {
     private ReverseMatchEmissionRepository() {
-        super();
+        super("train/rgene");
     }
+
+    private static ReverseMatchEmissionRepository instance;
 
     /**
-     * Setup the repository by reading the file
+     * Create a new instance of this Repository
      */
-    public static void setup() {
-        setup("train/rgene");
+    public static void createInstance() {
+        instance = new ReverseMatchEmissionRepository();
+    }
+
+    public static ReverseMatchEmissionRepository getInstance() {
+        return instance;
+    }
+
+    @Override
+    protected HMMState matchStateFromInt(int i) {
+        switch (i) {
+            case 1:
+                return HMMState.MATCH_REVERSE_1;
+            case 2:
+                return HMMState.MATCH_REVERSE_2;
+            case 3:
+                return HMMState.MATCH_REVERSE_3;
+            case 4:
+                return HMMState.MATCH_REVERSE_4;
+            case 5:
+                return HMMState.MATCH_REVERSE_5;
+            case 6:
+                return HMMState.MATCH_REVERSE_6;
+            default:
+                return HMMState.NO_STATE;
+        }
     }
 
 
-    /**
-     * Get the reverse match emission probabilities for a certain amount of G/C amino-acids
-     * @param percentageGC The percentage of G/C amino-acids in the input compared to the length of the input
-     * @return The mapping for Match-state emissions
-     */
-    public static Map<HMMState, Map<Triple<AminoAcid>, Double>> getReverseMatchEmissionProbabilities(int percentageGC) {
-        return getEmissions(percentageGC);
-    }
 }

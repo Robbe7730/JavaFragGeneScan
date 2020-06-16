@@ -1,32 +1,45 @@
 package be.robbevanherck.javafraggenescan.repositories;
 
-import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.HMMState;
-import be.robbevanherck.javafraggenescan.entities.Triple;
-
-import java.util.Map;
 
 /**
  * Repository for the data in the 'gene' file
  */
 public class ForwardMatchEmissionRepository extends MatchEmissionRepository {
     private ForwardMatchEmissionRepository() {
-        super();
+        super("train/gene");
     }
 
-    /**
-     * Setup the repository by reading the file
-     */
-    public static void setup() {
-        setup("train/gene");
+    @Override
+    public HMMState matchStateFromInt(int x) {
+        switch (x) {
+            case 1:
+                return HMMState.MATCH_1;
+            case 2:
+                return HMMState.MATCH_2;
+            case 3:
+                return HMMState.MATCH_3;
+            case 4:
+                return HMMState.MATCH_4;
+            case 5:
+                return HMMState.MATCH_5;
+            case 6:
+                return HMMState.MATCH_6;
+            default:
+                return HMMState.NO_STATE;
+        }
     }
 
+    private static ForwardMatchEmissionRepository instance;
+
     /**
-     * Get the forward match emission probabilities for a certain amount of G/C amino-acids
-     * @param percentageGC The percentage of G/C amino-acids in the input compared to the length of the input
-     * @return The mapping for Match-state emissions
+     * Create a new instance of this Repository
      */
-    public static Map<HMMState, Map<Triple<AminoAcid>, Double>> getForwardMatchEmissionProbabilities(int percentageGC) {
-        return getEmissions(percentageGC);
+    public static void createInstance() {
+        instance = new ForwardMatchEmissionRepository();
+    }
+
+    public static ForwardMatchEmissionRepository getInstance() {
+        return instance;
     }
 }

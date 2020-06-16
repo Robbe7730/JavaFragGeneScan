@@ -44,6 +44,10 @@ public abstract class MatchTransition extends Transition {
 
         bestValue = Math.max(bestValue, getProbabilityFromInsertion(parameters, previous, currentStep));
 
+        /* FROM START STATE */
+
+        bestValue = Math.max(bestValue, getProbabilityFromStart(currentStep, previous, codonEndingAtT));
+
         return bestValue;
     }
 
@@ -109,4 +113,14 @@ public abstract class MatchTransition extends Transition {
      */
     // As long as there is no generified function to get emissions, this stays abstract
     protected abstract  double getProbabilityThroughDeletions(HMMParameters parameters, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT);
+
+    /**
+     * Calculate the probability of going from a Start state to the destination M state
+     * @param currentStep The current Viterbi step
+     * @param previous The previous Viterbi step
+     * @param codonEndingAtT The coding starting at t-2 to t
+     * @return The probability
+     */
+    // As long as there is no generified function to get emissions, this stays abstract
+    protected abstract double getProbabilityFromStart(ViterbiStep currentStep, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT);
 }

@@ -16,17 +16,10 @@ import java.util.Scanner;
  * Repository for the data in the files related to M and M' states (gene and rgene)
  */
 public abstract class MatchEmissionRepository {
-    protected MatchEmissionRepository() {}
 
-    protected static Map<Integer, Map<HMMState, Map<Triple<AminoAcid>, Double>>> matchEmissions;
+    protected Map<Integer, Map<HMMState, Map<Triple<AminoAcid>, Double>>> matchEmissions = new HashMap<>();
 
-    /**
-     * Setup the repository by reading the file
-     * @param filename The filename for this match file
-     */
-    public static void setup(String filename) {
-        matchEmissions = new HashMap<>();
-
+    protected MatchEmissionRepository(String filename) {
         File file = new File(filename);
         try(Scanner s = new Scanner(file)) {
             while(s.hasNext()) {
@@ -36,7 +29,7 @@ public abstract class MatchEmissionRepository {
 
                 // For every M state
                 for (int mStateIndex = 0; mStateIndex < 6; mStateIndex++) {
-                    HMMState mState = HMMState.matchStateFromInt(mStateIndex+1);
+                    HMMState mState = matchStateFromInt(mStateIndex+1);
                     Map<Triple<AminoAcid>, Double> probabilities = new HashMap<>();
 
                     // For each tri-nucleotide
@@ -59,7 +52,7 @@ public abstract class MatchEmissionRepository {
      * @param trinucleotideIndex The combination of 3 aminoacid indices
      * @return The triple
      */
-    protected static Triple<AminoAcid> createTrinucleotide(int trinucleotideIndex) {
+    protected Triple<AminoAcid> createTrinucleotide(int trinucleotideIndex) {
         return new Triple<>(
                 AminoAcid.fromInt((trinucleotideIndex / 16) % 4),
                 AminoAcid.fromInt((trinucleotideIndex / 4) % 4),
@@ -71,8 +64,16 @@ public abstract class MatchEmissionRepository {
      * @param percentageGC The percentage of G/C amino-acids in the input compared to the length of the input
      * @return The mapping or Match-state emissions
      */
-    protected static Map<HMMState, Map<Triple<AminoAcid>, Double>> getEmissions(int percentageGC) {
+    public Map<HMMState, Map<Triple<AminoAcid>, Double>> getEmissions(int percentageGC) {
         int countGC = Math.min(Math.max(percentageGC, 26), 70);
         return matchEmissions.get(countGC);
     }
+
+    /**
+     *
+     * Get the MATCH_x (Mx) or MATCH_REVERSE_x (Mx') state
+     * @param i The number of the match state (0-6)
+     * @return The MATCH_x enum value or NO_STATE if an invalid number is given
+     */
+    protected abstract HMMState matchStateFromInt(int i);
 }

@@ -16,27 +16,12 @@ public class MatchReverseTransition extends MatchTransition {
     }
 
     @Override
-    public double calculateProbability(ViterbiStep currentStep) {
-        double bestValue = super.calculateProbability(currentStep);
-        ViterbiStep previous = currentStep.getPrevious();
-        HMMParameters parameters = currentStep.getParameters();
-        Triple<AminoAcid> codonEndingAtT = new Triple<>(
-                previous.getPrevious().getInput(),
-                previous.getInput(),
-                currentStep.getInput()
-        );
-
-        /* FROM START STATE */
-
-        // If we can come from a start state, check that probability too
+    protected double getProbabilityFromStart(ViterbiStep currentStep, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT) {
         if (canComeFromStartState(currentStep)) {
-            bestValue = Math.max(bestValue,
-                    previous.getValueFor(HMMState.START_REVERSE) *                             // Probability to be in the Start' state at t-1
-                    parameters.getReverseMatchEmissionProbability(toState, codonEndingAtT)     // Probability of emission from M' state (transition is guaranteed)
-            );
+            return previous.getValueFor(HMMState.START_REVERSE) *                                                       // Probability to be in the Start' state at t-1
+                            currentStep.getParameters().getReverseMatchEmissionProbability(toState, codonEndingAtT);    // Probability of emission from M' state (transition is guaranteed)
         }
-
-        return bestValue;
+        return 0;
     }
 
     protected boolean canComeFromStartState(ViterbiStep currentStep) {

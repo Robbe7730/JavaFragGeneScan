@@ -25,12 +25,12 @@ public class HMMParameters {
      * @param wholeGenome Whether the input are whole genomes
      */
     public HMMParameters(int countGC, boolean wholeGenome) {
-        this.forwardMatchEmissions = ForwardMatchEmissionRepository.getForwardMatchEmissionProbabilities(countGC);
-        this.reverseMatchEmissions = ReverseMatchEmissionRepository.getReverseMatchEmissionProbabilities(countGC);
-        this.innerTransitions = InputFileRepository.getInnerTransitions();
-        this.outerTransitions = InputFileRepository.getOuterTransitions();
-        this.insertInsertEmissions = InputFileRepository.getInsertInsertEmissions();
-        this.matchInsertEmissions = InputFileRepository.getMatchInsertEmissions();
+        this.forwardMatchEmissions = ForwardMatchEmissionRepository.getInstance().getEmissions(countGC);
+        this.reverseMatchEmissions = ReverseMatchEmissionRepository.getInstance().getEmissions(countGC);
+        this.innerTransitions = InputFileRepository.getInstance().getInnerTransitions();
+        this.outerTransitions = InputFileRepository.getInstance().getOuterTransitions();
+        this.insertInsertEmissions = InputFileRepository.getInstance().getInsertInsertEmissions();
+        this.matchInsertEmissions = InputFileRepository.getInstance().getMatchInsertEmissions();
         this.wholeGenome = wholeGenome;
     }
 
@@ -39,9 +39,9 @@ public class HMMParameters {
      * @param inputFile The file given as a command-line argument
      */
     public static void setup(File inputFile) {
-        ForwardMatchEmissionRepository.setup();
-        ReverseMatchEmissionRepository.setup();
-        InputFileRepository.setup(inputFile);
+        ForwardMatchEmissionRepository.createInstance();
+        ReverseMatchEmissionRepository.createInstance();
+        InputFileRepository.createInstance(inputFile);
     }
 
     /**
@@ -59,7 +59,7 @@ public class HMMParameters {
      * @return The probability
      */
     public double getMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
-        return forwardMatchEmissions.get(state).get(aminoAcidEndingInT);
+        return this.forwardMatchEmissions.get(state).get(aminoAcidEndingInT);
     }
 
     /**

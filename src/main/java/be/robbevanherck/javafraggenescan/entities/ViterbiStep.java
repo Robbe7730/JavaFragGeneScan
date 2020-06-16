@@ -68,7 +68,7 @@ public class ViterbiStep {
         this(parameters, input, nextInput, null);
 
         // Fill in the initial values
-        for(Map.Entry<HMMState, Double> entry : InputFileRepository.getInitialProbabilities().entrySet()) {
+        for(Map.Entry<HMMState, Double> entry : InputFileRepository.getInstance().getInitialProbabilities().entrySet()) {
             this.setValueFor(entry.getKey(), entry.getValue());
         }
 

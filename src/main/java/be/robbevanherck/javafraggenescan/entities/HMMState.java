@@ -136,30 +136,6 @@ public enum HMMState {
     }
 
     /**
-     * Get the MATCH_x (Mx) state
-     * @param x The number of the match state (0-6)
-     * @return The MATCH_x enum value or NO_STATE if an invalid number is given
-     */
-    public static HMMState matchStateFromInt(int x) {
-        switch (x) {
-            case 1:
-                return HMMState.MATCH_1;
-            case 2:
-                return HMMState.MATCH_2;
-            case 3:
-                return HMMState.MATCH_3;
-            case 4:
-                return HMMState.MATCH_4;
-            case 5:
-                return HMMState.MATCH_5;
-            case 6:
-                return HMMState.MATCH_6;
-            default:
-                return NO_STATE;
-        }
-    }
-
-    /**
      * Create a HMMState from a string (like they are in the input files)
      * @param stateString The string to convert
      * @return The HMMState or NO_STATE if the string is invalid

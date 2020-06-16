@@ -53,4 +53,10 @@ public class MatchForwardTransition extends MatchTransition {
         return bestValue;
     }
 
+    @Override
+    protected double getProbabilityFromStart(ViterbiStep currentStep, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT) {
+        // As M1 is a separate class, this is always 0
+        return 0;
+    }
+
 }
