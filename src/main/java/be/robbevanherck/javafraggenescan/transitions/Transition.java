@@ -1,5 +1,7 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
+import be.robbevanherck.javafraggenescan.entities.AminoAcid;
+import be.robbevanherck.javafraggenescan.entities.Triple;
 import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
 import be.robbevanherck.javafraggenescan.entities.HMMState;
 
@@ -39,4 +41,19 @@ public abstract class Transition {
      * @param currentStep The current step
      */
     public abstract double calculateProbability(ViterbiStep currentStep);
+
+    /**
+     * Get the codon starting at t-2 and ending at t
+     * @param currentStep The current Viterbi Step
+     * @return The triple of amino-acids
+     */
+    protected Triple<AminoAcid> getCodonEndingAtT(ViterbiStep currentStep) {
+        ViterbiStep previous = currentStep.getPrevious();
+
+        return new Triple<>(
+                previous.getPrevious().getInput(),
+                previous.getInput(),
+                currentStep.getInput()
+        );
+    }
 }

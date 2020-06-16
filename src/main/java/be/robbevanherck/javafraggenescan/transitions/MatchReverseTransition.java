@@ -1,5 +1,6 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
+import be.robbevanherck.javafraggenescan.StartStopUtil;
 import be.robbevanherck.javafraggenescan.entities.*;
 
 /**
@@ -13,6 +14,11 @@ public class MatchReverseTransition extends MatchTransition {
      */
     public MatchReverseTransition(HMMState toState) {
         super(toState);
+    }
+
+    @Override
+    protected boolean isStopCodon(Triple<AminoAcid> tripleToCheck) {
+        return StartStopUtil.isReverseStopCodon(tripleToCheck);
     }
 
     @Override
@@ -32,15 +38,6 @@ public class MatchReverseTransition extends MatchTransition {
                         currentStep.getPrevious().getInput(),
                         currentStep.getPrevious().getPrevious().getInput()
                 )));
-    }
-
-    @Override
-    protected boolean isStopCodon(Triple<AminoAcid> codon) {
-        return (codon.getThirdValue() == AminoAcid.A &&                                                 // The last acid is always A
-                (codon.getFirstValue() == AminoAcid.T && codon.getSecondValue() == AminoAcid.T) ||      // TTA
-                (codon.getFirstValue() == AminoAcid.C && codon.getSecondValue() == AminoAcid.T) ||      // CTA
-                (codon.getFirstValue() == AminoAcid.T && codon.getSecondValue() == AminoAcid.C)         // TCA
-        );
     }
 
     @Override

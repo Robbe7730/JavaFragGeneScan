@@ -26,19 +26,13 @@ public abstract class MatchTransition extends Transition {
             return 0;
         }
 
-        Triple<AminoAcid> codonEndingAtT = new Triple<>(
-                previous.getPrevious().getInput(),
-                previous.getInput(),
-                currentStep.getInput()
-        );
-
         /* FROM M STATE */
 
-        double bestValue = getProbabilityFromMatch(parameters, previous, codonEndingAtT);
+        double bestValue = getProbabilityFromMatch(parameters, previous, getCodonEndingAtT(currentStep));
 
         /* FROM M STATE, GOING THROUGH (numD) D STATES */
 
-        bestValue = Math.max(bestValue, getProbabilityThroughDeletions(parameters, previous, codonEndingAtT));
+        bestValue = Math.max(bestValue, getProbabilityThroughDeletions(parameters, previous, getCodonEndingAtT(currentStep)));
 
         /* FROM I STATE */
 
@@ -46,7 +40,7 @@ public abstract class MatchTransition extends Transition {
 
         /* FROM START STATE */
 
-        bestValue = Math.max(bestValue, getProbabilityFromStart(currentStep, previous, codonEndingAtT));
+        bestValue = Math.max(bestValue, getProbabilityFromStart(currentStep, previous, getCodonEndingAtT(currentStep)));
 
         return bestValue;
     }

@@ -1,5 +1,6 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
+import be.robbevanherck.javafraggenescan.StartStopUtil;
 import be.robbevanherck.javafraggenescan.entities.*;
 
 /**
@@ -17,11 +18,7 @@ public class MatchForwardTransition extends MatchTransition {
 
     @Override
     protected boolean isStopCodon(Triple<AminoAcid> codonWithoutInsertions) {
-        return (codonWithoutInsertions.getFirstValue() == AminoAcid.T && (                                                              // The first acid is always T
-                (codonWithoutInsertions.getSecondValue() == AminoAcid.A && codonWithoutInsertions.getThirdValue() == AminoAcid.A) ||    // TAA
-                (codonWithoutInsertions.getSecondValue() == AminoAcid.A && codonWithoutInsertions.getThirdValue() == AminoAcid.G) ||    // TAG
-                (codonWithoutInsertions.getSecondValue() == AminoAcid.G && codonWithoutInsertions.getThirdValue() == AminoAcid.A)       // TGA
-        ));
+        return StartStopUtil.isForwardStopCodon(codonWithoutInsertions);
     }
 
     @Override
