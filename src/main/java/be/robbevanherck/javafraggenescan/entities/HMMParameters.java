@@ -1,8 +1,6 @@
 package be.robbevanherck.javafraggenescan.entities;
 
-import be.robbevanherck.javafraggenescan.repositories.ForwardMatchEmissionRepository;
-import be.robbevanherck.javafraggenescan.repositories.InputFileRepository;
-import be.robbevanherck.javafraggenescan.repositories.ReverseMatchEmissionRepository;
+import be.robbevanherck.javafraggenescan.repositories.*;
 
 import java.io.File;
 import java.util.Map;
@@ -18,6 +16,11 @@ public class HMMParameters {
     private final Map<Pair<AminoAcid>, Double> insertInsertEmissions;
     private final Map<Pair<AminoAcid>, Double> matchInsertEmissions;
     private final boolean wholeGenome;
+    private final Map<Integer, Map<Triple<AminoAcid>, Double>> forwardStopPWM;
+    private final Map<Integer, Map<Triple<AminoAcid>, Double>> reverseStopPWM;
+    private final Map<Integer, Map<Triple<AminoAcid>, Double>> forwardStartPWM;
+    private final Map<Integer, Map<Triple<AminoAcid>, Double>> reverseStartPWM;
+    private final Map<HMMState, Map<GaussianArgumentsRepository.GaussianArgument, Double>> gaussianArguments;
 
     /**
      * Create the parameters
@@ -25,8 +28,16 @@ public class HMMParameters {
      * @param wholeGenome Whether the input are whole genomes
      */
     public HMMParameters(int countGC, boolean wholeGenome) {
-        this.forwardMatchEmissions = ForwardMatchEmissionRepository.getInstance().getEmissions(countGC);
-        this.reverseMatchEmissions = ReverseMatchEmissionRepository.getInstance().getEmissions(countGC);
+        this.forwardMatchEmissions = ForwardMatchEmissionRepository.getInstance().getValues(countGC);
+        this.reverseMatchEmissions = ReverseMatchEmissionRepository.getInstance().getValues(countGC);
+
+        this.forwardStopPWM = ForwardEndRepository.getInstance().getValues(countGC);
+        this.reverseStopPWM = ReverseEndRepository.getInstance().getValues(countGC);
+        this.forwardStartPWM = ForwardStartRepository.getInstance().getValues(countGC);
+        this.reverseStartPWM = ReverseEndRepository.getInstance().getValues(countGC);
+
+        this.gaussianArguments = GaussianArgumentsRepository.getInstance().getValues(countGC);
+
         this.innerTransitions = InputFileRepository.getInstance().getInnerTransitions();
         this.outerTransitions = InputFileRepository.getInstance().getOuterTransitions();
         this.insertInsertEmissions = InputFileRepository.getInstance().getInsertInsertEmissions();
@@ -41,6 +52,14 @@ public class HMMParameters {
     public static void setup(File inputFile) {
         ForwardMatchEmissionRepository.createInstance();
         ReverseMatchEmissionRepository.createInstance();
+
+        ForwardEndRepository.createInstance();
+        ReverseEndRepository.createInstance();
+        ForwardStartRepository.createInstance();
+        ReverseStartRepository.createInstance();
+
+        GaussianArgumentsRepository.createInstance();
+
         InputFileRepository.createInstance(inputFile);
     }
 
@@ -89,6 +108,7 @@ public class HMMParameters {
     public double getInsertInsertEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
         return insertInsertEmissions.get(new Pair<>(previousInput, currentInput));
     }
+
     /**
      * Get the probability a transition M -> I to emit its value
      * @param previousInput The input of the previous state
@@ -107,5 +127,55 @@ public class HMMParameters {
      */
     public double getReverseMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
         return reverseMatchEmissions.get(state).get(aminoAcidEndingInT);
+    }
+
+    /**
+     * Get the probability from the PWM for the Forward Stop codons
+     * @param index The index in the frame
+     * @param codon The codon at the position index
+     * @return The probability
+     */
+    public double getForwardEndPWMProbability(int index, Triple<AminoAcid> codon) {
+        return forwardStopPWM.get(index).get(codon);
+    }
+
+    /**
+     * Get the probability from the PWM for the Reverse Stop codons
+     * @param index The index in the frame
+     * @param codon The codon at the position index
+     * @return The probability
+     */
+    public double getReverseEndPWMProbability(int index, Triple<AminoAcid> codon) {
+        return reverseStopPWM.get(index).get(codon);
+    }
+
+    /**
+     * Get the probability from the PWM for the Forward Start codons
+     * @param index The index in the frame
+     * @param codon The codon at the position index
+     * @return The probability
+     */
+    public double getForwardStartPWMProbability(int index, Triple<AminoAcid> codon) {
+        return forwardStartPWM.get(index).get(codon);
+    }
+
+    /**
+     * Get the probability from the PWM for the Reverse Start codons
+     * @param index The index in the frame
+     * @param codon The codon at the position index
+     * @return The probability
+     */
+    public double getReverseStartPWMProbability(int index, Triple<AminoAcid> codon) {
+        return reverseStartPWM.get(index).get(codon);
+    }
+
+    /**
+     * Get the argument for the Gaussian curves for detecting start/stop codons
+     * @param state Either START, STOP, START_REVERSE or END_REVERSE
+     * @param argument The argument to get
+     * @return The value
+     */
+    public double getGaussianArgument(HMMState state, GaussianArgumentsRepository.GaussianArgument argument) {
+        return gaussianArguments.get(state).get(argument);
     }
 }

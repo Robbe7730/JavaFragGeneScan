@@ -50,6 +50,10 @@ public abstract class Transition {
     protected Triple<AminoAcid> getCodonEndingAtT(ViterbiStep currentStep) {
         ViterbiStep previous = currentStep.getPrevious();
 
+        if (previous.getPrevious() == null) {
+            return null;
+        }
+
         return new Triple<>(
                 previous.getPrevious().getInput(),
                 previous.getInput(),

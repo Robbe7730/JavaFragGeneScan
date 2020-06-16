@@ -130,6 +130,18 @@ public enum HMMState {
                 return HMMState.MATCH_5;
             case INSERT_6:
                 return HMMState.MATCH_6;
+            case INSERT_REVERSE_1:
+                return HMMState.MATCH_REVERSE_1;
+            case INSERT_REVERSE_2:
+                return HMMState.MATCH_REVERSE_2;
+            case INSERT_REVERSE_3:
+                return HMMState.MATCH_REVERSE_3;
+            case INSERT_REVERSE_4:
+                return HMMState.MATCH_REVERSE_4;
+            case INSERT_REVERSE_5:
+                return HMMState.MATCH_REVERSE_5;
+            case INSERT_REVERSE_6:
+                return HMMState.MATCH_REVERSE_6;
             default:
                 return NO_STATE;
         }
