@@ -8,11 +8,8 @@ import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import org.biojava.nbio.core.sequence.io.FastaWriterHelper;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * The entry class of the project
@@ -111,26 +108,28 @@ public class Main {
         }
 
         // TODO this can be a writer thread
-        FileWriter fileWriter = null;
-        try {
-            if (outputDNAFASTA != null) {
-                fileWriter = new FileWriter(outputDNAFASTA);
-            }
-            
-            while (!SyncInputRepository.getInstance().isOutputEmpty()) {
-                ViterbiResult result = SyncInputRepository.getInstance().getNextOutput();
-                if (fileWriter != null) {
-                    result.writeToFasta(fileWriter);
-                }
-            }
-        } catch (IOException ioException) {
-            throw new OutputException("Could not write to output", ioException);
-        } finally {
+        PrintStream fastaOutputStream = null;
+        if (outputDNAFASTA != null) {
             try {
-                if (fileWriter != null) {
-                    fileWriter.close();
-                }
-            } catch (IOException ignored) {}
+                fastaOutputStream = new PrintStream(outputDNAFASTA);
+            } catch (FileNotFoundException fnfe) {
+                throw new OutputException("No such file: " + outputDNAFASTA.getAbsolutePath(), fnfe);
+            }
+        }
+        while (!SyncInputRepository.getInstance().isOutputEmpty()) {
+            ViterbiResult result = SyncInputRepository.getInstance().getNextOutput();
+
+
+            // Write to fasta file
+            if (fastaOutputStream != null) {
+                result.writeFasta(fastaOutputStream);
+            }
+
+            // Write to stdout
+            result.writeProteins(System.out);
+        }
+        if (fastaOutputStream != null) {
+            fastaOutputStream.close();
         }
     }
 }

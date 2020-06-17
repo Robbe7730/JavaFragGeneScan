@@ -1,11 +1,8 @@
 package be.robbevanherck.javafraggenescan.entities;
 
 import be.robbevanherck.javafraggenescan.DNAUtil;
-import be.robbevanherck.javafraggenescan.OutputException;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,16 +45,27 @@ public class ViterbiResult {
     }
 
     /**
-     * Write the result to a fasta file
-     * @param fileWriter The FileWriter to write to
-     * @throws IOException When something goes wrong
+     * Write the DNA sequence to a fasta file
+     * @param printStream The PrintStream to write to
      */
-    public void writeToFasta(FileWriter fileWriter) throws IOException {
-        fileWriter.append(">")
+    public void writeFasta(PrintStream printStream) {
+        writeToPrintStream(printStream, getDNA());
+    }
+
+    /**
+     * Write the protein sequence to a fasta file
+     * @param printStream The PrintStream to write to
+     */
+    public void writeProteins(PrintStream printStream) {
+        writeToPrintStream(printStream, getProteins());
+    }
+
+    private void writeToPrintStream(PrintStream printStream, String content) {
+        printStream.append(">")
                 .append(name)
                 .append(getHeaderSuffix())
                 .append('\n')
-                .append(getDNA())
+                .append(content)
                 .append('\n')
                 .flush();
     }

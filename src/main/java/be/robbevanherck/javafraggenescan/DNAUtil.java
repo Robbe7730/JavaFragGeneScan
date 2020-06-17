@@ -36,28 +36,6 @@ public class DNAUtil {
         'L', 'F', 'L', 'F'
     };
 
-    private static final char[] TRANSLATION_TABLE_11_RC = {
-        'F', 'V', 'L', 'I',
-        'C', 'G', 'R', 'S',
-        'S', 'A', 'P', 'T',
-        'Y', 'D', 'H', 'N',
-
-        'L', 'V', 'L', 'M',
-        'W', 'G', 'R', 'R',
-        'S', 'A', 'P', 'T',
-        '*', 'E', 'Q', 'K',
-
-        'F', 'V', 'L', 'I',
-        'C', 'G', 'R', 'S',
-        'S', 'A', 'P', 'T',
-        'Y', 'D', 'H', 'N',
-
-        'L', 'V', 'L', 'I',
-        '*', 'G', 'R', 'R',
-        'S', 'A', 'P', 'T',
-        '*', 'E', 'Q', 'K'
-    };
-
     /**
      * Get the protein string for the reverse strand
      * @param acidList The amino-acids
@@ -69,10 +47,8 @@ public class DNAUtil {
 
         List<Character> ret = new LinkedList<>();
 
-        char[] translationTable = strand == DNAStrand.REVERSE ? TRANSLATION_TABLE_11_RC : TRANSLATION_TABLE_11;
-
         while(acidIterator.hasNext()) {
-            ret.add(translationTable[trinucleotideToInt(acidIterator.next(), acidIterator.next(), acidIterator.next())]);
+            ret.add(TRANSLATION_TABLE_11[trinucleotideToInt(acidIterator.next(), acidIterator.next(), acidIterator.next())]);
         }
 
         return ret.stream().map(String::valueOf).collect(Collectors.joining());

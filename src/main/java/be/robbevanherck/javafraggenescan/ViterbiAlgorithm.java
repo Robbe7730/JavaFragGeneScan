@@ -209,14 +209,14 @@ public class ViterbiAlgorithm {
 
         List<AminoAcid> reversedCurrentDNAString;
 
+        // To avoid reversing twice, we only reverse on the forward strand an only calculate the complement on the reverse strand
         if (strand == DNAStrand.REVERSE) {
-            reversedCurrentDNAString = DNAUtil.complement(currentDNAString);
+            reversedCurrentDNAString = DNAUtil.complement(currentDNAStringLL);
         } else {
             // Reverse the string
             reversedCurrentDNAString = new LinkedList<>();
             currentDNAStringLL.descendingIterator().forEachRemaining(reversedCurrentDNAString::add);
         }
-
 
         // Add it
         ret.add(new ViterbiResult(reversedCurrentDNAString, start, end, strand, this.input.getName()));
