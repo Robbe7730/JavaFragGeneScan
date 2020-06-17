@@ -131,10 +131,6 @@ public class ViterbiAlgorithm {
                 }
 
                 if (strand == DNAStrand.FORWARD) {
-                    if (lastMatchingState != HMMState.NO_STATE && HMMState.previousState(lastMatchingState) != currentState) {
-                        //TODO
-                        System.err.println("We got some D states");
-                    }
                     currentDNAString.add(currentStep.getInput());
                     lastMatchingState = currentState;
                 }
@@ -153,10 +149,6 @@ public class ViterbiAlgorithm {
                 }
 
                 if (strand == DNAStrand.REVERSE) {
-                    if (lastMatchingState != HMMState.NO_STATE && HMMState.previousState(lastMatchingState) != currentState) {
-                        //TODO
-                        System.err.println("We got some D' states");
-                    }
                     currentDNAString.add(currentStep.getInput());
                     lastMatchingState = currentState;
                 }
