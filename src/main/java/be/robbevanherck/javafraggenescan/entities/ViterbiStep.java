@@ -271,6 +271,11 @@ public class ViterbiStep {
         return ret;
     }
 
+    /**
+     * Get the PathProbility for a state
+     * @param state The state to look up
+     * @return The PathProbability
+     */
     public PathProbability getPathProbabilityFor(HMMState state) {
         return pathProbabilities.get(state);
     }

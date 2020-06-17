@@ -3,6 +3,7 @@ package be.robbevanherck.javafraggenescan.repositories;
 import be.robbevanherck.javafraggenescan.InvalidInputException;
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.ViterbiInput;
+import be.robbevanherck.javafraggenescan.entities.ViterbiResult;
 import org.biojava.nbio.core.sequence.DNASequence;
 import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
 import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
@@ -16,18 +17,20 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Repository for in and output that needs to be blocking
  */
 public class SyncInputRepository {
-    private final BlockingQueue<ViterbiInput> queue;
+    private final BlockingQueue<ViterbiInput> inputQueue;
+    private final BlockingQueue<ViterbiResult> outputQueue;
 
     /**
-     * Create an InputRepository
+     * Create an SyncInputRepository
      */
     public SyncInputRepository() {
-        queue = new LinkedBlockingDeque<>();
+        inputQueue = new LinkedBlockingDeque<>();
+        outputQueue = new LinkedBlockingDeque<>();
 
         try {
             System.err.println("Starting Read");
             for (Map.Entry<String, DNASequence> entry : FastaReaderHelper.readFastaDNASequence(System.in).entrySet()) {
-                queue.add(new ViterbiInput(entry.getKey(), dnaSequenceToViterbiInput(entry.getValue())));
+                inputQueue.add(new ViterbiInput(entry.getKey(), dnaSequenceToViterbiInput(entry.getValue())));
             }
             System.err.println("Done Reading");
         } catch (IOException e) {
@@ -57,10 +60,34 @@ public class SyncInputRepository {
     }
 
     public ViterbiInput getNextInput() throws InterruptedException {
-        return queue.take();
+        return inputQueue.take();
     }
 
-    public boolean isEmpty() {
-        return queue.isEmpty();
+    /**
+     * Add a set of results
+     * @param results The results that need to be added
+     */
+    public void putAllOutput(Set<ViterbiResult> results) {
+        outputQueue.addAll(results);
+    }
+
+    /**
+     * Add a new result
+     * @param result The result that needs to be added
+     */
+    public void putOutput(ViterbiResult result) {
+        outputQueue.add(result);
+    }
+
+    public boolean isInputEmpty() {
+        return inputQueue.isEmpty();
+    }
+
+    public boolean isOutputEmpty() {
+        return outputQueue.isEmpty();
+    }
+
+    public ViterbiResult getNextOutput() throws InterruptedException {
+        return outputQueue.take();
     }
 }

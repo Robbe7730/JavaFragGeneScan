@@ -98,7 +98,7 @@ public class ViterbiAlgorithm {
      * @param sequenceLength The length of the input sequence
      * @return A set of ViterbiResults to be written
      */
-    public static Set<ViterbiResult> backTrack(ViterbiStep currentStep, int sequenceLength) {
+    public Set<ViterbiResult> backTrack(ViterbiStep currentStep, int sequenceLength) {
         HMMState lastMatchingState = HMMState.NO_STATE;
         HMMState currentState = currentStep.getHighestProbabilityState();
         PathProbability currentPathProbability = currentStep.getPathProbabilityFor(currentState);
@@ -188,7 +188,7 @@ public class ViterbiAlgorithm {
         return ret;
     }
 
-    private static void addToResult(Set<ViterbiResult> ret, List<AminoAcid> currentDNAString, int start, int end, DNAStrand strand, HMMState lastMatchingState) {
+    private void addToResult(Set<ViterbiResult> ret, List<AminoAcid> currentDNAString, int start, int end, DNAStrand strand, HMMState lastMatchingState) {
         if (currentDNAString.isEmpty()) {
             return;
         }
@@ -219,6 +219,6 @@ public class ViterbiAlgorithm {
 
 
         // Add it
-        ret.add(new ViterbiResult(reversedCurrentDNAString, start, end, strand));
+        ret.add(new ViterbiResult(reversedCurrentDNAString, start, end, strand, this.input.getName()));
     }
 }

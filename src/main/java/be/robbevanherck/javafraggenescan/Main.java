@@ -8,9 +8,11 @@ import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import org.biojava.nbio.core.sequence.io.FastaWriterHelper;
 
 import java.io.File;
-import java.util.Set;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * The entry class of the project
@@ -98,14 +100,37 @@ public class Main {
         HMMParameters.setup(modelConfFile);
         SyncInputRepository.createInstance();
 
-        while(!SyncInputRepository.getInstance().isEmpty()) {
+        while(!SyncInputRepository.getInstance().isInputEmpty()) {
+            // TODO this can be a runner thread
             ViterbiInput input = SyncInputRepository.getInstance().getNextInput();
 
             int inputLength = input.getInputAcids().size();
 
             ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, inputType == 1);
-            Set<ViterbiResult> results = ViterbiAlgorithm.backTrack(algorithm.run(), inputLength);
+            SyncInputRepository.getInstance().putAllOutput(algorithm.backTrack(algorithm.run(), inputLength));
+        }
 
+        // TODO this can be a writer thread
+        FileWriter fileWriter = null;
+        try {
+            if (outputDNAFASTA != null) {
+                fileWriter = new FileWriter(outputDNAFASTA);
+            }
+            
+            while (!SyncInputRepository.getInstance().isOutputEmpty()) {
+                ViterbiResult result = SyncInputRepository.getInstance().getNextOutput();
+                if (fileWriter != null) {
+                    result.writeToFasta(fileWriter);
+                }
+            }
+        } catch (IOException ioException) {
+            throw new OutputException("Could not write to output", ioException);
+        } finally {
+            try {
+                if (fileWriter != null) {
+                    fileWriter.close();
+                }
+            } catch (IOException ignored) {}
         }
     }
 }
