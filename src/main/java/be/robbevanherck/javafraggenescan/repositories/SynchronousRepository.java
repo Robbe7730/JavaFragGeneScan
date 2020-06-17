@@ -16,14 +16,14 @@ import java.util.concurrent.LinkedBlockingDeque;
 /**
  * Repository for in and output that needs to be blocking
  */
-public class SyncInputRepository {
+public class SynchronousRepository {
     private final BlockingQueue<ViterbiInput> inputQueue;
     private final BlockingQueue<ViterbiResult> outputQueue;
 
     /**
-     * Create an SyncInputRepository
+     * Create an SynchronousRepository
      */
-    public SyncInputRepository() {
+    public SynchronousRepository() {
         inputQueue = new LinkedBlockingDeque<>();
         outputQueue = new LinkedBlockingDeque<>();
 
@@ -46,16 +46,16 @@ public class SyncInputRepository {
         return ret;
     }
 
-    private static SyncInputRepository instance;
+    private static SynchronousRepository instance;
 
     /**
      * Create a new instance of this Repository
      */
     public static void createInstance() {
-        instance = new SyncInputRepository();
+        instance = new SynchronousRepository();
     }
 
-    public static SyncInputRepository getInstance() {
+    public static SynchronousRepository getInstance() {
         return instance;
     }
 

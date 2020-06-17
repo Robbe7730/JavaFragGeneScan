@@ -3,7 +3,7 @@ package be.robbevanherck.javafraggenescan;
 import be.robbevanherck.javafraggenescan.entities.HMMParameters;
 import be.robbevanherck.javafraggenescan.entities.ViterbiInput;
 import be.robbevanherck.javafraggenescan.entities.ViterbiResult;
-import be.robbevanherck.javafraggenescan.repositories.SyncInputRepository;
+import be.robbevanherck.javafraggenescan.repositories.SynchronousRepository;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -95,16 +95,16 @@ public class Main {
     public void run() throws InterruptedException {
         // Read in all the files
         HMMParameters.setup(modelConfFile);
-        SyncInputRepository.createInstance();
+        SynchronousRepository.createInstance();
 
-        while(!SyncInputRepository.getInstance().isInputEmpty()) {
+        while(!SynchronousRepository.getInstance().isInputEmpty()) {
             // TODO this can be a runner thread
-            ViterbiInput input = SyncInputRepository.getInstance().getNextInput();
+            ViterbiInput input = SynchronousRepository.getInstance().getNextInput();
 
             int inputLength = input.getInputAcids().size();
 
             ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, inputType == 1);
-            SyncInputRepository.getInstance().putAllOutput(algorithm.backTrack(algorithm.run(), inputLength));
+            SynchronousRepository.getInstance().putAllOutput(algorithm.backTrack(algorithm.run(), inputLength));
         }
 
         // TODO this can be a writer thread
@@ -116,8 +116,8 @@ public class Main {
                 throw new OutputException("No such file: " + outputDNAFASTA.getAbsolutePath(), fnfe);
             }
         }
-        while (!SyncInputRepository.getInstance().isOutputEmpty()) {
-            ViterbiResult result = SyncInputRepository.getInstance().getNextOutput();
+        while (!SynchronousRepository.getInstance().isOutputEmpty()) {
+            ViterbiResult result = SynchronousRepository.getInstance().getNextOutput();
 
 
             // Write to fasta file

@@ -1,7 +1,6 @@
 package be.robbevanherck.javafraggenescan;
 
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
-import be.robbevanherck.javafraggenescan.entities.DNAStrand;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -39,10 +38,9 @@ public class DNAUtil {
     /**
      * Get the protein string for the reverse strand
      * @param acidList The amino-acids
-     * @param strand Which strand it comes from
      * @return The string of proteins
      */
-    public static String getProteins(List<AminoAcid> acidList, DNAStrand strand) {
+    public static String getProteins(List<AminoAcid> acidList) {
         Iterator<AminoAcid> acidIterator = acidList.iterator();
 
         List<Character> ret = new LinkedList<>();

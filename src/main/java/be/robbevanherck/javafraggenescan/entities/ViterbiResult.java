@@ -37,7 +37,7 @@ public class ViterbiResult {
     }
 
     public String getProteins() {
-        return DNAUtil.getProteins(result, strand);
+        return DNAUtil.getProteins(result);
     }
 
     public String getHeaderSuffix() {
