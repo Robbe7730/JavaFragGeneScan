@@ -1,5 +1,6 @@
 package be.robbevanherck.javafraggenescan.entities;
 
+import be.robbevanherck.javafraggenescan.StartStopUtil;
 import be.robbevanherck.javafraggenescan.ViterbiAlgorithm;
 import be.robbevanherck.javafraggenescan.repositories.InputFileRepository;
 import be.robbevanherck.javafraggenescan.transitions.Transition;
@@ -14,6 +15,7 @@ public class ViterbiStep {
     private final ViterbiStep previous;
     private final HMMParameters parameters;
     private final List<AminoAcid> nextValues;
+    private boolean isInitialStep = false;
 
     /**
      * The aminoAcids that came right before the given insertion, used to verify that we aren't in a stop state when calculating I -> M
@@ -51,12 +53,46 @@ public class ViterbiStep {
     public ViterbiStep(HMMParameters parameters, List<AminoAcid> inputs) {
         this(parameters, null, new HashMap<>(), inputs);
 
+        this.isInitialStep = true;
+
         // Fill in the initial values
         for(Map.Entry<HMMState, PathProbability> entry : InputFileRepository.getInstance().getInitialProbabilities().entrySet()) {
             this.setValueFor(entry.getKey(), entry.getValue());
         }
 
-        //TODO check for start and stop state
+        Triple<AminoAcid> firstCodon = new Triple<>(inputs.get(0), inputs.get(1), inputs.get(2));
+
+        if (StartStopUtil.isForwardStopCodon(firstCodon)) {
+            // Depending on which codon it is, we calculate a new probability for the END state
+            // The first value is always T, so we don't need to check that one
+            double probability = 0;
+            if (firstCodon.getSecondValue() == AminoAcid.A && firstCodon.getThirdValue() == AminoAcid.A) {
+                probability = 0.53;
+            } else if (firstCodon.getSecondValue() == AminoAcid.A && firstCodon.getThirdValue() == AminoAcid.G) {
+                probability = 0.16;
+            } else if (firstCodon.getSecondValue() == AminoAcid.G && firstCodon.getThirdValue() == AminoAcid.A) {
+                probability = 0.30;
+            }
+
+            this.setValueFor(HMMState.END, new PathProbability(HMMState.NO_STATE, 0));
+            this.setValueFor(HMMState.END, new PathProbability(HMMState.END, 0), 1);
+            this.setValueFor(HMMState.END, new PathProbability(HMMState.END, probability), 2);
+        } else if (StartStopUtil.isReverseStopCodon(firstCodon)) {
+            // Depending on which codon it is, we calculate a new probability for the END state
+            // The first value is always T, so we don't need to check that one
+            double probability = 0;
+            if (firstCodon.getSecondValue() == AminoAcid.A && firstCodon.getThirdValue() == AminoAcid.A) {
+                probability = 0.53;
+            } else if (firstCodon.getSecondValue() == AminoAcid.A && firstCodon.getThirdValue() == AminoAcid.G) {
+                probability = 0.16;
+            } else if (firstCodon.getSecondValue() == AminoAcid.G && firstCodon.getThirdValue() == AminoAcid.A) {
+                probability = 0.30;
+            }
+
+            this.setValueFor(HMMState.END, new PathProbability(HMMState.NO_STATE, 0));
+            this.setValueFor(HMMState.END, new PathProbability(HMMState.END, 0), 1);
+            this.setValueFor(HMMState.END, new PathProbability(HMMState.END, probability), 2);
+        }
     }
 
     /**
@@ -126,7 +162,7 @@ public class ViterbiStep {
 
         // Make sure the disabled states are propagated
         for (Map.Entry<Integer, Map<HMMState, PathProbability>> entry : this.overriddenValues.entrySet()) {
-            if (entry.getKey() == 0) {
+            if (entry.getKey() <= 1) {
                 currentOverriddenValues = entry.getValue();
             } else {
                 newOverriddenValues.put(entry.getKey() - 1, entry.getValue());
@@ -135,7 +171,11 @@ public class ViterbiStep {
 
         // Get the remaining values
         LinkedList<AminoAcid> newNextValues = new LinkedList<>(nextValues);
-        newNextValues.remove();
+
+        // The initial step shouldn't remove the first value
+        if (!isInitialStep) {
+            newNextValues.remove();
+        }
 
         // Create the step
         ViterbiStep ret =  new ViterbiStep(this.parameters, this, newOverriddenValues, newNextValues);
@@ -203,5 +243,25 @@ public class ViterbiStep {
             }
         }
         System.out.println();
+    }
+
+    public HMMState getHighestProbabilityState() {
+        HMMState ret = HMMState.NO_STATE;
+        double currentProbability = 0;
+        for (HMMState state : HMMState.values()) {
+            // TODO remove NON_CODING
+            if (state != HMMState.NO_STATE) {
+                PathProbability pathProbability = pathProbabilities.get(state);
+                if (pathProbability.getProbability() > currentProbability) {
+                    currentProbability = pathProbability.getProbability();
+                    ret = state;
+                }
+            }
+        }
+        return ret;
+    }
+
+    public PathProbability getPathProbabilityFor(HMMState state) {
+        return pathProbabilities.get(state);
     }
 }

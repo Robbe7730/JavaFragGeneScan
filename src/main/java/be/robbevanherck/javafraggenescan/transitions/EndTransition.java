@@ -20,4 +20,9 @@ public abstract class EndTransition extends StartEndTransition {
                                     previous.getParameters().getOuterTransitionProbability(HMMOuterTransition.GENE_END);    // Probability of outer transition G -> E
         return new PathProbability(mState, probability);
     }
+
+    @Override
+    protected Triple<AminoAcid> getCodonStartingOrEndingAtT(ViterbiStep currentStep) {
+        return getCodonEndingAtT(currentStep);
+    }
 }

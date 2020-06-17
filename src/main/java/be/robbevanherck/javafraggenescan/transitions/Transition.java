@@ -40,19 +40,24 @@ public abstract class Transition {
     public abstract PathProbability calculatePathProbability(ViterbiStep currentStep);
 
     /**
-     * Get the codon starting at t-2 and ending at t
+     * Get the codon starting at t-2 and ending at t. if t < 1, G is used as first amino-acid
      * @param currentStep The current Viterbi Step
      * @return The triple of amino-acids
      */
     protected Triple<AminoAcid> getCodonEndingAtT(ViterbiStep currentStep) {
         ViterbiStep previous = currentStep.getPrevious();
 
+        // TODO This is ugly, but that's how the original code works
+        AminoAcid firstAcid;
+
         if (previous.getPrevious() == null) {
-            return null;
+            firstAcid = AminoAcid.G;
+        } else {
+            firstAcid = previous.getPrevious().getInput();
         }
 
         return new Triple<>(
-                previous.getPrevious().getInput(),
+                firstAcid,
                 previous.getInput(),
                 currentStep.getInput()
         );
@@ -64,14 +69,24 @@ public abstract class Transition {
      * @return The triple of amino-acids
      */
     protected Triple<AminoAcid> getCodonStartingAtT(ViterbiStep currentStep) {
-        if (currentStep.getNextValues().size() < 3) {
+        return getCodonStartingAtX(currentStep, 0);
+    }
+
+    /**
+     * Get the codon starting at t+x and ending at t+x+2
+     * @param currentStep The current Viterbi Step
+     * @param x The offset
+     * @return The triple of amino-acids
+     */
+    protected Triple<AminoAcid> getCodonStartingAtX(ViterbiStep currentStep, int x) {
+        if (currentStep.getNextValues().size() < x+3) {
             return null;
         }
 
         return new Triple<>(
-                currentStep.getInput(),
-                currentStep.getNextValues().get(1),
-                currentStep.getNextValues().get(2)
+                currentStep.getNextValues().get(x),
+                currentStep.getNextValues().get(x+1),
+                currentStep.getNextValues().get(x+2)
         );
     }
 }

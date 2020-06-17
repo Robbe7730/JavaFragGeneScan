@@ -36,7 +36,7 @@ public class MatchForwardTransition extends MatchTransition {
         if (!parameters.wholeGenome()) {
             HMMState currState = HMMState.previousState(toState);
             int numD = 1;
-            while (currState != toState) {
+            while (currState != toState && currState != HMMState.MATCH_6) {
                 double probability = previous.getProbabilityFor(currState) *                                                     // Probability to be in currState at t-1
                         parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_DELETE) * 0.25 *                      // Probability of transition + emission of M -> D
                         Math.pow((parameters.getInnerTransitionProbability(HMMInnerTransition.DELETE_DELETE) * 0.25), numD) *   // Probability of numD transitions and emissions of D -> D

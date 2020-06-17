@@ -37,9 +37,7 @@ public class PathProbability {
      * @return The biggest PP
      */
     public static PathProbability max(PathProbability firstPP, PathProbability secondPP, PathProbability thirdPP) {
-        PathProbability firstTwoHighest = PathProbability.max(firstPP, secondPP);
-
-        return PathProbability.max(firstTwoHighest, thirdPP);
+        return PathProbability.max(PathProbability.max(firstPP, secondPP), thirdPP);
     }
 
     public double getProbability() {
@@ -52,5 +50,9 @@ public class PathProbability {
 
     public void setProbability(double probability) {
         this.probability = probability;
+    }
+
+    public String toString() {
+        return probability + " -> " + previousState;
     }
 }

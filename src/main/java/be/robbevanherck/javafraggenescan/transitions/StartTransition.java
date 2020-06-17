@@ -1,8 +1,6 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
-import be.robbevanherck.javafraggenescan.entities.HMMState;
-import be.robbevanherck.javafraggenescan.entities.PathProbability;
-import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
+import be.robbevanherck.javafraggenescan.entities.*;
 
 /**
  * Represents a transition to an S or S' state
@@ -46,4 +44,9 @@ public abstract class StartTransition extends StartEndTransition {
      * @return The probability
      */
     protected abstract PathProbability getProbabilityFromNonCodingState(ViterbiStep currStep);
+
+    @Override
+    protected Triple<AminoAcid> getCodonStartingOrEndingAtT(ViterbiStep currentStep) {
+        return getCodonStartingAtT(currentStep);
+    }
 }

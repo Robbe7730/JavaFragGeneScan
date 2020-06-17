@@ -44,29 +44,29 @@ public enum HMMState {
     public static HMMState previousState(HMMState state) {
         switch (state) {
             case MATCH_1:
-                return HMMState.MATCH_2;
-            case MATCH_2:
-                return HMMState.MATCH_3;
-            case MATCH_3:
-                return HMMState.MATCH_4;
-            case MATCH_4:
-                return HMMState.MATCH_5;
-            case MATCH_5:
                 return HMMState.MATCH_6;
-            case MATCH_6:
+            case MATCH_2:
                 return HMMState.MATCH_1;
+            case MATCH_3:
+                return HMMState.MATCH_2;
+            case MATCH_4:
+                return HMMState.MATCH_3;
+            case MATCH_5:
+                return HMMState.MATCH_4;
+            case MATCH_6:
+                return HMMState.MATCH_5;
             case MATCH_REVERSE_1:
-                return HMMState.MATCH_REVERSE_2;
-            case MATCH_REVERSE_2:
-                return HMMState.MATCH_REVERSE_3;
-            case MATCH_REVERSE_3:
-                return HMMState.MATCH_REVERSE_4;
-            case MATCH_REVERSE_4:
-                return HMMState.MATCH_REVERSE_5;
-            case MATCH_REVERSE_5:
                 return HMMState.MATCH_REVERSE_6;
-            case MATCH_REVERSE_6:
+            case MATCH_REVERSE_2:
                 return HMMState.MATCH_REVERSE_1;
+            case MATCH_REVERSE_3:
+                return HMMState.MATCH_REVERSE_2;
+            case MATCH_REVERSE_4:
+                return HMMState.MATCH_REVERSE_3;
+            case MATCH_REVERSE_5:
+                return HMMState.MATCH_REVERSE_4;
+            case MATCH_REVERSE_6:
+                return HMMState.MATCH_REVERSE_5;
             default:
                 return NO_STATE;
         }

@@ -1,7 +1,7 @@
 package be.robbevanherck.javafraggenescan;
 
 import be.robbevanherck.javafraggenescan.entities.HMMParameters;
-import be.robbevanherck.javafraggenescan.entities.ViterbiAlgorithmInput;
+import be.robbevanherck.javafraggenescan.entities.ViterbiInput;
 import be.robbevanherck.javafraggenescan.repositories.InputRepository;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
@@ -97,10 +97,10 @@ public class Main {
         InputRepository.createInstance();
 
         while(!InputRepository.getInstance().isEmpty()) {
-            ViterbiAlgorithmInput input = InputRepository.getInstance().getNextInput();
+            ViterbiInput input = InputRepository.getInstance().getNextInput();
 
             ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, inputType == 1);
-            algorithm.run();
+            ViterbiAlgorithm.backTrack(algorithm.run());
         }
     }
 }

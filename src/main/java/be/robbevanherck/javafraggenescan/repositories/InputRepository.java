@@ -2,7 +2,7 @@ package be.robbevanherck.javafraggenescan.repositories;
 
 import be.robbevanherck.javafraggenescan.InvalidInputException;
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
-import be.robbevanherck.javafraggenescan.entities.ViterbiAlgorithmInput;
+import be.robbevanherck.javafraggenescan.entities.ViterbiInput;
 import org.biojava.nbio.core.sequence.DNASequence;
 import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
 import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
@@ -16,7 +16,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Repository for the input coming from stdin
  */
 public class InputRepository {
-    private final BlockingQueue<ViterbiAlgorithmInput> queue;
+    private final BlockingQueue<ViterbiInput> queue;
 
     /**
      * Create an InputRepository
@@ -27,7 +27,7 @@ public class InputRepository {
         try {
             System.err.println("Starting Read");
             for (Map.Entry<String, DNASequence> entry : FastaReaderHelper.readFastaDNASequence(System.in).entrySet()) {
-                queue.add(new ViterbiAlgorithmInput(entry.getKey(), dnaSequenceToViterbiInput(entry.getValue())));
+                queue.add(new ViterbiInput(entry.getKey(), dnaSequenceToViterbiInput(entry.getValue())));
             }
             System.err.println("Done Reading");
         } catch (IOException e) {
@@ -56,7 +56,7 @@ public class InputRepository {
         return instance;
     }
 
-    public ViterbiAlgorithmInput getNextInput() throws InterruptedException {
+    public ViterbiInput getNextInput() throws InterruptedException {
         return queue.take();
     }
 

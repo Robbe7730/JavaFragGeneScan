@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Represents the input for the Viterbi algorithm
  */
-public class ViterbiAlgorithmInput {
+public class ViterbiInput {
     private final List<AminoAcid> inputAcids;
     private final String name;
 
@@ -14,7 +14,7 @@ public class ViterbiAlgorithmInput {
      * @param name The name of the input
      * @param inputAcids The amino-acids
      */
-    public ViterbiAlgorithmInput(String name, List<AminoAcid> inputAcids) {
+    public ViterbiInput(String name, List<AminoAcid> inputAcids) {
         this.name = name;
         this.inputAcids = inputAcids;
     }

@@ -20,13 +20,6 @@ public abstract class MatchTransition extends Transition {
         ViterbiStep previous = currentStep.getPrevious();
         HMMParameters parameters = currentStep.getParameters();
 
-        // If we're in the first 2 steps, we can't be in an M(2-6) state
-        if (previous.getPrevious() == null) {
-            // currentStep.getPrevious() can never be null, as the first step is initialized and not calculated
-            return new PathProbability(HMMState.NO_STATE, 0);
-        }
-
-
         /* FROM M STATE */
 
         PathProbability bestValue = getProbabilityFromMatch(parameters, previous, getCodonEndingAtT(currentStep));

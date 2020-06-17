@@ -16,7 +16,7 @@ public class StartForwardTransition extends StartTransition {
 
     @Override
     protected boolean isStartStopCodon(Triple<AminoAcid> codonEndingAtT) {
-        return StartStopUtil.isForwardStopCodon(codonEndingAtT);
+        return StartStopUtil.isForwardStartCodon(codonEndingAtT);
     }
 
     @Override
@@ -37,28 +37,20 @@ public class StartForwardTransition extends StartTransition {
     protected double getGaussianProbability(ViterbiStep currStep) {
         HMMParameters parameters = currStep.getParameters();
 
-        // Make sure the previous steps exist
-        if (currStep.getPrevious().getPrevious() == null) {
-            return 0;
-        }
+        int nucleotidesChecked = 0;
+        double tempProduct = 1;
+
         ViterbiStep firstStep = currStep;
         ViterbiStep secondStep = firstStep.getPrevious();
         ViterbiStep thirdStep = secondStep.getPrevious();
 
-        int nucleotidesChecked = 1;
-        double tempProduct = parameters.getForwardStartPWMProbability(58, new Triple<>(
-                firstStep.getInput(),
-                secondStep.getInput(),
-                thirdStep.getInput()
-        ));
-
-        // Instead of going from -30 to 30, I first go from 0 to -30 (using previous) and then from 0 to 30 (using nextValues)
+        // Instead of going from -30 to 30, I first go from -2 to -30 (using previous) and then from -1 to 30 (using nextValues)
 
         while (thirdStep != null && nucleotidesChecked < 30) {
             tempProduct *= parameters.getForwardStartPWMProbability(29 - nucleotidesChecked, new Triple<>(
-                    firstStep.getInput(),
+                    thirdStep.getInput(),
                     secondStep.getInput(),
-                    thirdStep.getInput()
+                    firstStep.getInput()
             ));
 
             firstStep = secondStep;
@@ -72,7 +64,7 @@ public class StartForwardTransition extends StartTransition {
         AminoAcid secondValue = currStep.getInput();
         AminoAcid thirdValue = currStep.getNextInput();
 
-        for(int i = 0; i < 31 && (i+2) < currStep.getNextValues().size(); i++) {
+        for(int i = -1; i < 30 && (i+2) < currStep.getNextValues().size(); i++) {
             tempProduct *= parameters.getForwardStartPWMProbability(nucleotidesChecked, new Triple<>(
                     firstValue,
                     secondValue,
@@ -86,7 +78,7 @@ public class StartForwardTransition extends StartTransition {
             nucleotidesChecked++;
         }
 
-        double startFrequency = tempProduct * (58.0 / nucleotidesChecked);
+        double startFrequency = nucleotidesChecked == 0 ? 0 : tempProduct * (58.0 / nucleotidesChecked);
 
         return calculateStatisticalProbability(parameters, startFrequency);
     }

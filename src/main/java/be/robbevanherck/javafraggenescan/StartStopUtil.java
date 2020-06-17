@@ -44,10 +44,10 @@ public class StartStopUtil {
      */
     public static boolean isReverseStartCodon(Triple<AminoAcid> codon) {
         return codon != null &&
-                (codon.getFirstValue() == AminoAcid.A && (                                                    // The first acid is always A
-                        (codon.getSecondValue() == AminoAcid.T && codon.getThirdValue() == AminoAcid.T) ||    // ATT
-                        (codon.getSecondValue() == AminoAcid.T && codon.getThirdValue() == AminoAcid.C) ||    // ATC
-                        (codon.getSecondValue() == AminoAcid.C && codon.getThirdValue() == AminoAcid.T)       // ACT
+                (codon.getThirdValue() == AminoAcid.A && (                                                    // The first acid is always A
+                        (codon.getFirstValue() == AminoAcid.T && codon.getSecondValue() == AminoAcid.T) ||    // TTA
+                        (codon.getFirstValue() == AminoAcid.T && codon.getSecondValue() == AminoAcid.C) ||    // TCA
+                        (codon.getFirstValue() == AminoAcid.C && codon.getSecondValue() == AminoAcid.T)       // CTA
                 ));
     }
     /**

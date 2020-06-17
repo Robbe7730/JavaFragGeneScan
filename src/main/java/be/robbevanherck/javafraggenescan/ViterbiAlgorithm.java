@@ -5,12 +5,13 @@ import be.robbevanherck.javafraggenescan.transitions.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Main class for everything related to the Viterbi algorithm
  */
 public class ViterbiAlgorithm {
-    private final ViterbiAlgorithmInput input;
+    private final ViterbiInput input;
     HMMParameters parameters;
 
     public static final List<Transition> TRANSITIONS = List.of(
@@ -67,7 +68,7 @@ public class ViterbiAlgorithm {
      * @param input The input for this calculation
      * @param wholeGenome If the input are whole genomes or partial genomes
      */
-    public ViterbiAlgorithm(ViterbiAlgorithmInput input, boolean wholeGenome) {
+    public ViterbiAlgorithm(ViterbiInput input, boolean wholeGenome) {
         List<AminoAcid> acidList = input.getInputAcids();
 
         // The amount of times G or C occurs in the input
@@ -87,9 +88,25 @@ public class ViterbiAlgorithm {
      */
     public ViterbiStep run() {
         ViterbiStep currentStep = new ViterbiStep(parameters, input.getInputAcids());
-        for (int i = 1; i < input.getInputAcids().size(); i++) {
+        for (int i = 0; i < input.getInputAcids().size(); i++) {
             currentStep = currentStep.calculateNext();
         }
         return currentStep;
+    }
+
+    public static Set<ViterbiResult> backTrack(ViterbiStep lastStep) {
+        HMMState highestState = lastStep.getHighestProbabilityState();
+        PathProbability pathProbability = lastStep.getPathProbabilityFor(highestState);
+
+        int foundStates = 1;
+
+        while (pathProbability.getPreviousState() != HMMState.NO_STATE) {
+            lastStep = lastStep.getPrevious();
+            highestState = pathProbability.getPreviousState();
+            pathProbability = lastStep.getPathProbabilityFor(highestState);
+            foundStates++;
+        }
+
+        return Set.of();
     }
 }

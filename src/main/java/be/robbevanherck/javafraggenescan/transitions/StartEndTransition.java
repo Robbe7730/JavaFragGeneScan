@@ -29,17 +29,24 @@ public abstract class StartEndTransition extends Transition {
 
     @Override
     public PathProbability calculatePathProbability(ViterbiStep currentStep) {
+        // Find the probability to arrive in the Start/End state
         PathProbability pathProbability = getIncomingProbability(currentStep);
-        Triple<AminoAcid> codonEndingAtT = getCodonEndingAtT(currentStep);
+
+        // Find the codon that can be a start codon
+        Triple<AminoAcid> codonAtT = getCodonStartingOrEndingAtT(currentStep);
+
         double probability = 0;
-        if (codonEndingAtT != null) {
+        if (codonAtT != null) {
+            // If the codon is a start/stop codon calculate the extra probabilities
             probability = pathProbability.getProbability() *
-                    getCodonDependantProbability(codonEndingAtT) *
+                    getCodonDependantProbability(codonAtT) *
                     getGaussianProbability(currentStep);
         }
         pathProbability.setProbability(probability);
         return pathProbability;
     }
+
+    protected abstract Triple<AminoAcid> getCodonStartingOrEndingAtT(ViterbiStep currentStep);
 
     /**
      * Returns whether or not the given codon is the correct type of start/stop codon
@@ -99,7 +106,7 @@ public abstract class StartEndTransition extends Transition {
     protected void overrideFutureValues(ViterbiStep currentStep, PathProbability pathProbability) {
         // We calculate the probability for t+2 and path for t, so this needs to be split up
         currentStep.setValueFor(toState, new PathProbability(pathProbability.getPreviousState(), 0));
-        currentStep.setValueFor(toState, new PathProbability(HMMState.START, 0));
-        currentStep.setValueFor(toState, new PathProbability(HMMState.START, pathProbability.getProbability()), 2);
+        currentStep.setValueFor(toState, new PathProbability(toState, 0), 1);
+        currentStep.setValueFor(toState, new PathProbability(toState, pathProbability.getProbability()), 2);
     }
 }

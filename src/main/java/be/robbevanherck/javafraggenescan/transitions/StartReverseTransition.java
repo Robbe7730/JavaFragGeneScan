@@ -22,12 +22,12 @@ public class StartReverseTransition extends StartTransition {
     @Override
     protected double getCodonDependantProbability(Triple<AminoAcid> codon) {
         // TODO these are values from the paper, the original code uses different values!!
-        // The first amino-acid is always A, so we don't need to check that one
-        if (codon.getSecondValue() == AminoAcid.T && codon.getThirdValue() == AminoAcid.C) {
+        // The last amino-acid is always A, so we don't need to check that one
+        if (codon.getFirstValue() == AminoAcid.T && codon.getSecondValue() == AminoAcid.C) {
             return 0.54;
-        } else if (codon.getSecondValue() == AminoAcid.T && codon.getThirdValue() == AminoAcid.T) {
+        } else if (codon.getFirstValue() == AminoAcid.T && codon.getSecondValue() == AminoAcid.T) {
             return 0.30;
-        } else if (codon.getSecondValue() == AminoAcid.C && codon.getThirdValue() == AminoAcid.T) {
+        } else if (codon.getFirstValue() == AminoAcid.C && codon.getSecondValue() == AminoAcid.T) {
             return 0.16;
         } else {
             return 0;
@@ -38,38 +38,22 @@ public class StartReverseTransition extends StartTransition {
     protected double getGaussianProbability(ViterbiStep currStep) {
         HMMParameters parameters = currStep.getParameters();
 
-        // Make sure the previous steps exist
-        if (currStep.getPrevious().getPrevious() == null) {
-            return 0;
-        }
-        ViterbiStep firstStep = currStep;
-        ViterbiStep secondStep = firstStep.getPrevious();
-        ViterbiStep thirdStep = secondStep.getPrevious();
+        int nucleotidesChecked = 0;
+        double tempProduct = 1;
 
-        int nucleotidesChecked = 1;
-        double tempProduct = parameters.getReverseStartPWMProbability(58, new Triple<>(
-                firstStep.getInput(),
-                secondStep.getInput(),
-                thirdStep.getInput()
-        ));
+        Triple<AminoAcid> codon = getCodonStartingAtX(currStep, nucleotidesChecked);
 
         // TODO I'm not sure why this is 58 instead of 61, but I followed the original code
         // Read from the PWM until we reach te beginning or the end of our window
-        while (thirdStep != null && nucleotidesChecked <= 58) {
-            tempProduct *= parameters.getReverseStartPWMProbability(58 - nucleotidesChecked, new Triple<>(
-                    firstStep.getInput(),
-                    secondStep.getInput(),
-                    thirdStep.getInput()
-            ));
-
-            firstStep = secondStep;
-            secondStep = thirdStep;
-            thirdStep = thirdStep.getPrevious();
+        while (codon != null && nucleotidesChecked <= 58) {
+            tempProduct *= parameters.getReverseStartPWMProbability(58 - nucleotidesChecked, codon);
 
             nucleotidesChecked++;
+            codon = getCodonStartingAtX(currStep, nucleotidesChecked);
         }
 
-        double startFrequency = tempProduct * (58.0 / nucleotidesChecked);
+        // Avoid divide by zero
+        double startFrequency = (nucleotidesChecked == 0) ? 0 : tempProduct * (58.0 / nucleotidesChecked);
 
         return calculateStatisticalProbability(parameters, startFrequency);
     }
