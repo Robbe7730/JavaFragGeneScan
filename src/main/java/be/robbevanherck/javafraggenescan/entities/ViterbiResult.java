@@ -1,6 +1,6 @@
 package be.robbevanherck.javafraggenescan.entities;
 
-import be.robbevanherck.javafraggenescan.DNAToProteinUtil;
+import be.robbevanherck.javafraggenescan.DNAUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,31 +12,31 @@ public class ViterbiResult {
     private final List<AminoAcid> result;
     private final int start;
     private final int stop;
-    private final boolean isReverseStrand;
+    private final DNAStrand strand;
 
     /**
      * Create a new ViterbiResult
-     * @param result The result
+     * @param result The resulting DNA sequence
      * @param start The start index
      * @param stop The end index
-     * @param isReverseStrand  If this is the reverse strand
+     * @param strand  Which strand this result came from
      */
-    public ViterbiResult(List<AminoAcid> result, int start, int stop, boolean isReverseStrand) {
+    public ViterbiResult(List<AminoAcid> result, int start, int stop, DNAStrand strand) {
         this.result = result;
         this.start = start;
         this.stop = stop;
-        this.isReverseStrand = isReverseStrand;
+        this.strand = strand;
     }
 
     public String getDNA() {
-        return result.stream().map(AminoAcid::toString).collect(Collectors.joining());
+        return result.stream().map(AminoAcid::toString).collect(Collectors.joining(""));
     }
 
     public String getProteins() {
-        return DNAToProteinUtil.getProteins(result, isReverseStrand);
+        return DNAUtil.getProteins(result, strand);
     }
 
     public String getHeaderSuffix() {
-        return "_" + start + "_" + stop + "_" + (isReverseStrand ? "-" : "+");
+        return "_" + start + "_" + stop + "_" + (strand == DNAStrand.REVERSE ? "-" : "+");
     }
 }

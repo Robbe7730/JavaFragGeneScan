@@ -3,9 +3,7 @@ package be.robbevanherck.javafraggenescan;
 import be.robbevanherck.javafraggenescan.entities.*;
 import be.robbevanherck.javafraggenescan.transitions.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Main class for everything related to the Viterbi algorithm
@@ -94,19 +92,133 @@ public class ViterbiAlgorithm {
         return currentStep;
     }
 
-    public static Set<ViterbiResult> backTrack(ViterbiStep lastStep) {
-        HMMState highestState = lastStep.getHighestProbabilityState();
-        PathProbability pathProbability = lastStep.getPathProbabilityFor(highestState);
+    /**
+     * Backtrack to find the result of the algorithm
+     * @param currentStep The final step
+     * @param sequenceLength The length of the input sequence
+     * @return A set of ViterbiResults to be written
+     */
+    public static Set<ViterbiResult> backTrack(ViterbiStep currentStep, int sequenceLength) {
+        HMMState lastMatchingState = HMMState.NO_STATE;
+        HMMState currentState = currentStep.getHighestProbabilityState();
+        PathProbability currentPathProbability = currentStep.getPathProbabilityFor(currentState);
 
-        int foundStates = 1;
+        int t = 0;
 
-        while (pathProbability.getPreviousState() != HMMState.NO_STATE) {
-            lastStep = lastStep.getPrevious();
-            highestState = pathProbability.getPreviousState();
-            pathProbability = lastStep.getPathProbabilityFor(highestState);
-            foundStates++;
+        DNAStrand strand = DNAStrand.UNKNOWN_STRAND;
+
+        // When we started matching or -1 if not matching
+        int lastEnding = -1;
+
+        Set<ViterbiResult> ret = new HashSet<>();
+        List<AminoAcid> currentDNAString = new LinkedList<>();
+
+        // Backtrack until we hit an invalid state
+        while (currentPathProbability.getPreviousState() != HMMState.NO_STATE) {
+            if (HMMState.isForwardMatchState(currentState)) {
+                /* START A FORWARD SEQUENCE */
+
+                //TODO put this with the M' states in a function
+
+                // If we weren't matching and are in an M3/M6 state, begin matching now
+                if (strand == DNAStrand.UNKNOWN_STRAND && (
+                        currentState == HMMState.MATCH_6 ||
+                        currentState == HMMState.MATCH_3
+                    )) {
+
+                    strand = DNAStrand.FORWARD;
+                    lastEnding = t;
+                }
+
+                if (strand == DNAStrand.FORWARD) {
+                    if (lastMatchingState != HMMState.NO_STATE && HMMState.previousState(lastMatchingState) != currentState) {
+                        //TODO
+                        System.err.println("We got some D states");
+                    }
+                    currentDNAString.add(currentStep.getInput());
+                    lastMatchingState = currentState;
+                }
+
+            } else if (HMMState.isReverseMatchState(currentState)) {
+                /* START A REVERSE SEQUENCE */
+
+                // If we weren't matching and are in an M3'/M6' state, begin matching now
+                if (strand == DNAStrand.UNKNOWN_STRAND && (
+                        currentState == HMMState.MATCH_REVERSE_6 ||
+                        currentState == HMMState.MATCH_REVERSE_3
+                )) {
+
+                    strand = DNAStrand.REVERSE;
+                    lastEnding = t;
+                }
+
+                if (strand == DNAStrand.REVERSE) {
+                    if (lastMatchingState != HMMState.NO_STATE && HMMState.previousState(lastMatchingState) != currentState) {
+                        //TODO
+                        System.err.println("We got some D' states");
+                    }
+                    currentDNAString.add(currentStep.getInput());
+                    lastMatchingState = currentState;
+                }
+            } else if(currentState == HMMState.END_REVERSE || currentState == HMMState.END) {
+                /* STORE THE LAST ENDING POSITION */
+                lastEnding = t;
+            } else if (currentState == HMMState.START || currentState == HMMState.START_REVERSE) {
+                /* END THE SEQUENCE */
+
+                // Add the result and reset values
+                if (strand != DNAStrand.UNKNOWN_STRAND) {
+                    addToResult(ret, currentDNAString, sequenceLength - t + 1, sequenceLength - lastEnding, strand, lastMatchingState);
+                    currentDNAString = new LinkedList<>();
+                }
+                lastEnding = -1;
+                strand = DNAStrand.UNKNOWN_STRAND;
+            }
+            // Find the next step
+            currentStep = currentStep.getPrevious();
+            currentState = currentPathProbability.getPreviousState();
+            currentPathProbability = currentStep.getPathProbabilityFor(currentState);
+            t++;
+        }
+        // Make sure to add remaining DNA strands
+        if (strand != DNAStrand.UNKNOWN_STRAND) {
+            addToResult(ret, currentDNAString, 1, sequenceLength - lastEnding, strand, lastMatchingState);
         }
 
-        return Set.of();
+        return ret;
+    }
+
+    private static void addToResult(Set<ViterbiResult> ret, List<AminoAcid> currentDNAString, int start, int end, DNAStrand strand, HMMState lastMatchingState) {
+        if (currentDNAString.isEmpty()) {
+            return;
+        }
+
+        LinkedList<AminoAcid> currentDNAStringLL = (LinkedList<AminoAcid>) currentDNAString;
+
+        // Remove trailing matches
+        while (lastMatchingState != HMMState.NO_STATE &&
+                lastMatchingState != HMMState.MATCH_1 &&
+                lastMatchingState != HMMState.MATCH_4 &&
+                lastMatchingState != HMMState.MATCH_REVERSE_1 &&
+                lastMatchingState != HMMState.MATCH_REVERSE_4
+        ) {
+            currentDNAStringLL.removeLast();
+            lastMatchingState = HMMState.nextState(lastMatchingState);
+            start++;
+        }
+
+        List<AminoAcid> reversedCurrentDNAString;
+
+        if (strand == DNAStrand.REVERSE) {
+            reversedCurrentDNAString = DNAUtil.complement(currentDNAString);
+        } else {
+            // Reverse the string
+            reversedCurrentDNAString = new LinkedList<>();
+            currentDNAStringLL.descendingIterator().forEachRemaining(reversedCurrentDNAString::add);
+        }
+
+
+        // Add it
+        ret.add(new ViterbiResult(reversedCurrentDNAString, start, end, strand));
     }
 }

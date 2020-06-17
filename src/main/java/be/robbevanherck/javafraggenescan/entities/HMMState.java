@@ -216,4 +216,88 @@ public enum HMMState {
                 return NO_STATE;
         }
     }
+
+    /**
+     * Checks if a state is an M or M' state
+     * @param currentState The state to check
+     * @return True if the state is M1-M6 or M1'-M6'
+     */
+    public static boolean isMatchState(HMMState currentState) {
+        return (isForwardMatchState(currentState) || isReverseMatchState(currentState));
+    }
+
+    /**
+     * Test if a state is an S or S' state
+     * @param currentState The state to check
+     * @return True if the state is S or S'
+     */
+    public static boolean isStartState(HMMState currentState) {
+        return (currentState == START || currentState == START_REVERSE);
+    }
+    /**
+     * Check if a state is an M state
+     * @param currentState The state to be checked
+     * @return True if the state is an M state
+     */
+    public static boolean isForwardMatchState(HMMState currentState) {
+        return (
+                currentState == MATCH_1 ||
+                currentState == MATCH_2 ||
+                currentState == MATCH_3 ||
+                currentState == MATCH_4 ||
+                currentState == MATCH_5 ||
+                currentState == MATCH_6
+        );
+    }
+
+    /**
+     * Check if a state is an M' state
+     * @param currentState The state to be checked
+     * @return True if the state is an M' state
+     */
+    public static boolean isReverseMatchState(HMMState currentState) {
+        return (
+                currentState == MATCH_REVERSE_1 ||
+                currentState == MATCH_REVERSE_2 ||
+                currentState == MATCH_REVERSE_3 ||
+                currentState == MATCH_REVERSE_4 ||
+                currentState == MATCH_REVERSE_5 ||
+                currentState == MATCH_REVERSE_6
+        );
+    }
+    /**
+     * Get the next state from a state
+     * @param state The current state
+     * @return The next state
+     */
+    public static HMMState nextState(HMMState state) {
+        switch (state) {
+            case MATCH_1:
+                return HMMState.MATCH_2;
+            case MATCH_2:
+                return HMMState.MATCH_3;
+            case MATCH_3:
+                return HMMState.MATCH_4;
+            case MATCH_4:
+                return HMMState.MATCH_5;
+            case MATCH_5:
+                return HMMState.MATCH_6;
+            case MATCH_6:
+                return HMMState.MATCH_1;
+            case MATCH_REVERSE_1:
+                return HMMState.MATCH_REVERSE_2;
+            case MATCH_REVERSE_2:
+                return HMMState.MATCH_REVERSE_3;
+            case MATCH_REVERSE_3:
+                return HMMState.MATCH_REVERSE_4;
+            case MATCH_REVERSE_4:
+                return HMMState.MATCH_REVERSE_5;
+            case MATCH_REVERSE_5:
+                return HMMState.MATCH_REVERSE_6;
+            case MATCH_REVERSE_6:
+                return HMMState.MATCH_REVERSE_1;
+            default:
+                return NO_STATE;
+        }
+    }
 }

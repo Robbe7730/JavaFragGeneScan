@@ -1,6 +1,7 @@
 package be.robbevanherck.javafraggenescan;
 
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
+import be.robbevanherck.javafraggenescan.entities.DNAStrand;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -10,8 +11,8 @@ import java.util.stream.Collectors;
 /**
  * Converts DNA to proteins
  */
-public class DNAToProteinUtil {
-    private DNAToProteinUtil() {}
+public class DNAUtil {
+    private DNAUtil() {}
 
     private static final char[] TRANSLATION_TABLE_11 = {
         'K', 'N', 'K', 'N',
@@ -60,15 +61,15 @@ public class DNAToProteinUtil {
     /**
      * Get the protein string for the reverse strand
      * @param acidList The amino-acids
-     * @param isReverse If the DNA comes from the reverse strand
+     * @param strand Which strand it comes from
      * @return The string of proteins
      */
-    public static String getProteins(List<AminoAcid> acidList, boolean isReverse) {
+    public static String getProteins(List<AminoAcid> acidList, DNAStrand strand) {
         Iterator<AminoAcid> acidIterator = acidList.iterator();
 
         List<Character> ret = new LinkedList<>();
 
-        char[] translationTable = isReverse ? TRANSLATION_TABLE_11_RC : TRANSLATION_TABLE_11;
+        char[] translationTable = strand == DNAStrand.REVERSE ? TRANSLATION_TABLE_11_RC : TRANSLATION_TABLE_11;
 
         while(acidIterator.hasNext()) {
             ret.add(translationTable[trinucleotideToInt(acidIterator.next(), acidIterator.next(), acidIterator.next())]);
@@ -79,5 +80,38 @@ public class DNAToProteinUtil {
 
     private static int trinucleotideToInt(AminoAcid firstAcid, AminoAcid secondAcid, AminoAcid thirdAcid) {
         return (AminoAcid.toInt(firstAcid) << 4 | AminoAcid.toInt(secondAcid) << 2 | AminoAcid.toInt(thirdAcid));
+    }
+
+    /**
+     * Get the complement of a DNA strand
+     * @param strand The strand
+     * @return The complement
+     */
+    public static List<AminoAcid> complement(List<AminoAcid> strand) {
+        List<AminoAcid> newAcids = new LinkedList<>();
+        for (AminoAcid acid : strand) {
+            newAcids.add(complement(acid));
+        }
+        return newAcids;
+    }
+
+    /**
+     * Return the complement of a single amino-acid
+     * @param acid The amino-acid
+     * @return the complement
+     */
+    public static AminoAcid complement(AminoAcid acid) {
+        switch (acid) {
+            case A:
+                return AminoAcid.T;
+            case C:
+                return AminoAcid.G;
+            case G:
+                return AminoAcid.C;
+            case T:
+                return AminoAcid.A;
+            default:
+                return AminoAcid.INVALID;
+        }
     }
 }

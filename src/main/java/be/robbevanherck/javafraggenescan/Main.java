@@ -2,13 +2,15 @@ package be.robbevanherck.javafraggenescan;
 
 import be.robbevanherck.javafraggenescan.entities.HMMParameters;
 import be.robbevanherck.javafraggenescan.entities.ViterbiInput;
-import be.robbevanherck.javafraggenescan.repositories.InputRepository;
+import be.robbevanherck.javafraggenescan.entities.ViterbiResult;
+import be.robbevanherck.javafraggenescan.repositories.SyncInputRepository;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 import java.io.File;
+import java.util.Set;
 
 /**
  * The entry class of the project
@@ -94,13 +96,16 @@ public class Main {
     public void run() throws InterruptedException {
         // Read in all the files
         HMMParameters.setup(modelConfFile);
-        InputRepository.createInstance();
+        SyncInputRepository.createInstance();
 
-        while(!InputRepository.getInstance().isEmpty()) {
-            ViterbiInput input = InputRepository.getInstance().getNextInput();
+        while(!SyncInputRepository.getInstance().isEmpty()) {
+            ViterbiInput input = SyncInputRepository.getInstance().getNextInput();
+
+            int inputLength = input.getInputAcids().size();
 
             ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, inputType == 1);
-            ViterbiAlgorithm.backTrack(algorithm.run());
+            Set<ViterbiResult> results = ViterbiAlgorithm.backTrack(algorithm.run(), inputLength);
+
         }
     }
 }

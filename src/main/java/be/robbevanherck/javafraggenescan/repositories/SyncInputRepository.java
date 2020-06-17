@@ -13,15 +13,15 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
- * Repository for the input coming from stdin
+ * Repository for in and output that needs to be blocking
  */
-public class InputRepository {
+public class SyncInputRepository {
     private final BlockingQueue<ViterbiInput> queue;
 
     /**
      * Create an InputRepository
      */
-    public InputRepository() {
+    public SyncInputRepository() {
         queue = new LinkedBlockingDeque<>();
 
         try {
@@ -43,16 +43,16 @@ public class InputRepository {
         return ret;
     }
 
-    private static InputRepository instance;
+    private static SyncInputRepository instance;
 
     /**
      * Create a new instance of this Repository
      */
     public static void createInstance() {
-        instance = new InputRepository();
+        instance = new SyncInputRepository();
     }
 
-    public static InputRepository getInstance() {
+    public static SyncInputRepository getInstance() {
         return instance;
     }
 

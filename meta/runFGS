@@ -1,4 +1,4 @@
 #!/bin/bash
 
-mvn package >/dev/null
+mvn clean package >/dev/null
 java -jar target/JavaFragGeneScan-1.0-jar-with-dependencies.jar $@

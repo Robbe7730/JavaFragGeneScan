@@ -68,4 +68,20 @@ public enum AminoAcid {
                 return INVALID;
         }
     }
+
+    @Override
+    public String toString() {
+        switch (this) {
+            case A:
+                return "A";
+            case C:
+                return "C";
+            case G:
+                return "G";
+            case T:
+                return "T";
+            default:
+                return "N";
+        }
+    }
 }

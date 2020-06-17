@@ -77,21 +77,31 @@ public class ViterbiStep {
             this.setValueFor(HMMState.END, new PathProbability(HMMState.NO_STATE, 0));
             this.setValueFor(HMMState.END, new PathProbability(HMMState.END, 0), 1);
             this.setValueFor(HMMState.END, new PathProbability(HMMState.END, probability), 2);
-        } else if (StartStopUtil.isReverseStopCodon(firstCodon)) {
-            // Depending on which codon it is, we calculate a new probability for the END state
-            // The first value is always T, so we don't need to check that one
-            double probability = 0;
-            if (firstCodon.getSecondValue() == AminoAcid.A && firstCodon.getThirdValue() == AminoAcid.A) {
-                probability = 0.53;
-            } else if (firstCodon.getSecondValue() == AminoAcid.A && firstCodon.getThirdValue() == AminoAcid.G) {
-                probability = 0.16;
-            } else if (firstCodon.getSecondValue() == AminoAcid.G && firstCodon.getThirdValue() == AminoAcid.A) {
-                probability = 0.30;
+
+            this.setValueFor(HMMState.MATCH_6, new PathProbability(HMMState.NO_STATE, 0), 2);
+            this.setValueFor(HMMState.MATCH_5, new PathProbability(HMMState.NO_STATE, 0), 1);
+            this.setValueFor(HMMState.MATCH_4, new PathProbability(HMMState.NO_STATE, 0));
+            this.setValueFor(HMMState.MATCH_3, new PathProbability(HMMState.NO_STATE, 0), 2);
+            this.setValueFor(HMMState.MATCH_2, new PathProbability(HMMState.NO_STATE, 0), 1);
+            this.setValueFor(HMMState.MATCH_1, new PathProbability(HMMState.NO_STATE, 0));
+        } else if (StartStopUtil.isReverseStartCodon(firstCodon)) {
+            // Depending on which codon it is, we calculate a new probability for the START' state
+            // The last value is always A, so we don't need to check that one
+            double probability = this.getPathProbabilityFor(HMMState.START).getProbability();
+            if (firstCodon.getFirstValue() == AminoAcid.T && firstCodon.getSecondValue() == AminoAcid.T) {
+                probability *= 0.53;
+            } else if (firstCodon.getFirstValue() == AminoAcid.C && firstCodon.getSecondValue() == AminoAcid.T) {
+                probability *= 0.16;
+            } else if (firstCodon.getFirstValue() == AminoAcid.T && firstCodon.getSecondValue() == AminoAcid.C) {
+                probability *= 0.30;
             }
 
-            this.setValueFor(HMMState.END, new PathProbability(HMMState.NO_STATE, 0));
-            this.setValueFor(HMMState.END, new PathProbability(HMMState.END, 0), 1);
-            this.setValueFor(HMMState.END, new PathProbability(HMMState.END, probability), 2);
+            this.setValueFor(HMMState.START_REVERSE, new PathProbability(HMMState.NO_STATE, 0));
+            this.setValueFor(HMMState.START_REVERSE, new PathProbability(HMMState.START_REVERSE, 0), 1);
+            this.setValueFor(HMMState.START_REVERSE, new PathProbability(HMMState.START_REVERSE, probability), 2);
+
+            this.setValueFor(HMMState.MATCH_REVERSE_3, new PathProbability(HMMState.NO_STATE, 0), 2);
+            this.setValueFor(HMMState.MATCH_REVERSE_6, new PathProbability(HMMState.NO_STATE, 0), 2);
         }
     }
 
