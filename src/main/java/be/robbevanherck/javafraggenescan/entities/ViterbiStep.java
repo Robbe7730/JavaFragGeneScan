@@ -60,7 +60,12 @@ public class ViterbiStep {
             this.setValueFor(entry.getKey(), entry.getValue());
         }
 
-        Triple<AminoAcid> firstCodon = new Triple<>(inputs.get(0), inputs.get(1), inputs.get(2));
+        Triple<AminoAcid> firstCodon;
+        if (inputs.size() > 2) {
+            firstCodon = new Triple<>(inputs.get(0), inputs.get(1), inputs.get(2));
+        } else {
+            firstCodon = new Triple<>(AminoAcid.INVALID, AminoAcid.INVALID, AminoAcid.INVALID);
+        }
 
         if (StartStopUtil.isForwardStopCodon(firstCodon)) {
             // Depending on which codon it is, we calculate a new probability for the END state
