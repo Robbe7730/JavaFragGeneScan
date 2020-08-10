@@ -53,7 +53,7 @@ public class Main {
     @Parameter(names={"-w", "--input-type"}, description = "0 for short sequence reads or 1 for full genome sequences")
     private int inputType;
 
-    @Parameter(names={"-p", "--num-threads"}, description = "The number of threads to use", validateWith = ThreadValidator.class)
+    @Parameter(names={"-p", "--num-threads"}, description = "[NOT YET SUPPORTED] The number of threads to use", validateWith = ThreadValidator.class)
     private int numThreads = 1;
 
     @Parameter(names={"-t", "--model-parameters"}, description = "File with the model parameters", required = true)
@@ -62,7 +62,7 @@ public class Main {
     @Parameter(names={"-d", "--output-dna-fasta"}, description = "Output file for the DNA-FASTA. If not present, no output is written")
     private File outputDNAFASTA;
 
-    @Parameter(names={"-e", "--output-metadata"}, description = "Output file for the metadata. If not present, no output is written")
+    @Parameter(names={"-e", "--output-metadata"}, description = "[NOT YET SUPPORTED] Output file for the metadata. If not present, no output is written")
     private File outputMetaData;
 
     @Parameter(names={"-h" , "-?", "--help", "--usage"}, description = "Show this help text and exit", help = true)
