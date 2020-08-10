@@ -1,16 +1,16 @@
-package be.robbevanherck.javafraggenescan;
+package be.robbevanherck.javafraggenescan.exceptions;
 
 /**
- * Thrown when there's something wrong with the output
+ * Thrown when there's something wrong with the input on standard input
  * RuntimeException because this is a user error, not a (recoverable) programming error.
  */
-public class OutputException extends RuntimeException {
+public class InvalidInputException extends RuntimeException {
     /**
      * Create an exception with a message and a nested exception
      * @param message The message
      * @param nested The nested exception
      */
-    public OutputException(String message, Throwable nested) {
+    public InvalidInputException(String message, Throwable nested) {
         super(message, nested);
     }
 }

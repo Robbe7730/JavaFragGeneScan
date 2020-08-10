@@ -1,6 +1,6 @@
 package be.robbevanherck.javafraggenescan.repositories;
 
-import be.robbevanherck.javafraggenescan.InvalidTrainingFileException;
+import be.robbevanherck.javafraggenescan.exceptions.InvalidTrainingFileException;
 import be.robbevanherck.javafraggenescan.entities.*;
 
 import java.io.File;

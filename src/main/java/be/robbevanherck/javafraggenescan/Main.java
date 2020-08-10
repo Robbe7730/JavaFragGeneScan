@@ -3,6 +3,7 @@ package be.robbevanherck.javafraggenescan;
 import be.robbevanherck.javafraggenescan.entities.HMMParameters;
 import be.robbevanherck.javafraggenescan.entities.ViterbiInput;
 import be.robbevanherck.javafraggenescan.entities.ViterbiResult;
+import be.robbevanherck.javafraggenescan.exceptions.OutputException;
 import be.robbevanherck.javafraggenescan.repositories.SynchronousRepository;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;

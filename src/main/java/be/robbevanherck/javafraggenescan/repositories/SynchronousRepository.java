@@ -1,6 +1,6 @@
 package be.robbevanherck.javafraggenescan.repositories;
 
-import be.robbevanherck.javafraggenescan.InvalidInputException;
+import be.robbevanherck.javafraggenescan.exceptions.InvalidInputException;
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.ViterbiInput;
 import be.robbevanherck.javafraggenescan.entities.ViterbiResult;
