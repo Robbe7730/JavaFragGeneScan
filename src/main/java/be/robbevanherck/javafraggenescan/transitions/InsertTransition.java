@@ -20,6 +20,8 @@ public abstract class InsertTransition extends Transition {
         ViterbiStep previous = currentStep.getPrevious();
         HMMParameters parameters = currentStep.getParameters();
 
+        currentStep.setAminoAcidsBeforeInsert(toState, new Pair<>(currentStep.getPrevious().getInput(), currentStep.getInput()));
+
         return PathProbability.max(
                 getProbabilityFromInsertion(parameters, previous, currentStep),
                 getProbabilityFromMatch(parameters, previous, currentStep)
