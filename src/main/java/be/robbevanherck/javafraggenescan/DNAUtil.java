@@ -46,7 +46,15 @@ public class DNAUtil {
         List<Character> ret = new LinkedList<>();
 
         while(acidIterator.hasNext()) {
-            ret.add(TRANSLATION_TABLE_11[trinucleotideToInt(acidIterator.next(), acidIterator.next(), acidIterator.next())]);
+            AminoAcid firstAcid = acidIterator.next();
+            AminoAcid secondAcid = acidIterator.next();
+            AminoAcid thirdAcid = acidIterator.next();
+
+            if (firstAcid == AminoAcid.INVALID || secondAcid == AminoAcid.INVALID || thirdAcid == AminoAcid.INVALID) {
+                ret.add('*');
+            } else {
+                ret.add(TRANSLATION_TABLE_11[trinucleotideToInt(firstAcid, secondAcid, thirdAcid)]);
+            }
         }
 
         return ret.stream().map(String::valueOf).collect(Collectors.joining());
