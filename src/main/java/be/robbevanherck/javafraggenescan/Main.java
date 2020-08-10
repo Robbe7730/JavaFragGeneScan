@@ -32,25 +32,6 @@ public class Main {
         }
     }
 
-    /**
-     * ParameterValidator for the -l/--log-level parameter
-     */
-    public static class LogLevelValidator implements IParameterValidator {
-        @Override
-        public void validate(String name, String value) {
-            try {
-                if (Integer.parseInt(value) < 0) {
-                    throw new ParameterException("Log level must be greater than or equal to 0");
-                }
-                if (Integer.parseInt(value) > 4) {
-                    throw new ParameterException("Log level must be less than 5");
-                }
-            } catch (NumberFormatException nfe) {
-                throw new ParameterException("Invalid loglevel", nfe);
-            }
-        }
-    }
-
     @Parameter(names={"-w", "--input-type"}, description = "0 for short sequence reads or 1 for full genome sequences")
     private int inputType;
 
