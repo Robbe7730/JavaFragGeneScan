@@ -4,36 +4,48 @@ package be.robbevanherck.javafraggenescan.entities;
  * All the possible states the HMM can be in
  */
 public enum HMMState {
+    // M states
     MATCH_1,
     MATCH_2,
     MATCH_3,
     MATCH_4,
     MATCH_5,
     MATCH_6,
+
+    // I states
     INSERT_1,
     INSERT_2,
     INSERT_3,
     INSERT_4,
     INSERT_5,
     INSERT_6,
+
+    // M' states
     MATCH_REVERSE_1,
     MATCH_REVERSE_2,
     MATCH_REVERSE_3,
     MATCH_REVERSE_4,
     MATCH_REVERSE_5,
     MATCH_REVERSE_6,
+
+    // I' states
     INSERT_REVERSE_1,
     INSERT_REVERSE_2,
     INSERT_REVERSE_3,
     INSERT_REVERSE_4,
     INSERT_REVERSE_5,
     INSERT_REVERSE_6,
+
+    // Start/Stop states
     START,
     START_REVERSE,
     END,
     END_REVERSE,
+
+    // Noncoding state
     NON_CODING,
 
+    // Invalid state
     NO_STATE;
 
     /**
