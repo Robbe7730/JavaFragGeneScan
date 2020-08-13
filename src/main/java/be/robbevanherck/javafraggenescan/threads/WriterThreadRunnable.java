@@ -2,7 +2,6 @@ package be.robbevanherck.javafraggenescan.threads;
 
 import be.robbevanherck.javafraggenescan.entities.ViterbiResult;
 import be.robbevanherck.javafraggenescan.exceptions.OutputException;
-import be.robbevanherck.javafraggenescan.repositories.SynchronousRepository;
 import org.sonatype.inject.Nullable;
 
 import java.io.File;
@@ -37,12 +36,13 @@ public class WriterThreadRunnable implements Runnable {
         }
         while (ThreadManager.getInstance().writerThreadAlive()) {
             try {
-                while (!SynchronousRepository.getInstance().hasNextOutput()) {
+                while (ThreadManager.getInstance().isOutputQueueEmpty()) {
                     if (!ThreadManager.getInstance().writerThreadAlive()) {
                         return;
                     }
                 }
-                ViterbiResult result = SynchronousRepository.getInstance().getNextOutputBlocking();
+                // Blocking is ok here, because there is only one writer thread reading the output
+                ViterbiResult result = ThreadManager.getInstance().getNextOutputBlocking();
                 // Write to fasta file
                 if (fastaOutputStream != null) {
                     result.writeFasta(fastaOutputStream);
