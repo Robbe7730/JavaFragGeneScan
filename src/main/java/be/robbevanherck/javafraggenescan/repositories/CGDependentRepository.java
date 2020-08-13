@@ -16,6 +16,7 @@ import java.util.Scanner;
  * @param <T> The type of the data under the headers
  */
 public abstract class CGDependentRepository<T> {
+    protected Map<Integer, T> cgDependantProbabilities = new HashMap<>();
 
     /**
      * Create a new CGDependentRepository
@@ -28,14 +29,12 @@ public abstract class CGDependentRepository<T> {
                 // Read the header of this set of values
                 int index = readIndex(s);
 
-                matchEmissions.put(index, readOneBlock(s));
+                cgDependantProbabilities.put(index, readOneBlock(s));
             }
         } catch (FileNotFoundException fnef) {
             throw new InvalidTrainingFileException("No such file: " + filename, fnef);
         }
     }
-
-    protected Map<Integer, T> matchEmissions = new HashMap<>();
 
     /**
      * Get the matchEmissions for a certain amount of G/C amino-acids
@@ -44,7 +43,7 @@ public abstract class CGDependentRepository<T> {
      */
     public T getValues(int percentageGC) {
         int countGC = Math.min(Math.max(percentageGC, 26), 70);
-        return matchEmissions.get(countGC);
+        return cgDependantProbabilities.get(countGC);
     }
 
     /**

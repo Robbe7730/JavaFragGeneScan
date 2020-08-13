@@ -55,4 +55,25 @@ public class PathProbability {
     public String toString() {
         return probability + " -> " + previousState;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PathProbability that = (PathProbability) o;
+
+        if (Double.compare(that.probability, probability) != 0) return false;
+        return previousState == that.previousState;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(probability);
+        result = (int) (temp ^ (temp >>> 32));
+        result = 31 * result + previousState.hashCode();
+        return result;
+    }
 }

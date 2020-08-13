@@ -1,0 +1,43 @@
+package be.robbevanherck.javafraggenescan.repositories;
+
+import be.robbevanherck.javafraggenescan.entities.AminoAcid;
+import be.robbevanherck.javafraggenescan.entities.Pair;
+import org.junit.Test;
+
+import java.lang.reflect.Parameter;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+
+import static org.junit.Assert.*;
+
+public class NonCodingEmissionRepositoryTest {
+    private final List<AminoAcid> aminoAcids = List.of(
+            AminoAcid.A,
+            AminoAcid.C,
+            AminoAcid.G,
+            AminoAcid.T
+    );
+
+    @Test
+    public void read() {
+        // Return and file handling are already tested in CGDependentRepositoryTest, only the reading
+        // needs to be tested here
+        NonCodingEmissionRepository nonCodingEmissionRepository = new NonCodingEmissionRepository();
+        Scanner blockScanner = new Scanner(
+                "0.0000\t0.0001\t0.0002\t0.0003\n" +
+                "0.0004\t0.0005\t0.0006\t0.0007\n" +
+                "0.0008\t0.0009\t0.0010\t0.0011\n" +
+                "0.0012\t0.0013\t0.0014\t0.0015\n");
+        Map<Pair<AminoAcid>, Double> blockResult = nonCodingEmissionRepository.readOneBlock(blockScanner);
+
+        double i = 0.0000;
+
+        for (AminoAcid firstAcid : aminoAcids) {
+            for (AminoAcid secondAcid : aminoAcids) {
+                assertEquals(i, blockResult.get(new Pair<>(firstAcid, secondAcid)), 0.0000000000001);
+                i += 0.0001;
+            }
+        }
+    }
+}
