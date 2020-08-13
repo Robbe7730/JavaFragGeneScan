@@ -93,26 +93,9 @@ public class ThreadManager {
      * Start the reader thread
      */
     public void startReaderThread() {
-        // TODO: make this a thread
-        try {
-            System.err.println("Starting Read");
-            for (Map.Entry<String, DNASequence> entry : FastaReaderHelper.readFastaDNASequence(System.in).entrySet()) {
-                inputQueue.add(new ViterbiInput(entry.getKey(), dnaSequenceToViterbiInput(entry.getValue())));
-            }
-            processedAllInput.set(true);
-            System.err.println("Done Reading");
-        } catch (IOException e) {
-            throw new InvalidInputException("Could not read input from stdin", e);
-        }
-
-    }
-
-    private List<AminoAcid> dnaSequenceToViterbiInput(DNASequence value) {
-        List<AminoAcid> ret = new ArrayList<>();
-        for (NucleotideCompound aminoAcidCompound : value.getAsList()) {
-            ret.add(AminoAcid.fromString(aminoAcidCompound.getShortName()));
-        }
-        return ret;
+        Thread readerThread = new Thread(new ReaderThreadRunnable());
+        readerThread.setName("Reader thread");
+        readerThread.start();
     }
 
     /**
@@ -178,6 +161,13 @@ public class ThreadManager {
     }
 
     /**
+     * Notify the ThreadManager that a thread is going to stop
+     */
+    public void notifyStoppingThread() {
+        numRunnerThreads.getAndDecrement();
+    }
+
+    /**
      * Add a set of results to the output queue
      * @param results The results to add
      */
@@ -186,9 +176,17 @@ public class ThreadManager {
     }
 
     /**
-     * Notify the ThreadManager that a thread is going to stop
+     * Add a ViterbiInput to the input queue
+     * @param viterbiInput The input to add
      */
-    public void notifyStoppingThread() {
-        numRunnerThreads.getAndDecrement();
+    public void addToInput(ViterbiInput viterbiInput) {
+        inputQueue.add(viterbiInput);
+    }
+
+    /**
+     * Notify the ThreadManager that the input is fully processed
+     */
+    public void setInputProcessed() {
+        processedAllInput.set(true);
     }
 }
