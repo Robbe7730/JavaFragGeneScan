@@ -72,22 +72,26 @@ public class SynchronousRepository {
     }
 
     /**
-     * Add a new result
-     * @param result The result that needs to be added
+     * Return if the input queue has input to be processed
+     * @return true if the input queue has input, false otherwise
      */
-    public void putOutput(ViterbiResult result) {
-        outputQueue.add(result);
+    public boolean hasNextInput() {
+        return !inputQueue.isEmpty();
     }
 
-    public boolean isInputEmpty() {
-        return inputQueue.isEmpty();
+    /**
+     * Return if the output queue has output to be processed
+     * @return true if the output queue has output, false otherwise
+     */
+    public boolean hasNextOutput() {
+        return !outputQueue.isEmpty();
     }
 
-    public boolean isOutputEmpty() {
-        return outputQueue.isEmpty();
-    }
-
-    public ViterbiResult getNextOutput() throws InterruptedException {
+    /**
+     * Get the next output, blocking
+     * @return The next output
+     */
+    public ViterbiResult getNextOutputBlocking() throws InterruptedException {
         return outputQueue.take();
     }
 }

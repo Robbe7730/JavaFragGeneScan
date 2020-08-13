@@ -1,10 +1,6 @@
 package be.robbevanherck.javafraggenescan;
 
-import be.robbevanherck.javafraggenescan.entities.HMMParameters;
-import be.robbevanherck.javafraggenescan.entities.ViterbiInput;
-import be.robbevanherck.javafraggenescan.entities.ViterbiResult;
-import be.robbevanherck.javafraggenescan.exceptions.OutputException;
-import be.robbevanherck.javafraggenescan.repositories.SynchronousRepository;
+import be.robbevanherck.javafraggenescan.threads.ThreadManager;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -75,43 +71,7 @@ public class Main {
      * @throws InterruptedException When interrupted
      */
     public void run() throws InterruptedException {
-        // Read in all the files
-        HMMParameters.setup(modelConfFile);
-        SynchronousRepository.createInstance();
-
-        while(!SynchronousRepository.getInstance().isInputEmpty()) {
-            // TODO this can be a runner thread
-            ViterbiInput input = SynchronousRepository.getInstance().getNextInput();
-
-            int inputLength = input.getInputAcids().size();
-
-            ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, inputType == 1);
-            SynchronousRepository.getInstance().putAllOutput(algorithm.backTrack(algorithm.run(), inputLength));
-        }
-
-        // TODO this can be a writer thread
-        PrintStream fastaOutputStream = null;
-        if (outputDNAFASTA != null) {
-            try {
-                fastaOutputStream = new PrintStream(outputDNAFASTA);
-            } catch (FileNotFoundException fnfe) {
-                throw new OutputException("No such file: " + outputDNAFASTA.getAbsolutePath(), fnfe);
-            }
-        }
-        while (!SynchronousRepository.getInstance().isOutputEmpty()) {
-            ViterbiResult result = SynchronousRepository.getInstance().getNextOutput();
-
-
-            // Write to fasta file
-            if (fastaOutputStream != null) {
-                result.writeFasta(fastaOutputStream);
-            }
-
-            // Write to stdout
-            result.writeProteins(System.out);
-        }
-        if (fastaOutputStream != null) {
-            fastaOutputStream.close();
-        }
+        ThreadManager.createInstance();
+        ThreadManager.getInstance().run(modelConfFile, outputDNAFASTA, inputType, numThreads);
     }
 }
