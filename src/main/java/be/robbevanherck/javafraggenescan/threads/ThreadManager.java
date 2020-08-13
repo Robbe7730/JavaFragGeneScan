@@ -2,6 +2,7 @@ package be.robbevanherck.javafraggenescan.threads;
 
 import be.robbevanherck.javafraggenescan.entities.HMMParameters;
 import be.robbevanherck.javafraggenescan.entities.ViterbiInput;
+import be.robbevanherck.javafraggenescan.exceptions.TooManyThreadsException;
 import be.robbevanherck.javafraggenescan.repositories.SynchronousRepository;
 
 import java.io.File;
@@ -13,8 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ThreadManager {
     private static ThreadManager instance;
-    private AtomicInteger numRunnerThreads;
-    private AtomicBoolean hasStarted;
+    private final AtomicInteger numRunnerThreads;
+    private final AtomicBoolean hasStarted;
+    private boolean wholeGenomes;
+    private int numThreads;
 
     /**
      * Create a new ThreadManager
@@ -44,6 +47,9 @@ public class ThreadManager {
      * @throws InterruptedException When the program gets interrupted while waiting
      */
     public void run(File modelConfFile, File outputDNAFASTA, int inputType, int numThreads) throws InterruptedException {
+        this.wholeGenomes = inputType == 1;
+        this.numThreads = numThreads;
+
         // Read in all the files
         HMMParameters.setup(modelConfFile);
 
@@ -56,17 +62,28 @@ public class ThreadManager {
         writerThread.start();
 
         hasStarted.set(true);
-        while(SynchronousRepository.getInstance().hasNextInput()) {
-            while (numRunnerThreads.get() >= numThreads) {}
-            startRunnerThread(inputType == 1);
+        for (int threadCount = 0; threadCount < numThreads; threadCount++) {
+            startRunnerThread();
         }
     }
 
-    private void startRunnerThread(boolean wholeGenomes) throws InterruptedException {
-        ViterbiInput input = SynchronousRepository.getInstance().getNextInput();
+    private void startRunnerThread() {
+        if (SynchronousRepository.getInstance().hasProcessedAllInput() && !SynchronousRepository.getInstance().hasNextInput()) {
+            return;
+        }
+        if (numRunnerThreads.get() >= numThreads) {
+            throw new TooManyThreadsException("Too many threads started by ThreadManager::startRunnerThread");
+        }
 
-        RunnerThreadRunnable runner = new RunnerThreadRunnable(wholeGenomes, input);
-        Thread runnerThread = new Thread(runner);
+        ViterbiInput input;
+        try {
+            input = SynchronousRepository.getInstance().getNextInput();
+        } catch (InterruptedException interruptedException) {
+            //TODO: handle interrupt
+            return;
+        }
+
+        Thread runnerThread = new Thread(new RunnerThreadRunnable(wholeGenomes, input));
         runnerThread.setName(input.getName());
         numRunnerThreads.incrementAndGet();
         runnerThread.start();
@@ -78,6 +95,7 @@ public class ThreadManager {
      */
     public void notifyFinished(RunnerThreadRunnable runnerThreadRunnable) {
         numRunnerThreads.decrementAndGet();
+        startRunnerThread();
     }
 
     /**
@@ -85,6 +103,6 @@ public class ThreadManager {
      * @return true if the writer thread has to stay alive, false otherwise
      */
     public boolean writerThreadAlive() {
-        return !hasStarted.get() || numRunnerThreads.get() != 0 || SynchronousRepository.getInstance().hasNextOutput() || SynchronousRepository.getInstance().hasNextInput();
+        return !SynchronousRepository.getInstance().hasProcessedAllInput() || numRunnerThreads.get() != 0;
     }
 }

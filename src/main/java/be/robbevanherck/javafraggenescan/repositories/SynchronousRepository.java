@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Repository for in and output that needs to be blocking
@@ -19,6 +20,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class SynchronousRepository {
     private final BlockingQueue<ViterbiInput> inputQueue;
     private final BlockingQueue<ViterbiResult> outputQueue;
+    private final AtomicBoolean processedAllInput;
 
     /**
      * Create an SynchronousRepository
@@ -26,12 +28,14 @@ public class SynchronousRepository {
     public SynchronousRepository() {
         inputQueue = new LinkedBlockingDeque<>();
         outputQueue = new LinkedBlockingDeque<>();
+        processedAllInput = new AtomicBoolean(false);
 
         try {
             System.err.println("Starting Read");
             for (Map.Entry<String, DNASequence> entry : FastaReaderHelper.readFastaDNASequence(System.in).entrySet()) {
                 inputQueue.add(new ViterbiInput(entry.getKey(), dnaSequenceToViterbiInput(entry.getValue())));
             }
+            processedAllInput.set(true);
             System.err.println("Done Reading");
         } catch (IOException e) {
             throw new InvalidInputException("Could not read input from stdin", e);
@@ -93,5 +97,13 @@ public class SynchronousRepository {
      */
     public ViterbiResult getNextOutputBlocking() throws InterruptedException {
         return outputQueue.take();
+    }
+
+    /**
+     * Return whether the reader thread has processed all input
+     * @return true if the reader has processed all input, false otherwise
+     */
+    public boolean hasProcessedAllInput() {
+        return processedAllInput.get();
     }
 }

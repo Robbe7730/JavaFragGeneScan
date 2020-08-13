@@ -31,7 +31,7 @@ public class Main {
     @Parameter(names={"-w", "--input-type"}, description = "0 for short sequence reads or 1 for full genome sequences")
     private int inputType;
 
-    @Parameter(names={"-p", "--num-threads"}, description = "[NOT YET SUPPORTED] The number of threads to use", validateWith = ThreadValidator.class)
+    @Parameter(names={"-p", "--num-threads"}, description = "The number of runner threads to use", validateWith = ThreadValidator.class)
     private int numThreads = 1;
 
     @Parameter(names={"-t", "--model-parameters"}, description = "File with the model parameters", required = true)
