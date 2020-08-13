@@ -34,10 +34,10 @@ public class WriterThreadRunnable implements Runnable {
                 throw new OutputException("No such file: " + outputDNAFASTA.getAbsolutePath(), fnfe);
             }
         }
-        while (ThreadManager.getInstance().writerThreadAlive()) {
+        while (!ThreadManager.getInstance().writerStopping()) {
             try {
                 while (ThreadManager.getInstance().isOutputQueueEmpty()) {
-                    if (!ThreadManager.getInstance().writerThreadAlive()) {
+                    if (ThreadManager.getInstance().writerStopping()) {
                         return;
                     }
                 }

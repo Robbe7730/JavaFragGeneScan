@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,23 +29,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ThreadManager {
     private static ThreadManager instance;
     private final AtomicInteger numRunnerThreads;
-    private final AtomicBoolean hasStarted;
     private final AtomicBoolean processedAllInput;
     private final BlockingQueue<ViterbiInput> inputQueue;
     private final BlockingQueue<ViterbiResult> outputQueue;
+    private final Semaphore nextInputSemaphore;
 
     private boolean wholeGenomes;
-    private int numThreads;
 
     /**
      * Create a new ThreadManager
      */
     private ThreadManager() {
         numRunnerThreads = new AtomicInteger(0);
-        hasStarted = new AtomicBoolean(false);
         processedAllInput = new AtomicBoolean(false);
         inputQueue = new LinkedBlockingDeque<>();
         outputQueue = new LinkedBlockingDeque<>();
+        nextInputSemaphore = new Semaphore(1);
     }
 
     public static ThreadManager getInstance() {
@@ -67,64 +68,25 @@ public class ThreadManager {
      */
     public void run(File modelConfFile, File outputDNAFASTA, int inputType, int numThreads) throws InterruptedException {
         this.wholeGenomes = inputType == 1;
-        this.numThreads = numThreads;
 
         // Read in all the files
         HMMParameters.setup(modelConfFile);
 
         startReaderThread();
 
-        WriterThreadRunnable writer = new WriterThreadRunnable(outputDNAFASTA);
-        Thread writerThread = new Thread(writer);
+        Thread writerThread = new Thread(new WriterThreadRunnable(outputDNAFASTA));
         writerThread.setName("Writer Thread");
         writerThread.start();
 
-        hasStarted.set(true);
         for (int threadCount = 0; threadCount < numThreads; threadCount++) {
             startRunnerThread();
         }
     }
 
     private void startRunnerThread() {
-        if (this.processedAllInput.get() && this.isInputQueueEmpty()) {
-            return;
-        }
-        if (numRunnerThreads.get() >= numThreads) {
-            throw new TooManyThreadsException("Too many threads started by ThreadManager::startRunnerThread");
-        }
-
-        ViterbiInput input;
-        try {
-            // This is ok to be blocking, as we check if it has (or will get) new input in the if in the beginning
-            // TODO: this is false, it can still break, add a semaphore
-            input = this.getNextInputBlocking();
-        } catch (InterruptedException interruptedException) {
-            //TODO: handle interrupt
-            return;
-        }
-
-        Thread runnerThread = new Thread(new RunnerThreadRunnable(wholeGenomes, input));
-        runnerThread.setName(input.getName());
-        numRunnerThreads.incrementAndGet();
+        numRunnerThreads.getAndIncrement();
+        Thread runnerThread = new Thread(new RunnerThreadRunnable(wholeGenomes));
         runnerThread.start();
-    }
-
-    /**
-     * Notify the ThreadManager that a thread has finished and written its output to the output queue
-     * @param result The result of the thread that finished
-     */
-    public void notifyFinished(Set<ViterbiResult> result) {
-        outputQueue.addAll(result);
-        numRunnerThreads.decrementAndGet();
-        startRunnerThread();
-    }
-
-    /**
-     * Check if the writer thread needs to stay alive
-     * @return true if the writer thread has to stay alive, false otherwise
-     */
-    public boolean writerThreadAlive() {
-        return !(processedAllInput.get() && isInputQueueEmpty() && numRunnerThreads.get() == 0 && isOutputQueueEmpty());
     }
 
     /**
@@ -155,11 +117,40 @@ public class ThreadManager {
 
     /**
      * Get the next input from the input queue, blocking
-     * @return The next input from the input queue
-     * @throws InterruptedException if it gets interrupted
+     * @return The next input from the input queue or null if the thread can exit
      */
-    public ViterbiInput getNextInputBlocking() throws InterruptedException {
-        return inputQueue.take();
+    public ViterbiInput getNextInputBlocking() {
+        try {
+            // Try to acquire the semaphore for 100 milliseconds, then check if the runner needs to stop and retry
+            do {
+                if (runnersStopping()) {
+                    return null;
+                }
+            } while (!nextInputSemaphore.tryAcquire(100, TimeUnit.MILLISECONDS));
+            ViterbiInput input = inputQueue.take();
+            nextInputSemaphore.release();
+            return input;
+        } catch (InterruptedException interruptedException) {
+            //TODO: handle interrupt
+            return null;
+        }
+    }
+
+    /**
+     * Check if the writer thread needs to stay alive
+     * @return true if the writer thread has to stop, false otherwise
+     */
+    public boolean writerStopping() {
+        // Only kill the writer thread when all the threads have stopped and all output is processed
+        return runnersStopping() && numRunnerThreads.get() == 0 && isOutputQueueEmpty();
+    }
+    /**
+     * Check if the runner threads need to stay alive
+     * @return true if the threads have to stop, false otherwise
+     */
+    private boolean runnersStopping() {
+        // Only kill runners if the input is processed and the queue is empty
+        return processedAllInput.get() && isInputQueueEmpty();
     }
 
     /**
@@ -184,5 +175,20 @@ public class ThreadManager {
      */
     public ViterbiResult getNextOutputBlocking() throws InterruptedException {
         return outputQueue.take();
+    }
+
+    /**
+     * Add a set of results to the output queue
+     * @param results The results to add
+     */
+    public void addToOutput(Set<ViterbiResult> results) {
+        outputQueue.addAll(results);
+    }
+
+    /**
+     * Notify the ThreadManager that a thread is going to stop
+     */
+    public void notifyStoppingThread() {
+        numRunnerThreads.getAndDecrement();
     }
 }

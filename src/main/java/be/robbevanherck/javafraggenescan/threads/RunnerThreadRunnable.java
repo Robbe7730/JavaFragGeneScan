@@ -9,23 +9,27 @@ import be.robbevanherck.javafraggenescan.entities.ViterbiInput;
 public class RunnerThreadRunnable implements Runnable {
 
     private final boolean wholeGenomes;
-    private final ViterbiInput input;
 
     /**
      * Create a new RunnerThread
      * @param wholeGenomes true if the input contains whole genomes, false otherwise
-     * @param input The input to process
      */
-    public RunnerThreadRunnable(boolean wholeGenomes, ViterbiInput input) {
+    public RunnerThreadRunnable(boolean wholeGenomes) {
         this.wholeGenomes = wholeGenomes;
-        this.input = input;
     }
 
     @Override
     public void run() {
-        int inputLength = input.getInputAcids().size();
+        while (true) {
+            ViterbiInput input = ThreadManager.getInstance().getNextInputBlocking();
+            if (input == null) {
+                ThreadManager.getInstance().notifyStoppingThread();
+                return;
+            }
+            int inputLength = input.getInputAcids().size();
 
-        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, wholeGenomes);
-        ThreadManager.getInstance().notifyFinished(algorithm.backTrack(algorithm.run(), inputLength));
+            ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, wholeGenomes);
+            ThreadManager.getInstance().addToOutput(algorithm.backTrack(algorithm.run(), inputLength));
+        }
     }
 }

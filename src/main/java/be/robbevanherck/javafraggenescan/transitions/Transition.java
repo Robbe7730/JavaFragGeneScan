@@ -47,7 +47,6 @@ public abstract class Transition {
     protected Triple<AminoAcid> getCodonEndingAtT(ViterbiStep currentStep) {
         ViterbiStep previous = currentStep.getPrevious();
 
-        // TODO This is ugly, but that's how the original code works
         AminoAcid firstAcid;
 
         if (previous.getPrevious() == null) {
