@@ -51,7 +51,8 @@ public class WriterThreadRunnable implements Runnable {
                 // Write to stdout
                 result.writeProteins(System.out);
             } catch (InterruptedException interruptedException) {
-                //TODO: handle interrupt
+                Thread.currentThread().interrupt();
+                return;
             }
         }
         if (fastaOutputStream != null) {

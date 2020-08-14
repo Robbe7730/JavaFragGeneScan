@@ -114,7 +114,7 @@ public class ThreadManager {
             nextInputSemaphore.release();
             return input;
         } catch (InterruptedException interruptedException) {
-            //TODO: handle interrupt
+            Thread.currentThread().interrupt();
             return null;
         }
     }

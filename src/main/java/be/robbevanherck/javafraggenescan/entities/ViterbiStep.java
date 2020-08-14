@@ -264,7 +264,6 @@ public class ViterbiStep {
         HMMState ret = HMMState.NO_STATE;
         double currentProbability = 0;
         for (HMMState state : HMMState.values()) {
-            // TODO remove NON_CODING
             if (state != HMMState.NO_STATE) {
                 PathProbability pathProbability = pathProbabilities.get(state);
                 if (pathProbability.getProbability() > currentProbability) {
