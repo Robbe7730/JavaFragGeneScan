@@ -34,26 +34,20 @@ public class WriterThreadRunnable implements Runnable {
                 throw new OutputException("No such file: " + outputDNAFASTA.getAbsolutePath(), fnfe);
             }
         }
-        while (!ThreadManager.getInstance().writerStopping()) {
-            try {
-                while (ThreadManager.getInstance().isOutputQueueEmpty()) {
-                    if (ThreadManager.getInstance().writerStopping()) {
-                        return;
-                    }
-                }
-                // Blocking is ok here, because there is only one writer thread reading the output
-                ViterbiResult result = ThreadManager.getInstance().getNextOutputBlocking();
-                // Write to fasta file
-                if (fastaOutputStream != null) {
-                    result.writeFasta(fastaOutputStream);
-                }
+        while (true) {
+            ViterbiResult result = ThreadManager.getInstance().getNextOutputBlocking();
 
-                // Write to stdout
-                result.writeProteins(System.out);
-            } catch (InterruptedException interruptedException) {
-                Thread.currentThread().interrupt();
-                return;
+            if (result.isEOF()) {
+                break;
             }
+
+            // Write to fasta file
+            if (fastaOutputStream != null) {
+                result.writeFasta(fastaOutputStream);
+            }
+
+            // Write to stdout
+            result.writeProteins(System.out);
         }
         if (fastaOutputStream != null) {
             fastaOutputStream.close();

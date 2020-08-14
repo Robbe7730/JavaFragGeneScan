@@ -22,7 +22,7 @@ public class RunnerThreadRunnable implements Runnable {
     public void run() {
         while (true) {
             ViterbiInput input = ThreadManager.getInstance().getNextInputBlocking();
-            if (input == null) {
+            if (input.isEOF()) {
                 ThreadManager.getInstance().notifyStoppingThread();
                 return;
             }

@@ -1,25 +1,11 @@
 package be.robbevanherck.javafraggenescan.threads;
 
-import be.robbevanherck.javafraggenescan.entities.AminoAcid;
-import be.robbevanherck.javafraggenescan.entities.HMMParameters;
-import be.robbevanherck.javafraggenescan.entities.ViterbiInput;
-import be.robbevanherck.javafraggenescan.entities.ViterbiResult;
-import be.robbevanherck.javafraggenescan.exceptions.InvalidInputException;
-import be.robbevanherck.javafraggenescan.exceptions.TooManyThreadsException;
-import org.biojava.nbio.core.sequence.DNASequence;
-import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
-import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
+import be.robbevanherck.javafraggenescan.entities.*;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,7 +18,6 @@ public class ThreadManager {
     private final AtomicBoolean processedAllInput;
     private final BlockingQueue<ViterbiInput> inputQueue;
     private final BlockingQueue<ViterbiResult> outputQueue;
-    private final Semaphore nextInputSemaphore;
 
     private boolean wholeGenomes;
 
@@ -44,7 +29,6 @@ public class ThreadManager {
         processedAllInput = new AtomicBoolean(false);
         inputQueue = new LinkedBlockingDeque<>();
         outputQueue = new LinkedBlockingDeque<>();
-        nextInputSemaphore = new Semaphore(1);
     }
 
     public static ThreadManager getInstance() {
@@ -100,64 +84,50 @@ public class ThreadManager {
 
     /**
      * Get the next input from the input queue, blocking
-     * @return The next input from the input queue or null if the thread can exit
+     * @return The next input from the input queue or an EOFViterbiInput if the thread can exit
      */
     public ViterbiInput getNextInputBlocking() {
         try {
-            // Try to acquire the semaphore for 100 milliseconds, then check if the runner needs to stop and retry
-            do {
-                if (runnersStopping()) {
-                    return null;
-                }
-            } while (!nextInputSemaphore.tryAcquire(100, TimeUnit.MILLISECONDS));
             ViterbiInput input = inputQueue.take();
-            nextInputSemaphore.release();
+            if (input.isEOF()) {
+                inputQueue.add(input);
+            }
             return input;
         } catch (InterruptedException interruptedException) {
             Thread.currentThread().interrupt();
-            return null;
+            return new EOFViterbiInput();
         }
     }
 
     /**
-     * Check if the writer thread needs to stay alive
-     * @return true if the writer thread has to stop, false otherwise
-     */
-    public boolean writerStopping() {
-        // Only kill the writer thread when all the threads have stopped and all output is processed
-        return runnersStopping() && numRunnerThreads.get() == 0 && isOutputQueueEmpty();
-    }
-    /**
-     * Check if the runner threads need to stay alive
-     * @return true if the threads have to stop, false otherwise
-     */
-    private boolean runnersStopping() {
-        // Only kill runners if the input is processed and the queue is empty
-        return processedAllInput.get() && isInputQueueEmpty();
-    }
-
-    /**
-     * Return if the input queue has input to be processed
-     * @return true if the input queue has input, false otherwise
-     */
-    public boolean isInputQueueEmpty() {
-        return inputQueue.isEmpty();
-    }
-
-    /**
-     * Return if the output queue has output to be processed
-     * @return true if the output queue has output, false otherwise
-     */
-    public boolean isOutputQueueEmpty() {
-        return outputQueue.isEmpty();
-    }
-
-    /**
      * Get the next output, blocking
-     * @return The next output
+     * @return The next output or an EOFViterbiResult when the thread can stop
      */
-    public ViterbiResult getNextOutputBlocking() throws InterruptedException {
-        return outputQueue.take();
+    public ViterbiResult getNextOutputBlocking() {
+        try {
+            this.checkWriterStopping();
+            return outputQueue.take();
+        } catch (InterruptedException interruptedException) {
+            Thread.currentThread().interrupt();
+            return new EOFViterbiResult();
+        }
+    }
+
+    /**
+     * Check to see if the sentinel EOFViterbiResult needs to be added to the output queue
+     */
+    private void checkWriterStopping() {
+        // If stdin is read, the input queue only has the EOF sentinel, all threads have stopped and the output queue is empty
+        // we can stop the writer thread
+        if (processedAllInput.get() &&
+                (!inputQueue.isEmpty() &&
+                 inputQueue.peek().isEOF()
+                ) &&
+                numRunnerThreads.get() == 0 &&
+                outputQueue.isEmpty()
+        ) {
+            outputQueue.add(new EOFViterbiResult());
+        }
     }
 
     /**
@@ -165,6 +135,7 @@ public class ThreadManager {
      */
     public void notifyStoppingThread() {
         numRunnerThreads.getAndDecrement();
+        this.checkWriterStopping();
     }
 
     /**
@@ -188,5 +159,6 @@ public class ThreadManager {
      */
     public void setInputProcessed() {
         processedAllInput.set(true);
+        inputQueue.add(new EOFViterbiInput());
     }
 }

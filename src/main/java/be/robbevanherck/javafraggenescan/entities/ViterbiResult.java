@@ -69,4 +69,12 @@ public class ViterbiResult {
                 .append('\n')
                 .flush();
     }
+
+    /**
+     * Indicates if this ViterbiResult is an actual input or an EOFViterbiResult
+     * @return false for ViterbiResult, true for EOFViterbiResult
+     */
+    public boolean isEOF() {
+        return false;
+    }
 }

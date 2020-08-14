@@ -26,4 +26,12 @@ public class ViterbiInput {
     public String getName() {
         return name;
     }
+
+    /**
+     * Indicates if this ViterbiInput is an actual input or an EOFViterbiInput
+     * @return false for ViterbiInput, true for EOFViterbiInput
+     */
+    public boolean isEOF() {
+        return false;
+    }
 }
