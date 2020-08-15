@@ -11,31 +11,30 @@ public abstract class InsertTransition extends Transition {
      *
      * @param toState The state to which this transition goes
      */
-    InsertTransition(HMMState toState) {
+    public InsertTransition(HMMState toState) {
         super(toState);
     }
 
     @Override
     public PathProbability calculatePathProbability(ViterbiStep currentStep) {
-        ViterbiStep previous = currentStep.getPrevious();
         HMMParameters parameters = currentStep.getParameters();
 
         currentStep.setAminoAcidsBeforeInsert(toState, new Pair<>(currentStep.getPrevious().getInput(), currentStep.getInput()));
 
         return PathProbability.max(
-                getProbabilityFromInsertion(parameters, previous, currentStep),
-                getProbabilityFromMatch(parameters, previous, currentStep)
+                getProbabilityFromInsertion(parameters, currentStep),
+                getProbabilityFromMatch(parameters, currentStep)
         );
     }
 
     /**
      * Calculate the probability of staying in the same I state
      * @param parameters The parameters for HMM
-     * @param previous The previous Viterbi step
      * @param currentStep The current Viterbi step
      * @return The probability
      */
-    protected PathProbability getProbabilityFromInsertion(HMMParameters parameters, ViterbiStep previous, ViterbiStep currentStep) {
+    protected PathProbability getProbabilityFromInsertion(HMMParameters parameters, ViterbiStep currentStep) {
+        ViterbiStep previous = currentStep.getPrevious();
         double probability = previous.getProbabilityFor(toState) *                                                              // Probability to be in a Ix state at t-1
                                     parameters.getInnerTransitionProbability(HMMInnerTransition.INSERT_INSERT) *                // Probability for a transition I -> I
                                     parameters.getInsertInsertEmissionProbability(previous.getInput(), currentStep.getInput()); // Probability for an emission for I -> I
@@ -45,11 +44,11 @@ public abstract class InsertTransition extends Transition {
     /**
      * Calculate the probability of staying in the going from an M state to the I state
      * @param parameters The parameters for HMM
-     * @param previous The previous Viterbi step
      * @param currentStep The current Viterbi step
      * @return The probability
      */
-    protected PathProbability getProbabilityFromMatch(HMMParameters parameters, ViterbiStep previous, ViterbiStep currentStep) {
+    protected PathProbability getProbabilityFromMatch(HMMParameters parameters, ViterbiStep currentStep) {
+        ViterbiStep previous = currentStep.getPrevious();
         HMMState correspondingMatchingState = HMMState.matchingStateForInsert(toState);
         double probability =  previous.getProbabilityFor(correspondingMatchingState) *                                          // Probability to be in a Mx state at t-1
                                     parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_INSERT) *                 // Probability for a transition M -> I

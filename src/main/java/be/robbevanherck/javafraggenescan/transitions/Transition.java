@@ -3,16 +3,16 @@ package be.robbevanherck.javafraggenescan.transitions;
 import be.robbevanherck.javafraggenescan.entities.*;
 
 /**
- * The top-level interface for transition handlers
+ * The top-level interface for transitions
  */
 public abstract class Transition {
     protected final HMMState toState;
 
     /**
-     * Create a new TransitionHandler
+     * Create a new Transition
      * @param toState The state to which this transition goes
      */
-    Transition(HMMState toState) {
+    public Transition(HMMState toState) {
         this.toState = toState;
     }
 
@@ -40,15 +40,18 @@ public abstract class Transition {
     public abstract PathProbability calculatePathProbability(ViterbiStep currentStep);
 
     /**
-     * Get the codon starting at t-2 and ending at t. if t < 1, G is used as first amino-acid
+     * Get the codon starting at t-2 and ending at t. if t == 1, G is used as first amino-acid
      * @param currentStep The current Viterbi Step
      * @return The triple of amino-acids
      */
     protected Triple<AminoAcid> getCodonEndingAtT(ViterbiStep currentStep) {
+        // previous will exist and have values because values are only actually calculated
+        // when t >= 1. At t = 1 the initial values are used.
         ViterbiStep previous = currentStep.getPrevious();
 
         AminoAcid firstAcid;
 
+        // TODO: why is this?!
         if (previous.getPrevious() == null) {
             firstAcid = AminoAcid.G;
         } else {
@@ -75,10 +78,10 @@ public abstract class Transition {
      * Get the codon starting at t+x and ending at t+x+2
      * @param currentStep The current Viterbi Step
      * @param x The offset
-     * @return The triple of amino-acids
+     * @return The triple of amino-acids or null when there are not enough next values
      */
     protected Triple<AminoAcid> getCodonStartingAtX(ViterbiStep currentStep, int x) {
-        if (currentStep.getNextValues().size() < x+3) {
+        if (x < 0 || currentStep.getNextValues().size() < x+3) {
             return null;
         }
 

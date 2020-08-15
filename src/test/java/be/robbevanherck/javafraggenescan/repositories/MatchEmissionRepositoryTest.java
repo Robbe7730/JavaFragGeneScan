@@ -1,61 +1,20 @@
 package be.robbevanherck.javafraggenescan.repositories;
 
+import be.robbevanherck.javafraggenescan.dummies.DummyMatchEmissionRepository;
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.HMMState;
 import be.robbevanherck.javafraggenescan.entities.Triple;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import static be.robbevanherck.javafraggenescan.TestUtil.aminoAcids;
+import static be.robbevanherck.javafraggenescan.TestUtil.matchingStates;
 import static org.junit.Assert.*;
-
-class DummyMatchEmissionRepository extends MatchEmissionRepository {
-    protected DummyMatchEmissionRepository() {
-        // This file is unused, so the contents don't matter
-        super("train/gene");
-    }
-
-    @Override
-    protected HMMState matchStateFromInt(int i) {
-        switch (i) {
-            case 1:
-                return HMMState.MATCH_1;
-            case 2:
-                return HMMState.MATCH_2;
-            case 3:
-                return HMMState.MATCH_3;
-            case 4:
-                return HMMState.MATCH_4;
-            case 5:
-                return HMMState.MATCH_5;
-            case 6:
-                return HMMState.MATCH_6;
-            default:
-                return HMMState.NO_STATE;
-        }
-    }
-}
 
 public class MatchEmissionRepositoryTest {
     private final DummyMatchEmissionRepository dummyMatchEmissionRepository = new DummyMatchEmissionRepository();
-
-    private final List<HMMState> matchingStates = List.of(
-            HMMState.MATCH_1,
-            HMMState.MATCH_2,
-            HMMState.MATCH_3,
-            HMMState.MATCH_4,
-            HMMState.MATCH_5,
-            HMMState.MATCH_6
-    );
-
-    private final List<AminoAcid> aminoAcids = List.of(
-            AminoAcid.A,
-            AminoAcid.C,
-            AminoAcid.G,
-            AminoAcid.T
-    );
 
     @Test
     public void read() {

@@ -2,50 +2,10 @@ package be.robbevanherck.javafraggenescan.entities;
 
 import org.junit.Test;
 
-import java.util.List;
-
+import static be.robbevanherck.javafraggenescan.TestUtil.*;
 import static org.junit.Assert.*;
 
 public class HMMStateTest {
-
-    private final List<HMMState> matchingStates = List.of(
-            HMMState.MATCH_1,
-            HMMState.MATCH_2,
-            HMMState.MATCH_3,
-            HMMState.MATCH_4,
-            HMMState.MATCH_5,
-            HMMState.MATCH_6
-    );
-    private final List<HMMState> matchingReverseStates = List.of(
-            HMMState.MATCH_REVERSE_1,
-            HMMState.MATCH_REVERSE_2,
-            HMMState.MATCH_REVERSE_3,
-            HMMState.MATCH_REVERSE_4,
-            HMMState.MATCH_REVERSE_5,
-            HMMState.MATCH_REVERSE_6
-    );
-    private final List<HMMState> insertStates = List.of(
-            HMMState.INSERT_1,
-            HMMState.INSERT_2,
-            HMMState.INSERT_3,
-            HMMState.INSERT_4,
-            HMMState.INSERT_5,
-            HMMState.INSERT_6
-    );
-    private final List<HMMState> insertReverseStates = List.of(
-            HMMState.INSERT_REVERSE_1,
-            HMMState.INSERT_REVERSE_2,
-            HMMState.INSERT_REVERSE_3,
-            HMMState.INSERT_REVERSE_4,
-            HMMState.INSERT_REVERSE_5,
-            HMMState.INSERT_REVERSE_6
-    );
-    private final List<HMMState> startStopStates = List.of(
-            HMMState.START,
-            HMMState.START_REVERSE,
-            HMMState.END,
-            HMMState.END_REVERSE
-    );
 
     @Test
     public void previousState() {

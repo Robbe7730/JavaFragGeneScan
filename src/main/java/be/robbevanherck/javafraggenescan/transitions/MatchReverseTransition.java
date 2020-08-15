@@ -17,12 +17,13 @@ public class MatchReverseTransition extends MatchTransition {
     }
 
     @Override
-    protected boolean isStopCodon(Triple<AminoAcid> tripleToCheck) {
+    protected boolean isCorrectStopCodon(Triple<AminoAcid> tripleToCheck) {
         return StartStopUtil.isReverseStopCodon(tripleToCheck);
     }
 
     @Override
-    protected PathProbability getProbabilityFromStart(ViterbiStep currentStep, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT) {
+    protected PathProbability getProbabilityFromStart(ViterbiStep currentStep, Triple<AminoAcid> codonEndingAtT) {
+        ViterbiStep previous = currentStep.getPrevious();
         if (canComeFromStartState(currentStep)) {
             double probability = previous.getProbabilityFor(HMMState.START_REVERSE) *                                   // Probability to be in the Start' state at t-1
                             currentStep.getParameters().getReverseMatchEmissionProbability(toState, codonEndingAtT);    // Probability of emission from M' state (transition is guaranteed)
@@ -34,7 +35,7 @@ public class MatchReverseTransition extends MatchTransition {
     protected boolean canComeFromStartState(ViterbiStep currentStep) {
         // To be coming from a start state, we need to check the reverse of an end state
         return (toState == HMMState.INSERT_REVERSE_1 || toState == HMMState.INSERT_REVERSE_4) &&
-                (isStopCodon(new Triple<>(
+                (isCorrectStopCodon(new Triple<>(
                         currentStep.getInput(),
                         currentStep.getPrevious().getInput(),
                         currentStep.getPrevious().getPrevious().getInput()

@@ -18,6 +18,7 @@ public class EOFViterbiResult extends ViterbiResult {
      * Indicates if this ViterbiResult is an actual input or an EOFViterbiResult
      * @return false for ViterbiResult, true for EOFViterbiResult
      */
+    @Override
     public boolean isEOF() {
         return true;
     }

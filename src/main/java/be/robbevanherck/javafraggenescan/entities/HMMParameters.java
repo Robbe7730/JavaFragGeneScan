@@ -24,6 +24,29 @@ public class HMMParameters {
     private final Map<HMMState, Map<GaussianArgumentsRepository.GaussianArgument, Double>> gaussianArguments;
 
     /**
+     * Protected constructor only for testing
+     */
+    protected HMMParameters() {
+        this.forwardMatchEmissions = null;
+        this.reverseMatchEmissions = null;
+
+        this.nonCodingNonCodingEmissions = null;
+
+        this.forwardStopPWM = null;
+        this.reverseStopPWM = null;
+        this.forwardStartPWM = null;
+        this.reverseStartPWM = null;
+
+        this.gaussianArguments = null;
+
+        this.innerTransitions = null;
+        this.outerTransitions = null;
+        this.insertInsertEmissions = null;
+        this.matchInsertEmissions = null;
+        this.wholeGenome = false;
+    }
+
+    /**
      * Create the parameters
      * @param countGC The percentage of G/C amino-acids in the input compared to the length of the input
      * @param wholeGenome Whether the input are whole genomes

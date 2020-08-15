@@ -11,7 +11,7 @@ public abstract class MatchTransition extends Transition {
      *
      * @param toState The state to which this transition goes
      */
-    MatchTransition(HMMState toState) {
+    public MatchTransition(HMMState toState) {
         super(toState);
     }
 
@@ -30,11 +30,11 @@ public abstract class MatchTransition extends Transition {
 
         /* FROM I STATE */
 
-        bestValue = PathProbability.max(bestValue, getProbabilityFromInsertion(parameters, previous, currentStep));
+        bestValue = PathProbability.max(bestValue, getProbabilityFromInsertion(parameters, currentStep));
 
         /* FROM START STATE */
 
-        bestValue = PathProbability.max(bestValue, getProbabilityFromStart(currentStep, previous, getCodonEndingAtT(currentStep)));
+        bestValue = PathProbability.max(bestValue, getProbabilityFromStart(currentStep, getCodonEndingAtT(currentStep)));
 
         return bestValue;
     }
@@ -42,11 +42,12 @@ public abstract class MatchTransition extends Transition {
     /**
      * Calculate the probability of going from an I' state to the destination M' state
      * @param parameters The parameters for HMM
-     * @param previous The previous Viterbi step
      * @param currentStep The current Viterbi step
      * @return The probability
      */
-    protected PathProbability getProbabilityFromInsertion(HMMParameters parameters, ViterbiStep previous, ViterbiStep currentStep) {
+    protected PathProbability getProbabilityFromInsertion(HMMParameters parameters, ViterbiStep currentStep) {
+       ViterbiStep previous = currentStep.getPrevious();
+
         // This is the codon that is present if you ignore the insertions
         Triple<AminoAcid> codonWithoutInsertions = new Triple<>(
                 AminoAcid.INVALID,
@@ -70,20 +71,20 @@ public abstract class MatchTransition extends Transition {
         HMMState insertionState = HMMState.insertStateForMatching(toState);
 
         // If it's a stop codon, we can't be in an M' state, but should be in an END' state
-        if (!isStopCodon(codonWithoutInsertions)) {
+        if (!isCorrectStopCodon(codonWithoutInsertions)) {
             double probability = previous.getProbabilityFor(insertionState) *                           // Probability to be in state Ix at t-1
-                    parameters.getInnerTransitionProbability(HMMInnerTransition.INSERT_MATCH) * 0.25;   // Probability for transmission + emission for I -> M
+                    parameters.getInnerTransitionProbability(HMMInnerTransition.INSERT_MATCH) * 0.25;   // Probability for transmission + emission (=0.25) for I -> M
             return new PathProbability(insertionState, probability);
         }
         return new PathProbability(insertionState, 0);
     }
 
     /**
-     * Test if the triple is a stop codon
+     * Test if the triple is the right (forward/reverse) stop codon
      * @param tripleToCheck The codon to check
      * @return true if this can be a stop codon, false otherwise
      */
-    protected abstract boolean isStopCodon(Triple<AminoAcid> tripleToCheck);
+    protected abstract boolean isCorrectStopCodon(Triple<AminoAcid> tripleToCheck);
 
     /**
      * Calculate the probability to go from an M state to the target M state
@@ -108,10 +109,9 @@ public abstract class MatchTransition extends Transition {
     /**
      * Calculate the probability of going from a Start state to the destination M state
      * @param currentStep The current Viterbi step
-     * @param previous The previous Viterbi step
      * @param codonEndingAtT The coding starting at t-2 to t
      * @return The probability
      */
     // As long as there is no generified function to get emissions, this stays abstract
-    protected abstract PathProbability getProbabilityFromStart(ViterbiStep currentStep, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT);
+    protected abstract PathProbability getProbabilityFromStart(ViterbiStep currentStep, Triple<AminoAcid> codonEndingAtT);
 }

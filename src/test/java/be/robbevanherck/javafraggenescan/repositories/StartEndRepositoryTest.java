@@ -9,16 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import static be.robbevanherck.javafraggenescan.TestUtil.aminoAcids;
 import static org.junit.Assert.*;
 
 public class StartEndRepositoryTest {
-
-    private List<AminoAcid> aminoAcids = List.of(
-            AminoAcid.A,
-            AminoAcid.C,
-            AminoAcid.G,
-            AminoAcid.T
-    );
 
     @Test
     public void read() {

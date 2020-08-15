@@ -1,24 +1,17 @@
 package be.robbevanherck.javafraggenescan.repositories;
 
+import static be.robbevanherck.javafraggenescan.TestUtil.aminoAcids;
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.Pair;
 import be.robbevanherck.javafraggenescan.entities.Triple;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 
 public class CGDependentRepositoryTest {
-
-    private final List<AminoAcid> validAcids = List.of(
-            AminoAcid.A,
-            AminoAcid.C,
-            AminoAcid.G,
-            AminoAcid.T
-    );
 
     private final CGDependentRepository<Integer> dummyCGDependentRepository = new CGDependentRepository<>("train/dummy_training") {
         @Override
@@ -47,8 +40,8 @@ public class CGDependentRepositoryTest {
     @Test
     public void createDinucleotide() {
         int i = 0;
-        for (AminoAcid firstAcid : validAcids) {
-            for (AminoAcid secondAcid : validAcids) {
+        for (AminoAcid firstAcid : aminoAcids) {
+            for (AminoAcid secondAcid : aminoAcids) {
                 assertEquals(new Pair<>(firstAcid, secondAcid), dummyCGDependentRepository.createDinucleotide(i));
                 i++;
             }
@@ -56,10 +49,11 @@ public class CGDependentRepositoryTest {
     }
 
     @Test
-    public void createTrinucleotide() {        int i = 0;
-        for (AminoAcid firstAcid : validAcids) {
-            for (AminoAcid secondAcid : validAcids) {
-                for (AminoAcid thirdAcid : validAcids) {
+    public void createTrinucleotide() {
+        int i = 0;
+        for (AminoAcid firstAcid : aminoAcids) {
+            for (AminoAcid secondAcid : aminoAcids) {
+                for (AminoAcid thirdAcid : aminoAcids) {
                     assertEquals(new Triple<>(firstAcid, secondAcid, thirdAcid), dummyCGDependentRepository.createTrinucleotide(i));
                     i++;
                 }

@@ -17,7 +17,7 @@ public class MatchForwardTransition extends MatchTransition {
     }
 
     @Override
-    protected boolean isStopCodon(Triple<AminoAcid> codonWithoutInsertions) {
+    protected boolean isCorrectStopCodon(Triple<AminoAcid> codonWithoutInsertions) {
         return StartStopUtil.isForwardStopCodon(codonWithoutInsertions);
     }
 
@@ -54,7 +54,7 @@ public class MatchForwardTransition extends MatchTransition {
     }
 
     @Override
-    protected PathProbability getProbabilityFromStart(ViterbiStep currentStep, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT) {
+    protected PathProbability getProbabilityFromStart(ViterbiStep currentStep, Triple<AminoAcid> codonEndingAtT) {
         // As M1 is a separate class, this is always 0
         return new PathProbability(HMMState.NO_STATE, 0);
     }

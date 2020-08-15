@@ -29,6 +29,19 @@ public class ViterbiStep {
     private final Map<Integer, Map<HMMState, PathProbability>> overriddenValues;
 
     /**
+     * Empty constructor used only for testing
+     */
+    protected ViterbiStep() {
+        this.parameters = null;
+        this.previous = null;
+        this.aminoAcidsBeforeInsertion = new EnumMap<>(HMMState.class);
+        this.overriddenValues = null;
+        this.nextValues = null;
+
+        pathProbabilities = new EnumMap<>(HMMState.class);
+    }
+
+    /**
      * Create a ViterbiStep with a previous step
      * @param parameters The parameters for the HMM
      * @param previous The previous step

@@ -39,7 +39,7 @@ public class MatchForwardFirstTransition extends MatchForwardTransition {
 
         /* FROM I STATE */
 
-        bestValue = PathProbability.max(bestValue, getProbabilityFromInsertion(parameters, previous, currentStep));
+        bestValue = PathProbability.max(bestValue, getProbabilityFromInsertion(parameters, currentStep));
 
         return bestValue;
     }
