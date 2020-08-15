@@ -1,7 +1,7 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
 import be.robbevanherck.javafraggenescan.dummies.DummyTransition;
-import be.robbevanherck.javafraggenescan.dummies.DummyViterbiStep;
+import be.robbevanherck.javafraggenescan.dummies.DummyAcidsViterbiStep;
 import be.robbevanherck.javafraggenescan.entities.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -12,12 +12,12 @@ import static be.robbevanherck.javafraggenescan.TestUtil.aminoAcids;
 import static org.junit.Assert.*;
 
 public class TransitionTest {
-    private static DummyViterbiStep curr;
+    private static DummyAcidsViterbiStep curr;
     private static DummyTransition dummyTransition;
 
     @BeforeClass
     public static void setup() {
-        curr = new DummyViterbiStep(AminoAcid.A, AminoAcid.T, AminoAcid.G);
+        curr = new DummyAcidsViterbiStep(AminoAcid.A, AminoAcid.T, AminoAcid.G);
         dummyTransition = new DummyTransition();
     }
 
@@ -43,7 +43,7 @@ public class TransitionTest {
                 for (AminoAcid thirdAcid : aminoAcids) {
                     assertEquals(
                             new Triple<>(thirdAcid, secondAcid, firstAcid),
-                            dummyTransition.getCodonEndingAtT(new DummyViterbiStep(firstAcid, secondAcid, thirdAcid))
+                            dummyTransition.getCodonEndingAtT(new DummyAcidsViterbiStep(firstAcid, secondAcid, thirdAcid))
                     );
                 }
             }
@@ -55,25 +55,25 @@ public class TransitionTest {
         // getCodonStartingAtX uses this directly, so testing it is not required
 
         // No values
-        DummyViterbiStep emptyStep = new DummyViterbiStep(List.of());
+        DummyAcidsViterbiStep emptyStep = new DummyAcidsViterbiStep(List.of());
         assertNull(dummyTransition.getCodonStartingAtX(emptyStep, 0));
         assertNull(dummyTransition.getCodonStartingAtX(emptyStep, 1));
         assertNull(dummyTransition.getCodonStartingAtX(emptyStep, -1));
 
         // One value
-        DummyViterbiStep singleStep = new DummyViterbiStep(List.of(AminoAcid.A));
+        DummyAcidsViterbiStep singleStep = new DummyAcidsViterbiStep(List.of(AminoAcid.A));
         assertNull(dummyTransition.getCodonStartingAtX(singleStep, 0));
         assertNull(dummyTransition.getCodonStartingAtX(singleStep, 1));
         assertNull(dummyTransition.getCodonStartingAtX(singleStep, -1));
 
         // Two values
-        DummyViterbiStep doubleStep = new DummyViterbiStep(List.of(AminoAcid.C, AminoAcid.G));
+        DummyAcidsViterbiStep doubleStep = new DummyAcidsViterbiStep(List.of(AminoAcid.C, AminoAcid.G));
         assertNull(dummyTransition.getCodonStartingAtX(doubleStep, 0));
         assertNull(dummyTransition.getCodonStartingAtX(doubleStep, 1));
         assertNull(dummyTransition.getCodonStartingAtX(doubleStep, -1));
 
         // Three values
-        DummyViterbiStep tripleViterbiStep = new DummyViterbiStep(List.of(AminoAcid.T, AminoAcid.A, AminoAcid.C));
+        DummyAcidsViterbiStep tripleViterbiStep = new DummyAcidsViterbiStep(List.of(AminoAcid.T, AminoAcid.A, AminoAcid.C));
         assertEquals(new Triple<>(AminoAcid.T, AminoAcid.A, AminoAcid.C), dummyTransition.getCodonStartingAtX(
                 tripleViterbiStep, 0
         ));
@@ -81,7 +81,7 @@ public class TransitionTest {
         assertNull(dummyTransition.getCodonStartingAtX(tripleViterbiStep, -1));
 
         // Four values
-        DummyViterbiStep quadViterbiStep = new DummyViterbiStep(List.of(AminoAcid.G, AminoAcid.T, AminoAcid.A, AminoAcid.C));
+        DummyAcidsViterbiStep quadViterbiStep = new DummyAcidsViterbiStep(List.of(AminoAcid.G, AminoAcid.T, AminoAcid.A, AminoAcid.C));
         assertEquals(new Triple<>(AminoAcid.G, AminoAcid.T, AminoAcid.A), dummyTransition.getCodonStartingAtX(
                 quadViterbiStep, 0
         ));

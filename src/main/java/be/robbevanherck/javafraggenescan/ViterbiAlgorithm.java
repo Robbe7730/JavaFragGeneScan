@@ -3,6 +3,9 @@ package be.robbevanherck.javafraggenescan;
 import be.robbevanherck.javafraggenescan.entities.*;
 import be.robbevanherck.javafraggenescan.transitions.*;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -100,21 +103,22 @@ public class ViterbiAlgorithm {
      */
     public Set<ViterbiResult> backTrack(ViterbiStep currentStep, int sequenceLength) {
         HMMState lastMatchingState = HMMState.NO_STATE;
-        HMMState currentState = currentStep.getHighestProbabilityState();
-        PathProbability currentPathProbability = currentStep.getPathProbabilityFor(currentState);
-
-        int t = 0;
-
         DNAStrand strand = DNAStrand.UNKNOWN_STRAND;
 
-        // When we started matching or -1 if not matching
-        int lastEnding = -1;
+        HMMState currentState = currentStep.getHighestProbabilityState();
+        PathProbability currentPathProbability = currentStep.getPathProbabilityFor(currentState);
 
         Set<ViterbiResult> ret = new HashSet<>();
         List<AminoAcid> currentDNAString = new LinkedList<>();
 
+        int t = 0;
+
+        // When we started matching or -1 if not matching
+        int lastEnding = -1;
+
         // Backtrack until we hit an invalid state
         while (currentPathProbability.getPreviousState() != HMMState.NO_STATE) {
+
             if (HMMState.isForwardMatchState(currentState)) {
                 /* START A FORWARD SEQUENCE */
 

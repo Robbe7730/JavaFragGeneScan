@@ -11,13 +11,13 @@ import static org.junit.Assert.*;
 public class MatchTransitionTest {
     private NonAbstractMatchTransition actualMatchTransition = new NonAbstractMatchTransition();
     private DummyMatchTransition dummyMatchTransition = new DummyMatchTransition();
-    private DummyViterbiStep dummyViterbiStep = new DummyViterbiStep(AminoAcid.A, AminoAcid.T, AminoAcid.G);
+    private DummyAcidsViterbiStep dummyAcidsViterbiStep = new DummyAcidsViterbiStep(AminoAcid.A, AminoAcid.T, AminoAcid.G);
     private DummyHMMParameters dummyParameters = new DummyHMMParameters();
 
     @Test
     public void calculatePathProbability() {
         // Make sure it returns the highest value PathProbability
-        assertEquals(dummyMatchTransition.highPathProbability, dummyMatchTransition.calculatePathProbability(dummyViterbiStep));
+        assertEquals(dummyMatchTransition.highPathProbability, dummyMatchTransition.calculatePathProbability(dummyAcidsViterbiStep));
     }
 
     @Test
@@ -26,7 +26,7 @@ public class MatchTransitionTest {
                 // The probabilities are hardcoded into DummyHMMParameters and DummyViterbiStep, but they
                 // are unique, so we know it uses the right values
                 new PathProbability(HMMState.NO_STATE, 0.7 * 0.1 * 0.25),
-                actualMatchTransition.getProbabilityFromInsertion(dummyParameters, dummyViterbiStep)
+                actualMatchTransition.getProbabilityFromInsertion(dummyParameters, dummyAcidsViterbiStep)
         );
     }
 }

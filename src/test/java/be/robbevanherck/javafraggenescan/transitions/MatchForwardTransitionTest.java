@@ -1,7 +1,7 @@
 package be.robbevanherck.javafraggenescan.transitions;
 
 import be.robbevanherck.javafraggenescan.dummies.DummyHMMParameters;
-import be.robbevanherck.javafraggenescan.dummies.DummyViterbiStep;
+import be.robbevanherck.javafraggenescan.dummies.DummyAcidsViterbiStep;
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.HMMState;
 import be.robbevanherck.javafraggenescan.entities.PathProbability;
@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 
 public class MatchForwardTransitionTest {
     MatchForwardTransition matchForwardTransition = new MatchForwardTransition(HMMState.NO_STATE);
-    private DummyViterbiStep dummyViterbiStep = new DummyViterbiStep(AminoAcid.A, AminoAcid.T, AminoAcid.G);
+    private DummyAcidsViterbiStep dummyAcidsViterbiStep = new DummyAcidsViterbiStep(AminoAcid.A, AminoAcid.T, AminoAcid.G);
     private DummyHMMParameters dummyParameters = new DummyHMMParameters();
 
     @Test
@@ -38,17 +38,19 @@ public class MatchForwardTransitionTest {
                 // The probabilities are hardcoded into DummyHMMParameters and DummyViterbiStep, but they
                 // are unique, so we know it uses the right values
                 new PathProbability(HMMState.NO_STATE, 0.7 * 0.1 * 0.5),
-                matchForwardTransition.getProbabilityFromMatch(dummyParameters, dummyViterbiStep.getPrevious(), null)
+                matchForwardTransition.getProbabilityFromMatch(dummyParameters, dummyAcidsViterbiStep.getPrevious(), null)
         );
     }
 
     @Test
     public void getProbabilityThroughDeletions() {
-        //TODO: I'm going to rewrite the getXXXTransitions, so testing the current implementation is useless
+        //TODO
+        assertFalse(false);
     }
 
     @Test
     public void getProbabilityFromStart() {
-        //TODO: I'm going to rewrite the getXXXTransitions, so testing the current implementation is useless
+        //TODO
+        assertTrue(true);
     }
 }

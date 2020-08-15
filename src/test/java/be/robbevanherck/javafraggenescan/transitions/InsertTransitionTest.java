@@ -2,7 +2,7 @@ package be.robbevanherck.javafraggenescan.transitions;
 
 import be.robbevanherck.javafraggenescan.dummies.DummyHMMParameters;
 import be.robbevanherck.javafraggenescan.dummies.DummyInsertTransition;
-import be.robbevanherck.javafraggenescan.dummies.DummyViterbiStep;
+import be.robbevanherck.javafraggenescan.dummies.DummyAcidsViterbiStep;
 import be.robbevanherck.javafraggenescan.dummies.NonAbstractInsertTransition;
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.HMMState;
@@ -16,13 +16,13 @@ public class InsertTransitionTest {
 
     private NonAbstractInsertTransition actualInsertTransition = new NonAbstractInsertTransition();
     private DummyInsertTransition dummyInsertTransition = new DummyInsertTransition();
-    private DummyViterbiStep dummyViterbiStep = new DummyViterbiStep(AminoAcid.A, AminoAcid.T, AminoAcid.G);
+    private DummyAcidsViterbiStep dummyAcidsViterbiStep = new DummyAcidsViterbiStep(AminoAcid.A, AminoAcid.T, AminoAcid.G);
     private DummyHMMParameters dummyParameters = new DummyHMMParameters();
 
     @Test
     public void calculatePathProbability() {
         // Make sure it returns the highest value PathProbability
-        assertEquals(dummyInsertTransition.highPathProbability, dummyInsertTransition.calculatePathProbability(dummyViterbiStep));
+        assertEquals(dummyInsertTransition.highPathProbability, dummyInsertTransition.calculatePathProbability(dummyAcidsViterbiStep));
     }
 
     @Test
@@ -31,7 +31,7 @@ public class InsertTransitionTest {
                 // The probabilities are hardcoded into DummyHMMParameters and DummyViterbiStep, but they
                 // are unique, so we know it uses the right values
                 new PathProbability(HMMState.NO_STATE, 0.7 * 0.1 * 0.2),
-                actualInsertTransition.getProbabilityFromInsertion(dummyParameters, dummyViterbiStep)
+                actualInsertTransition.getProbabilityFromInsertion(dummyParameters, dummyAcidsViterbiStep)
         );
     }
 
@@ -41,7 +41,7 @@ public class InsertTransitionTest {
                 // The probabilities are hardcoded into DummyHMMParameters and DummyViterbiStep, but they
                 // are unique, so we know it uses the right values
                 new PathProbability(HMMState.NO_STATE, 0.7 * 0.1 * 0.3),
-                actualInsertTransition.getProbabilityFromMatch(dummyParameters, dummyViterbiStep)
+                actualInsertTransition.getProbabilityFromMatch(dummyParameters, dummyAcidsViterbiStep)
         );
     }
 
@@ -52,7 +52,7 @@ public class InsertTransitionTest {
                 // The probabilities are hardcoded into DummyHMMParameters and DummyViterbiStep, but they
                 // are unique, so we know it uses the right values
                 new PathProbability(HMMState.MATCH_6, 0.7 * 0.1 * 0.3 * 0.4),
-                sixthTransition.getProbabilityFromMatch(dummyParameters, dummyViterbiStep)
+                sixthTransition.getProbabilityFromMatch(dummyParameters, dummyAcidsViterbiStep)
         );
     }
 
@@ -63,7 +63,7 @@ public class InsertTransitionTest {
                 // The probabilities are hardcoded into DummyHMMParameters and DummyViterbiStep, but they
                 // are unique, so we know it uses the right values
                 new PathProbability(HMMState.MATCH_REVERSE_6, 0.7 * 0.1 * 0.3 * 0.4),
-                sixthTransition.getProbabilityFromMatch(dummyParameters, dummyViterbiStep)
+                sixthTransition.getProbabilityFromMatch(dummyParameters, dummyAcidsViterbiStep)
         );
     }
 }
