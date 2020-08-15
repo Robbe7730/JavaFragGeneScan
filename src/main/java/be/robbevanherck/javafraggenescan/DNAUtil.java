@@ -47,8 +47,8 @@ public class DNAUtil {
 
         while(acidIterator.hasNext()) {
             AminoAcid firstAcid = acidIterator.next();
-            AminoAcid secondAcid = acidIterator.next();
-            AminoAcid thirdAcid = acidIterator.next();
+            AminoAcid secondAcid = acidIterator.hasNext() ? acidIterator.next() : AminoAcid.INVALID;
+            AminoAcid thirdAcid = acidIterator.hasNext() ? acidIterator.next() : AminoAcid.INVALID;
 
             if (firstAcid == AminoAcid.INVALID || secondAcid == AminoAcid.INVALID || thirdAcid == AminoAcid.INVALID) {
                 ret.add('*');

@@ -41,7 +41,19 @@ public class ViterbiResult {
     }
 
     public String getHeaderSuffix() {
-        return "_" + start + "_" + stop + "_" + (strand == DNAStrand.REVERSE ? "-" : "+");
+        String strandCharacter;
+        switch (strand) {
+            case FORWARD:
+                strandCharacter = "+";
+                break;
+            case REVERSE:
+                strandCharacter = "-";
+                break;
+            default:
+                strandCharacter = "U";
+                break;
+        }
+        return "_" + start + "_" + stop + "_" + strandCharacter;
     }
 
     /**

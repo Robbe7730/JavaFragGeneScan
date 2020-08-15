@@ -1,10 +1,12 @@
 package be.robbevanherck.javafraggenescan;
 
 import be.robbevanherck.javafraggenescan.dummies.DummyPPViterbiStep;
+import be.robbevanherck.javafraggenescan.dummies.DummyPrintStream;
 import be.robbevanherck.javafraggenescan.entities.*;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Set;
 
@@ -77,14 +79,18 @@ public class ViterbiAlgorithmTest {
                         NON_CODING,
                         NO_STATE
                 ),
-                List.of(INVALID,G,C,C,A,A,T,A,A,A,C,T,C,A,T,G,G,T,A,T,G,C,T,A)
+                List.of(G,C,C,A,A,T,A,A,A,C,T,C,A,T,G,G,T,A,T,G,C,T,A,INVALID)
         ), 23);
 
         assertEquals(1, results.size());
 
         ViterbiResult firstResult = results.iterator().next();
 
-        assertEquals("GTACTCAAA", firstResult.getDNA());
+        DummyPrintStream outputPrintStream = new DummyPrintStream();
+
+        firstResult.writeFasta(outputPrintStream);
+
+        assertEquals(">TESTING_8_16_+\nGTACTCAAA\n", outputPrintStream.getResult());
     }
 
     @Test
@@ -124,17 +130,20 @@ public class ViterbiAlgorithmTest {
                         NON_CODING,
                         NO_STATE
                 ),
-                List.of(INVALID,G,C,C,A,A,T,A,A,A,C,T,C,A,T,G,G,T,A,T,G,C,T,A)
+                List.of(G,C,C,A,A,T,A,A,A,C,T,C,A,T,G,G,T,A,T,G,C,T,A,INVALID)
         ), 23);
 
         assertEquals(1, results.size());
 
         ViterbiResult firstResult = results.iterator().next();
 
-        assertEquals("TTTGAGTAC", firstResult.getDNA());
+        DummyPrintStream outputPrintStream = new DummyPrintStream();
+
+        firstResult.writeFasta(outputPrintStream);
+
+        assertEquals(">TESTING_8_16_-\nTTTGAGTAC\n", outputPrintStream.getResult());
     }
 
-    @Test
     public void backTrackForwardDirty() {
         // Test a forward chain with insertions or deletions
 

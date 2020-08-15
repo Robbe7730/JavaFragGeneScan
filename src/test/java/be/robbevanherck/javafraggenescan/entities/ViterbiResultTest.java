@@ -1,5 +1,6 @@
 package be.robbevanherck.javafraggenescan.entities;
 
+import be.robbevanherck.javafraggenescan.dummies.DummyPrintStream;
 import org.junit.Test;
 
 import java.io.OutputStream;
@@ -9,30 +10,6 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class ViterbiResultTest {
-    private static class DummyPrintStream extends PrintStream {
-        String result;
-        public DummyPrintStream() {
-            super(OutputStream.nullOutputStream());
-            this.result = "";
-        }
-
-        @Override
-        public PrintStream append(CharSequence csq) {
-            result += csq.toString();
-            return this;
-        }
-
-        @Override
-        public PrintStream append(char c) {
-            result += c;
-            return this;
-        }
-
-        public String getResult() {
-            return result;
-        }
-    }
-
     private final ViterbiResult testResult = new ViterbiResult(
             List.of(AminoAcid.A, AminoAcid.T, AminoAcid.G),
             0,
