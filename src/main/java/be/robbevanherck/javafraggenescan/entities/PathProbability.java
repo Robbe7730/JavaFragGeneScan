@@ -1,12 +1,10 @@
 package be.robbevanherck.javafraggenescan.entities;
 
-import java.math.BigDecimal;
-
 /**
  * Combination of previous state and probability
  */
 public class PathProbability {
-    private BigDecimal probability;
+    private double probability;
     private final HMMState previousState;
 
     /**
@@ -14,7 +12,7 @@ public class PathProbability {
      * @param previousState The previous state
      * @param probability The probability
      */
-    public PathProbability(HMMState previousState, BigDecimal probability) {
+    public PathProbability(HMMState previousState, double probability) {
         this.probability = probability;
         this.previousState = previousState;
     }
@@ -26,7 +24,7 @@ public class PathProbability {
      * @return The biggest PP
      */
     public static PathProbability max(PathProbability firstPP, PathProbability secondPP) {
-        if (firstPP.getProbability().compareTo(secondPP.getProbability()) > 0) {
+        if (firstPP.getProbability() > secondPP.getProbability()) {
             return firstPP;
         }
         return secondPP;
@@ -42,7 +40,7 @@ public class PathProbability {
         return PathProbability.max(PathProbability.max(firstPP, secondPP), thirdPP);
     }
 
-    public BigDecimal getProbability() {
+    public double getProbability() {
         return probability;
     }
 
@@ -50,7 +48,7 @@ public class PathProbability {
         return previousState;
     }
 
-    public void setProbability(BigDecimal probability) {
+    public void setProbability(double probability) {
         this.probability = probability;
     }
 
@@ -65,7 +63,7 @@ public class PathProbability {
 
         PathProbability that = (PathProbability) o;
 
-        if (!that.probability.equals(this.probability)) return false;
+        if (Double.compare(that.probability, probability) != 0) return false;
         return previousState == that.previousState;
     }
 
@@ -73,7 +71,7 @@ public class PathProbability {
     public int hashCode() {
         int result;
         long temp;
-        temp = Double.doubleToLongBits(probability.doubleValue());
+        temp = Double.doubleToLongBits(probability);
         result = (int) (temp ^ (temp >>> 32));
         result = 31 * result + previousState.hashCode();
         return result;

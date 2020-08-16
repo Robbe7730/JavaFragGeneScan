@@ -144,6 +144,7 @@ public class ViterbiAlgorithm {
         if (currentStrand != DNAStrand.UNKNOWN_STRAND) {
             // Prune incomplete matches
             for (int i = 0; i < matchesToRemove(previousState); i++) {
+                System.out.println("Pruning");
                 position += 1;
                 if (currentStrand == DNAStrand.FORWARD) {
                     currentDNAString.remove(0);

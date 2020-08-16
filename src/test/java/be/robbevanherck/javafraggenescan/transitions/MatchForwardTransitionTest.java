@@ -8,8 +8,6 @@ import be.robbevanherck.javafraggenescan.entities.PathProbability;
 import be.robbevanherck.javafraggenescan.entities.Triple;
 import org.junit.Test;
 
-import java.math.BigDecimal;
-
 import static be.robbevanherck.javafraggenescan.TestUtil.*;
 import static org.junit.Assert.*;
 
@@ -39,7 +37,7 @@ public class MatchForwardTransitionTest {
         assertEquals(
                 // The probabilities are hardcoded into DummyHMMParameters and DummyViterbiStep, but they
                 // are unique, so we know it uses the right values
-                new PathProbability(HMMState.NO_STATE, BigDecimal.valueOf(0.035)),
+                new PathProbability(HMMState.NO_STATE, 0.7 * 0.1 * 0.5),
                 matchForwardTransition.getProbabilityFromMatch(dummyParameters, dummyAcidsViterbiStep.getPrevious(), null)
         );
     }

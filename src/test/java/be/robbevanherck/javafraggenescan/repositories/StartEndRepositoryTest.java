@@ -5,7 +5,6 @@ import be.robbevanherck.javafraggenescan.entities.Pair;
 import be.robbevanherck.javafraggenescan.entities.Triple;
 import org.junit.Test;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -87,16 +86,16 @@ public class StartEndRepositoryTest {
                 "0.3713\t0.3714\t0.3715\t0.3716\t0.3717\t0.3718\t0.3719\t0.3720\t0.3721\t0.3722\t0.3723\t0.3724\t0.3725\t0.3726\t0.3727\t0.3728\t0.3729\t0.3730\t0.3731\t0.3732\t0.3733\t0.3734\t0.3735\t0.3736\t0.3737\t0.3738\t0.3739\t0.3740\t0.3741\t0.3742\t0.3743\t0.3744\t0.3745\t0.3746\t0.3747\t0.3748\t0.3749\t0.3750\t0.3751\t0.3752\t0.3753\t0.3754\t0.3755\t0.3756\t0.3757\t0.3758\t0.3759\t0.3760\t0.3761\t0.3762\t0.3763\t0.3764\t0.3765\t0.3766\t0.3767\t0.3768\t0.3769\t0.3770\t0.3771\t0.3772\t0.3773\t0.3774\t0.3775\t0.3776\n" +
                 "0.3777\t0.3778\t0.3779\t0.3780\t0.3781\t0.3782\t0.3783\t0.3784\t0.3785\t0.3786\t0.3787\t0.3788\t0.3789\t0.3790\t0.3791\t0.3792\t0.3793\t0.3794\t0.3795\t0.3796\t0.3797\t0.3798\t0.3799\t0.3800\t0.3801\t0.3802\t0.3803\t0.3804\t0.3805\t0.3806\t0.3807\t0.3808\t0.3809\t0.3810\t0.3811\t0.3812\t0.3813\t0.3814\t0.3815\t0.3816\t0.3817\t0.3818\t0.3819\t0.3820\t0.3821\t0.3822\t0.3823\t0.3824\t0.3825\t0.3826\t0.3827\t0.3828\t0.3829\t0.3830\t0.3831\t0.3832\t0.3833\t0.3834\t0.3835\t0.3836\t0.3837\t0.3838\t0.3839\t0.3840\n" +
                 "0.3841\t0.3842\t0.3843\t0.3844\t0.3845\t0.3846\t0.3847\t0.3848\t0.3849\t0.3850\t0.3851\t0.3852\t0.3853\t0.3854\t0.3855\t0.3856\t0.3857\t0.3858\t0.3859\t0.3860\t0.3861\t0.3862\t0.3863\t0.3864\t0.3865\t0.3866\t0.3867\t0.3868\t0.3869\t0.3870\t0.3871\t0.3872\t0.3873\t0.3874\t0.3875\t0.3876\t0.3877\t0.3878\t0.3879\t0.3880\t0.3881\t0.3882\t0.3883\t0.3884\t0.3885\t0.3886\t0.3887\t0.3888\t0.3889\t0.3890\t0.3891\t0.3892\t0.3893\t0.3894\t0.3895\t0.3896\t0.3897\t0.3898\t0.3899\t0.3900\t0.3901\t0.3902\t0.3903\t0.3904\n");
-        Map<Integer, Map<Triple<AminoAcid>, BigDecimal>> blockResult = startEndRepository.readOneBlock(blockScanner);
+        Map<Integer, Map<Triple<AminoAcid>, Double>> blockResult = startEndRepository.readOneBlock(blockScanner);
 
-        BigDecimal i = BigDecimal.valueOf(0.0001);
+        double i = 0.0001;
 
         for (int pos = 0; pos <= 60; pos++) {
             for (AminoAcid firstAcid : aminoAcids) {
                 for (AminoAcid secondAcid : aminoAcids) {
                     for (AminoAcid thirdAcid : aminoAcids) {
-                        assertEquals(i.doubleValue(), blockResult.get(pos).get(new Triple<>(firstAcid, secondAcid, thirdAcid)).doubleValue(), 0);
-                        i = i.add(BigDecimal.valueOf(0.0001));
+                        assertEquals(i, blockResult.get(pos).get(new Triple<>(firstAcid, secondAcid, thirdAcid)), 0.0000000000001);
+                        i += 0.0001;
                     }
                 }
             }

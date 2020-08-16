@@ -6,11 +6,9 @@ import be.robbevanherck.javafraggenescan.entities.PathProbability;
 import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
 import be.robbevanherck.javafraggenescan.transitions.InsertTransition;
 
-import java.math.BigDecimal;
-
 public class DummyInsertTransition extends InsertTransition {
-    public PathProbability lowPathProbability = new PathProbability(HMMState.INSERT_1, BigDecimal.valueOf(0.1));
-    public PathProbability highPathProbability = new PathProbability(HMMState.INSERT_2, BigDecimal.valueOf(0.2));
+    public PathProbability lowPathProbability = new PathProbability(HMMState.INSERT_1, 0.1);
+    public PathProbability highPathProbability = new PathProbability(HMMState.INSERT_2, 0.2);
 
     /**
      * Create a new Dummy InsertTransition (getProbabilityFromInsertion and getProbabilityFromMatch

@@ -4,8 +4,6 @@ import be.robbevanherck.javafraggenescan.entities.*;
 import be.robbevanherck.javafraggenescan.repositories.GaussianArgumentsRepository;
 import org.sonatype.inject.Nullable;
 
-import java.math.BigDecimal;
-
 /**
  * Represents a transition to an S or E state, forward or reverse
  */
@@ -25,7 +23,7 @@ public abstract class StartEndTransition extends Transition {
             PathProbability pathProbability = calculatePathProbability(currentStep);
             overrideFutureValues(currentStep, pathProbability);
         } else {
-            currentStep.setValueFor(toState, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO));
+            currentStep.setValueFor(toState, new PathProbability(HMMState.NO_STATE, 0));
         }
     }
 
@@ -37,14 +35,12 @@ public abstract class StartEndTransition extends Transition {
         // Find the codon that can be a start codon
         Triple<AminoAcid> codonAtT = getCodonStartingOrEndingAtT(currentStep);
 
-        BigDecimal probability = BigDecimal.ZERO;
+        double probability = 0;
         if (codonAtT != null) {
             // If the codon is a start/stop codon calculate the extra probabilities
-            probability = pathProbability.getProbability().multiply(
-                            getCodonDependantProbability(codonAtT)
-                    ).multiply(
-                            getGaussianProbability(currentStep)
-                    );
+            probability = pathProbability.getProbability() *
+                    getCodonDependantProbability(codonAtT) *
+                    getGaussianProbability(currentStep);
         }
         pathProbability.setProbability(probability);
         return pathProbability;
@@ -71,14 +67,14 @@ public abstract class StartEndTransition extends Transition {
      * @param codon The codon we found
      * @return The probability
      */
-    protected abstract BigDecimal getCodonDependantProbability(Triple<AminoAcid> codon);
+    protected abstract double getCodonDependantProbability(Triple<AminoAcid> codon);
 
     /**
      * Get the probability based on the statistical properties
      * @param currStep The current Viterbi Step
      * @return The probability
      */
-    protected abstract BigDecimal getGaussianProbability(ViterbiStep currStep);
+    protected abstract double getGaussianProbability(ViterbiStep currStep);
 
     /**
      * Calculate the statistical value I don't understand
@@ -86,22 +82,20 @@ public abstract class StartEndTransition extends Transition {
      * @param startFrequency The input calculated before this step
      * @return The probability
      */
-    protected BigDecimal calculateStatisticalProbability(HMMParameters parameters, BigDecimal startFrequency) {
-        //TODO: this still uses double because of difficulties with Math.exp
-
+    protected double calculateStatisticalProbability(HMMParameters parameters, double startFrequency) {
         // Get all the arguments ready
-        double sigma = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.SIGMA).doubleValue();
-        double mu = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.MU).doubleValue();
-        double alpha = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.ALPHA).doubleValue();
-        double sigmaR = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.SIGMA_R).doubleValue();
-        double muR = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.MU_R).doubleValue();
-        double alphaR = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.ALPHA_R).doubleValue();
+        double sigma = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.SIGMA);
+        double mu = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.MU);
+        double alpha = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.ALPHA);
+        double sigmaR = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.SIGMA_R);
+        double muR = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.MU_R);
+        double alphaR = parameters.getGaussianArgument(toState, GaussianArgumentsRepository.GaussianArgument.ALPHA_R);
 
         // Do some crazy statistics I don't understand
-        double eKdN = alpha * Math.exp(-Math.pow(startFrequency.doubleValue() - mu, 2) / (2 * Math.pow(sigma, 2)));
-        double eKdR = alphaR * Math.exp(-Math.pow(startFrequency.doubleValue() - muR, 2) / (2 * Math.pow(sigmaR, 2)));
+        double eKdN = alpha * Math.exp(-Math.pow(startFrequency - mu, 2) / (2 * Math.pow(sigma, 2)));
+        double eKdR = alphaR * Math.exp(-Math.pow(startFrequency - muR, 2) / (2 * Math.pow(sigmaR, 2)));
 
-        return BigDecimal.valueOf(Math.max(Math.min(eKdN / (eKdN + eKdR), 0.99), 0.01));
+        return Math.max(Math.min(eKdN / (eKdN + eKdR), 0.99), 0.01);
     }
 
     /**
@@ -111,8 +105,8 @@ public abstract class StartEndTransition extends Transition {
      */
     protected void overrideFutureValues(ViterbiStep currentStep, PathProbability pathProbability) {
         // We calculate the probability for t+2 and path for t, so this needs to be split up
-        currentStep.setValueFor(toState, new PathProbability(pathProbability.getPreviousState(), BigDecimal.ZERO));
-        currentStep.setValueFor(toState, new PathProbability(toState, BigDecimal.ZERO), 1);
+        currentStep.setValueFor(toState, new PathProbability(pathProbability.getPreviousState(), 0));
+        currentStep.setValueFor(toState, new PathProbability(toState, 0), 1);
         currentStep.setValueFor(toState, new PathProbability(toState, pathProbability.getProbability()), 2);
     }
 }
