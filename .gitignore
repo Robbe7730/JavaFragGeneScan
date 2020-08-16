@@ -28,7 +28,8 @@ hs_err_pid*
 .idea
 
 # Output
-target
+target/*
+!target/JavaFragGeneScan-1.0-jar-with-dependencies.jar
 
 # Dockerfile for testing
 Dockerfile
