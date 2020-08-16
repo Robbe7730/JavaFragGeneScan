@@ -2,8 +2,6 @@ package be.robbevanherck.javafraggenescan.transitions;
 
 import be.robbevanherck.javafraggenescan.entities.*;
 
-import java.math.BigDecimal;
-
 /**
  * Represents a transition to an M (forward or reverse) state
  */
@@ -74,11 +72,11 @@ public abstract class MatchTransition extends Transition {
 
         // If it's a stop codon, we can't be in an M' state, but should be in an END' state
         if (!isCorrectStopCodon(codonWithoutInsertions)) {
-            BigDecimal probability = previous.getProbabilityFor(insertionState).multiply(                                           // Probability to be in state Ix at t-1
-                    parameters.getInnerTransitionProbability(HMMInnerTransition.INSERT_MATCH)).multiply(BigDecimal.valueOf(0.25));  // Probability for transmission + emission (=0.25) for I -> M
+            double probability = previous.getProbabilityFor(insertionState) *                           // Probability to be in state Ix at t-1
+                    parameters.getInnerTransitionProbability(HMMInnerTransition.INSERT_MATCH) * 0.25;   // Probability for transmission + emission (=0.25) for I -> M
             return new PathProbability(insertionState, probability);
         }
-        return new PathProbability(insertionState, BigDecimal.ZERO);
+        return new PathProbability(insertionState, 0);
     }
 
     /**

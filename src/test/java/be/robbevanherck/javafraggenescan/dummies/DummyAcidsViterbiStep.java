@@ -4,7 +4,6 @@ import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.HMMState;
 import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +47,7 @@ public class DummyAcidsViterbiStep extends ViterbiStep {
     }
 
     @Override
-    public BigDecimal getProbabilityFor(HMMState state) {
-        return BigDecimal.valueOf(0.7);
+    public double getProbabilityFor(HMMState state) {
+        return 0.7;
     }
 }

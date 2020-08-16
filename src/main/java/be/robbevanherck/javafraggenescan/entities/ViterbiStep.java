@@ -5,7 +5,6 @@ import be.robbevanherck.javafraggenescan.ViterbiAlgorithm;
 import be.robbevanherck.javafraggenescan.repositories.InputFileRepository;
 import be.robbevanherck.javafraggenescan.transitions.Transition;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -84,43 +83,43 @@ public class ViterbiStep {
         if (StartStopUtil.isForwardStopCodon(firstCodon)) {
             // Depending on which codon it is, we calculate a new probability for the END state
             // The first value is always T, so we don't need to check that one
-            BigDecimal probability = BigDecimal.ZERO;
+            double probability = 0;
             if (firstCodon.getSecondValue() == AminoAcid.A && firstCodon.getThirdValue() == AminoAcid.A) {
-                probability = new BigDecimal("0.53");
+                probability = 0.53;
             } else if (firstCodon.getSecondValue() == AminoAcid.A && firstCodon.getThirdValue() == AminoAcid.G) {
-                probability = new BigDecimal("0.16");
+                probability = 0.16;
             } else if (firstCodon.getSecondValue() == AminoAcid.G && firstCodon.getThirdValue() == AminoAcid.A) {
-                probability = new BigDecimal("0.30");
+                probability = 0.30;
             }
 
-            this.setValueFor(HMMState.END, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO));
-            this.setValueFor(HMMState.END, new PathProbability(HMMState.END, BigDecimal.ZERO), 1);
+            this.setValueFor(HMMState.END, new PathProbability(HMMState.NO_STATE, 0));
+            this.setValueFor(HMMState.END, new PathProbability(HMMState.END, 0), 1);
             this.setValueFor(HMMState.END, new PathProbability(HMMState.END, probability), 2);
 
-            this.setValueFor(HMMState.MATCH_6, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO), 2);
-            this.setValueFor(HMMState.MATCH_5, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO), 1);
-            this.setValueFor(HMMState.MATCH_4, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO));
-            this.setValueFor(HMMState.MATCH_3, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO), 2);
-            this.setValueFor(HMMState.MATCH_2, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO), 1);
-            this.setValueFor(HMMState.MATCH_1, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO));
+            this.setValueFor(HMMState.MATCH_6, new PathProbability(HMMState.NO_STATE, 0), 2);
+            this.setValueFor(HMMState.MATCH_5, new PathProbability(HMMState.NO_STATE, 0), 1);
+            this.setValueFor(HMMState.MATCH_4, new PathProbability(HMMState.NO_STATE, 0));
+            this.setValueFor(HMMState.MATCH_3, new PathProbability(HMMState.NO_STATE, 0), 2);
+            this.setValueFor(HMMState.MATCH_2, new PathProbability(HMMState.NO_STATE, 0), 1);
+            this.setValueFor(HMMState.MATCH_1, new PathProbability(HMMState.NO_STATE, 0));
         } else if (StartStopUtil.isReverseStartCodon(firstCodon)) {
             // Depending on which codon it is, we calculate a new probability for the START' state
             // The last value is always A, so we don't need to check that one
-            BigDecimal probability = this.getPathProbabilityFor(HMMState.START).getProbability();
+            double probability = this.getPathProbabilityFor(HMMState.START).getProbability();
             if (firstCodon.getFirstValue() == AminoAcid.T && firstCodon.getSecondValue() == AminoAcid.T) {
-                probability = probability.multiply(new BigDecimal("0.53"));
+                probability *= 0.53;
             } else if (firstCodon.getFirstValue() == AminoAcid.C && firstCodon.getSecondValue() == AminoAcid.T) {
-                probability = probability.multiply(new BigDecimal("0.16"));
+                probability *= 0.16;
             } else if (firstCodon.getFirstValue() == AminoAcid.T && firstCodon.getSecondValue() == AminoAcid.C) {
-                probability = probability.multiply(new BigDecimal("0.30"));
+                probability *= 0.30;
             }
 
-            this.setValueFor(HMMState.START_REVERSE, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO));
-            this.setValueFor(HMMState.START_REVERSE, new PathProbability(HMMState.START_REVERSE, BigDecimal.ZERO), 1);
+            this.setValueFor(HMMState.START_REVERSE, new PathProbability(HMMState.NO_STATE, 0));
+            this.setValueFor(HMMState.START_REVERSE, new PathProbability(HMMState.START_REVERSE, 0), 1);
             this.setValueFor(HMMState.START_REVERSE, new PathProbability(HMMState.START_REVERSE, probability), 2);
 
-            this.setValueFor(HMMState.MATCH_REVERSE_3, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO), 2);
-            this.setValueFor(HMMState.MATCH_REVERSE_6, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO), 2);
+            this.setValueFor(HMMState.MATCH_REVERSE_3, new PathProbability(HMMState.NO_STATE, 0), 2);
+            this.setValueFor(HMMState.MATCH_REVERSE_6, new PathProbability(HMMState.NO_STATE, 0), 2);
         }
     }
 
@@ -129,7 +128,7 @@ public class ViterbiStep {
      * @param state The state to look up
      * @return The probability to be in this state
      */
-    public BigDecimal getProbabilityFor(HMMState state) {
+    public double getProbabilityFor(HMMState state) {
         return pathProbabilities.get(state).getProbability();
     }
 
@@ -276,11 +275,11 @@ public class ViterbiStep {
 
     public HMMState getHighestProbabilityState() {
         HMMState ret = HMMState.NO_STATE;
-        BigDecimal currentProbability = BigDecimal.ZERO;
+        double currentProbability = 0;
         for (HMMState state : HMMState.values()) {
             if (state != HMMState.NO_STATE) {
                 PathProbability pathProbability = pathProbabilities.get(state);
-                if (pathProbability.getProbability().compareTo(currentProbability) > 0) {
+                if (pathProbability.getProbability() > currentProbability) {
                     currentProbability = pathProbability.getProbability();
                     ret = state;
                 }

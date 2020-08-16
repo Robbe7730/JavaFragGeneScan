@@ -4,7 +4,6 @@ import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.HMMState;
 import be.robbevanherck.javafraggenescan.entities.Triple;
 
-import java.math.BigDecimal;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +12,7 @@ import java.util.Scanner;
 /**
  * Repository for the data in the files related to M and M' states (gene and rgene)
  */
-public abstract class MatchEmissionRepository extends CGDependentRepository<Map<HMMState, Map<Triple<AminoAcid>, BigDecimal>>> {
+public abstract class MatchEmissionRepository extends CGDependentRepository<Map<HMMState, Map<Triple<AminoAcid>, Double>>> {
 
     protected MatchEmissionRepository(String filename) {
         super(filename);
@@ -26,18 +25,18 @@ public abstract class MatchEmissionRepository extends CGDependentRepository<Map<
     }
 
     @Override
-    protected Map<HMMState, Map<Triple<AminoAcid>, BigDecimal>> readOneBlock(Scanner s) {
-        Map<HMMState, Map<Triple<AminoAcid>, BigDecimal>> newMapping = new EnumMap<>(HMMState.class);
+    protected Map<HMMState, Map<Triple<AminoAcid>, Double>> readOneBlock(Scanner s) {
+        Map<HMMState, Map<Triple<AminoAcid>, Double>> newMapping = new EnumMap<>(HMMState.class);
 
         // For every M state
         for (int mStateIndex = 0; mStateIndex < 6; mStateIndex++) {
             HMMState mState = matchStateFromInt(mStateIndex+1);
-            Map<Triple<AminoAcid>, BigDecimal> probabilities = new HashMap<>();
+            Map<Triple<AminoAcid>, Double> probabilities = new HashMap<>();
 
             // For each tri-nucleotide
             for (int trinucleotideIndex = 0; trinucleotideIndex < 4*4*4; trinucleotideIndex++) {
                 Triple<AminoAcid> trinucleotide = createTrinucleotide(trinucleotideIndex);
-                probabilities.put(trinucleotide, BigDecimal.valueOf(s.nextDouble()));
+                probabilities.put(trinucleotide, s.nextDouble());
             }
             newMapping.put(mState, probabilities);
         }

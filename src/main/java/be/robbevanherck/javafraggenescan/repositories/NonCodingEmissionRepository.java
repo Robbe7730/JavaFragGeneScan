@@ -3,7 +3,6 @@ package be.robbevanherck.javafraggenescan.repositories;
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.Pair;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -11,7 +10,7 @@ import java.util.Scanner;
 /**
  * Repository for the noncoding file
  */
-public class NonCodingEmissionRepository extends CGDependentRepository<Map<Pair<AminoAcid>, BigDecimal>> {
+public class NonCodingEmissionRepository extends CGDependentRepository<Map<Pair<AminoAcid>, Double>> {
     /**
      * Create a new NonCodingEmissionRepository
      */
@@ -22,10 +21,10 @@ public class NonCodingEmissionRepository extends CGDependentRepository<Map<Pair<
     private static NonCodingEmissionRepository instance;
 
     @Override
-    protected Map<Pair<AminoAcid>, BigDecimal> readOneBlock(Scanner s) {
-        Map<Pair<AminoAcid>, BigDecimal> ret = new HashMap<>();
+    protected Map<Pair<AminoAcid>, Double> readOneBlock(Scanner s) {
+        Map<Pair<AminoAcid>, Double> ret = new HashMap<>();
         for (int aminoAcidInteger = 0; aminoAcidInteger < 16; aminoAcidInteger++) {
-                ret.put(createDinucleotide(aminoAcidInteger), BigDecimal.valueOf(s.nextDouble()));
+                ret.put(createDinucleotide(aminoAcidInteger), s.nextDouble());
         }
         return ret;
     }

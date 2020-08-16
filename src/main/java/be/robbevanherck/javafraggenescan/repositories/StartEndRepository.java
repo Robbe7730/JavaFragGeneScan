@@ -3,7 +3,6 @@ package be.robbevanherck.javafraggenescan.repositories;
 import be.robbevanherck.javafraggenescan.entities.AminoAcid;
 import be.robbevanherck.javafraggenescan.entities.Triple;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -12,7 +11,7 @@ import java.util.regex.Pattern;
 /**
  * Superclass for Repositories for start, start1, stop and stop1
  */
-public abstract class StartEndRepository extends CGDependentRepository<Map<Integer, Map<Triple<AminoAcid>, BigDecimal>>> {
+public abstract class StartEndRepository extends CGDependentRepository<Map<Integer, Map<Triple<AminoAcid>, Double>>> {
     /**
      * Create a new StartEndRepository
      *
@@ -23,12 +22,12 @@ public abstract class StartEndRepository extends CGDependentRepository<Map<Integ
     }
 
     @Override
-    protected Map<Integer, Map<Triple<AminoAcid>, BigDecimal>> readOneBlock(Scanner s) {
-        Map<Integer, Map<Triple<AminoAcid>, BigDecimal>> ret = new HashMap<>();
+    protected Map<Integer, Map<Triple<AminoAcid>, Double>> readOneBlock(Scanner s) {
+        Map<Integer, Map<Triple<AminoAcid>, Double>> ret = new HashMap<>();
         for (int position = 0; position < 61; position++) {
-            Map<Triple<AminoAcid>, BigDecimal> newRow = new HashMap<>();
+            Map<Triple<AminoAcid>, Double> newRow = new HashMap<>();
             for (int trinucleotideInteger = 0; trinucleotideInteger < 64; trinucleotideInteger++) {
-                BigDecimal probability = BigDecimal.valueOf(s.nextDouble());
+                double probability = s.nextDouble();
                 Triple<AminoAcid> codon = createTrinucleotide(trinucleotideInteger);
 
                 newRow.put(codon, probability);
