@@ -2,6 +2,8 @@ package be.robbevanherck.javafraggenescan.transitions;
 
 import be.robbevanherck.javafraggenescan.entities.*;
 
+import java.math.BigDecimal;
+
 /**
  * Represents a transition to a I (forward or reverse) state
  */
@@ -35,9 +37,9 @@ public abstract class InsertTransition extends Transition {
      */
     protected PathProbability getProbabilityFromInsertion(HMMParameters parameters, ViterbiStep currentStep) {
         ViterbiStep previous = currentStep.getPrevious();
-        double probability = previous.getProbabilityFor(toState) *                                                              // Probability to be in a Ix state at t-1
-                                    parameters.getInnerTransitionProbability(HMMInnerTransition.INSERT_INSERT) *                // Probability for a transition I -> I
-                                    parameters.getInsertInsertEmissionProbability(previous.getInput(), currentStep.getInput()); // Probability for an emission for I -> I
+        BigDecimal probability = previous.getProbabilityFor(toState).multiply(                                                   // Probability to be in a Ix state at t-1
+                                    parameters.getInnerTransitionProbability(HMMInnerTransition.INSERT_INSERT)).multiply(        // Probability for a transition I -> I
+                                    parameters.getInsertInsertEmissionProbability(previous.getInput(), currentStep.getInput())); // Probability for an emission for I -> I
         return new PathProbability(toState, probability);
     }
 
@@ -50,9 +52,9 @@ public abstract class InsertTransition extends Transition {
     protected PathProbability getProbabilityFromMatch(HMMParameters parameters, ViterbiStep currentStep) {
         ViterbiStep previous = currentStep.getPrevious();
         HMMState correspondingMatchingState = HMMState.matchingStateForInsert(toState);
-        double probability =  previous.getProbabilityFor(correspondingMatchingState) *                                          // Probability to be in a Mx state at t-1
-                                    parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_INSERT) *                 // Probability for a transition M -> I
-                                    parameters.getMatchInsertEmissionProbability(previous.getInput(), currentStep.getInput());  // Probability for an emission for I -> I
+        BigDecimal probability =  previous.getProbabilityFor(correspondingMatchingState).multiply(                               // Probability to be in a Mx state at t-1
+                                    parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_INSERT)).multiply(         // Probability for a transition M -> I
+                                    parameters.getMatchInsertEmissionProbability(previous.getInput(), currentStep.getInput()));  // Probability for an emission for I -> I
         return new PathProbability(correspondingMatchingState, probability);
     }
 }

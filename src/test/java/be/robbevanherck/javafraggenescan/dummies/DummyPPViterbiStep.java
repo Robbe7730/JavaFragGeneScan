@@ -5,6 +5,7 @@ import be.robbevanherck.javafraggenescan.entities.HMMState;
 import be.robbevanherck.javafraggenescan.entities.PathProbability;
 import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class DummyPPViterbiStep extends ViterbiStep {
 
     @Override
     public PathProbability getPathProbabilityFor(HMMState state) {
-        return new PathProbability(previousStates.get(0), 1);
+        return new PathProbability(previousStates.get(0), BigDecimal.valueOf(1));
     }
 
     @Override

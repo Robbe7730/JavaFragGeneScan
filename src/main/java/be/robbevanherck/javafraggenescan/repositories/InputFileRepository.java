@@ -5,6 +5,7 @@ import be.robbevanherck.javafraggenescan.entities.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.math.BigDecimal;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +15,10 @@ import java.util.Scanner;
  * Repository for the data in the input HMM file
  */
 public class InputFileRepository {
-    private final Map<HMMInnerTransition, Double> innerTransitions;
-    private final Map<HMMOuterTransition, Double> outerTransitions;
-    private final Map<Pair<AminoAcid>, Double> matchInsertEmissions;
-    private final Map<Pair<AminoAcid>, Double> insertInsertEmissions;
+    private final Map<HMMInnerTransition, BigDecimal> innerTransitions;
+    private final Map<HMMOuterTransition, BigDecimal> outerTransitions;
+    private final Map<Pair<AminoAcid>, BigDecimal> matchInsertEmissions;
+    private final Map<Pair<AminoAcid>, BigDecimal> insertInsertEmissions;
     private final Map<HMMState, PathProbability> initialProbabilities;
     private static InputFileRepository instance;
 
@@ -36,7 +37,7 @@ public class InputFileRepository {
                 /* Outer Transitions */
                 for (int i = 0; i < HMMOuterTransition.values().length - 1; i++) {
                     String transitionString = s.next();
-                    double transitionProbability = s.nextDouble();
+                    BigDecimal transitionProbability = BigDecimal.valueOf(s.nextDouble());
 
                     HMMOuterTransition transition = HMMOuterTransition.fromString(transitionString);
 
@@ -46,7 +47,7 @@ public class InputFileRepository {
                 /* Inner Transitions */
                 for (int i = 0; i < HMMInnerTransition.values().length - 1; i++) {
                     String transitionString = s.next();
-                    double transitionProbability = s.nextDouble();
+                    BigDecimal transitionProbability = BigDecimal.valueOf(s.nextDouble());
 
                     HMMInnerTransition transition = HMMInnerTransition.fromString(transitionString);
 
@@ -58,7 +59,7 @@ public class InputFileRepository {
                 for (int i = 0; i < 16; i++) {
                     String firstAminoAcidString = s.next();
                     String secondAminoAcidString = s.next();
-                    double miEmissionProbability = s.nextDouble();
+                    BigDecimal miEmissionProbability = BigDecimal.valueOf(s.nextDouble());
 
                     AminoAcid firstAminoAcid = AminoAcid.fromString(firstAminoAcidString);
                     AminoAcid secondAminoAcid = AminoAcid.fromString(secondAminoAcidString);
@@ -72,7 +73,7 @@ public class InputFileRepository {
                 for (int i = 0; i < 16; i++) {
                     String firstAminoAcidString = s.next();
                     String secondAminoAcidString = s.next();
-                    double iiEmissionProbability = s.nextDouble();
+                    BigDecimal iiEmissionProbability = BigDecimal.valueOf(s.nextDouble());
 
                     AminoAcid firstAminoAcid = AminoAcid.fromString(firstAminoAcidString);
                     AminoAcid secondAminoAcid = AminoAcid.fromString(secondAminoAcidString);
@@ -85,7 +86,7 @@ public class InputFileRepository {
                 s.next(); // Skip the header
                 for (int i = 0; i < HMMState.values().length - 1; i++) {
                     String stateString = s.next();
-                    double stateProbability = s.nextDouble();
+                    BigDecimal stateProbability = BigDecimal.valueOf(s.nextDouble());
 
                     HMMState state = HMMState.fromString(stateString);
 
@@ -109,19 +110,19 @@ public class InputFileRepository {
         return instance;
     }
 
-    public Map<HMMOuterTransition, Double> getOuterTransitions() {
+    public Map<HMMOuterTransition, BigDecimal> getOuterTransitions() {
         return outerTransitions;
     }
 
-    public Map<HMMInnerTransition, Double> getInnerTransitions() {
+    public Map<HMMInnerTransition, BigDecimal> getInnerTransitions() {
         return innerTransitions;
     }
 
-    public Map<Pair<AminoAcid>, Double> getMatchInsertEmissions() {
+    public Map<Pair<AminoAcid>, BigDecimal> getMatchInsertEmissions() {
         return matchInsertEmissions;
     }
 
-    public Map<Pair<AminoAcid>, Double> getInsertInsertEmissions() {
+    public Map<Pair<AminoAcid>, BigDecimal> getInsertInsertEmissions() {
         return insertInsertEmissions;
     }
 

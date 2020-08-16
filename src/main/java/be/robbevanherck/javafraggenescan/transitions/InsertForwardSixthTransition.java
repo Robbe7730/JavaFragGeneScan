@@ -15,8 +15,8 @@ public class InsertForwardSixthTransition extends InsertForwardTransition {
 
     @Override
     protected PathProbability getProbabilityFromMatch(HMMParameters parameters, ViterbiStep currentStep) {
-        PathProbability ret =  super.getProbabilityFromMatch(parameters, currentStep);                                          // The probability is the same as the other I states
-        ret.setProbability(ret.getProbability() * parameters.getOuterTransitionProbability(HMMOuterTransition.GENE_GENE));      // Except for the extra outer transition probability
+        PathProbability ret =  super.getProbabilityFromMatch(parameters, currentStep);                                              // The probability is the same as the other I states
+        ret.setProbability(ret.getProbability().multiply(parameters.getOuterTransitionProbability(HMMOuterTransition.GENE_GENE)));  // Except for the extra outer transition probability
         return ret;
     }
 }

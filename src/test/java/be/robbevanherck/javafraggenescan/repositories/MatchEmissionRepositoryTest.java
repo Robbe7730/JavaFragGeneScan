@@ -6,6 +6,7 @@ import be.robbevanherck.javafraggenescan.entities.HMMState;
 import be.robbevanherck.javafraggenescan.entities.Triple;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -120,16 +121,16 @@ public class MatchEmissionRepositoryTest {
                 "0.0372\t0.0373\t0.0374\t0.0375\n" +
                 "0.0376\t0.0377\t0.0378\t0.0379\n" +
                 "0.0380\t0.0381\t0.0382\t0.0383\n");
-        Map<HMMState, Map<Triple<AminoAcid>, Double>> result = dummyMatchEmissionRepository.readOneBlock(blockScanner);
+        Map<HMMState, Map<Triple<AminoAcid>, BigDecimal>> result = dummyMatchEmissionRepository.readOneBlock(blockScanner);
 
-        double i = 0.0000;
+        BigDecimal i = BigDecimal.ZERO;
         for (HMMState state : matchingStates) {
             for (AminoAcid firstAcid : aminoAcids) {
                 for (AminoAcid secondAcid : aminoAcids) {
                     for (AminoAcid thirdAcid : aminoAcids) {
                         // A small delta is needed here because of precision loss
-                        assertEquals(i, result.get(state).get(new Triple<>(firstAcid, secondAcid, thirdAcid)), 0.0000000000001);
-                        i += 0.0001;
+                        assertEquals(i.doubleValue(), result.get(state).get(new Triple<>(firstAcid, secondAcid, thirdAcid)).doubleValue(), 0);
+                        i = i.add(BigDecimal.valueOf(0.0001));
                     }
                 }
             }

@@ -3,25 +3,26 @@ package be.robbevanherck.javafraggenescan.entities;
 import be.robbevanherck.javafraggenescan.repositories.*;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
  * Contains all the parameters for the Hidden Markov Model
  */
 public class HMMParameters {
-    private final Map<HMMInnerTransition, Double> innerTransitions;
-    private final Map<HMMOuterTransition, Double> outerTransitions;
-    private final Map<HMMState, Map<Triple<AminoAcid>, Double>> forwardMatchEmissions;
-    private final Map<HMMState, Map<Triple<AminoAcid>, Double>> reverseMatchEmissions;
-    private final Map<Pair<AminoAcid>, Double> insertInsertEmissions;
-    private final Map<Pair<AminoAcid>, Double> matchInsertEmissions;
-    private final Map<Pair<AminoAcid>, Double> nonCodingNonCodingEmissions;
+    private final Map<HMMInnerTransition, BigDecimal> innerTransitions;
+    private final Map<HMMOuterTransition, BigDecimal> outerTransitions;
+    private final Map<HMMState, Map<Triple<AminoAcid>, BigDecimal>> forwardMatchEmissions;
+    private final Map<HMMState, Map<Triple<AminoAcid>, BigDecimal>> reverseMatchEmissions;
+    private final Map<Pair<AminoAcid>, BigDecimal> insertInsertEmissions;
+    private final Map<Pair<AminoAcid>, BigDecimal> matchInsertEmissions;
+    private final Map<Pair<AminoAcid>, BigDecimal> nonCodingNonCodingEmissions;
     private final boolean wholeGenome;
-    private final Map<Integer, Map<Triple<AminoAcid>, Double>> forwardStopPWM;
-    private final Map<Integer, Map<Triple<AminoAcid>, Double>> reverseStopPWM;
-    private final Map<Integer, Map<Triple<AminoAcid>, Double>> forwardStartPWM;
-    private final Map<Integer, Map<Triple<AminoAcid>, Double>> reverseStartPWM;
-    private final Map<HMMState, Map<GaussianArgumentsRepository.GaussianArgument, Double>> gaussianArguments;
+    private final Map<Integer, Map<Triple<AminoAcid>, BigDecimal>> forwardStopPWM;
+    private final Map<Integer, Map<Triple<AminoAcid>, BigDecimal>> reverseStopPWM;
+    private final Map<Integer, Map<Triple<AminoAcid>, BigDecimal>> forwardStartPWM;
+    private final Map<Integer, Map<Triple<AminoAcid>, BigDecimal>> reverseStartPWM;
+    private final Map<HMMState, Map<GaussianArgumentsRepository.GaussianArgument, BigDecimal>> gaussianArguments;
 
     /**
      * Protected constructor only for testing
@@ -105,7 +106,7 @@ public class HMMParameters {
      * @param state The state the transition is going to
      * @return The probability
      */
-    public double getMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
+    public BigDecimal getMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
         return this.forwardMatchEmissions.get(state).get(aminoAcidEndingInT);
     }
 
@@ -114,7 +115,7 @@ public class HMMParameters {
      * @param transition The transition
      * @return The probability for that transition
      */
-    public double getInnerTransitionProbability(HMMInnerTransition transition) {
+    public BigDecimal getInnerTransitionProbability(HMMInnerTransition transition) {
         return innerTransitions.get(transition);
     }
 
@@ -123,7 +124,7 @@ public class HMMParameters {
      * @param transition The transition
      * @return The probability for that transition
      */
-    public double getOuterTransitionProbability(HMMOuterTransition transition) {
+    public BigDecimal getOuterTransitionProbability(HMMOuterTransition transition) {
         return outerTransitions.get(transition);
     }
 
@@ -133,7 +134,7 @@ public class HMMParameters {
      * @param currentInput The input of the current state
      * @return The probability
      */
-    public double getInsertInsertEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
+    public BigDecimal getInsertInsertEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
         return insertInsertEmissions.get(new Pair<>(previousInput, currentInput));
     }
 
@@ -143,7 +144,7 @@ public class HMMParameters {
      * @param currentInput The input of the current state
      * @return The probability
      */
-    public double getMatchInsertEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
+    public BigDecimal getMatchInsertEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
         return matchInsertEmissions.get(new Pair<>(previousInput, currentInput));
     }
 
@@ -154,7 +155,7 @@ public class HMMParameters {
      * @param currentInput The input of the current state
      * @return The probability
      */
-    public double getNonCodingNonCodingEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
+    public BigDecimal getNonCodingNonCodingEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
         return nonCodingNonCodingEmissions.get(new Pair<>(previousInput, currentInput));
     }
 
@@ -165,7 +166,7 @@ public class HMMParameters {
      * @param state The state the transition is going to
      * @return The probability
      */
-    public double getReverseMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
+    public BigDecimal getReverseMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
         return reverseMatchEmissions.get(state).get(aminoAcidEndingInT);
     }
 
@@ -175,7 +176,7 @@ public class HMMParameters {
      * @param codon The codon at the position index
      * @return The probability
      */
-    public double getForwardEndPWMProbability(int index, Triple<AminoAcid> codon) {
+    public BigDecimal getForwardEndPWMProbability(int index, Triple<AminoAcid> codon) {
         return forwardStopPWM.get(index).get(codon);
     }
 
@@ -185,7 +186,7 @@ public class HMMParameters {
      * @param codon The codon at the position index
      * @return The probability
      */
-    public double getReverseEndPWMProbability(int index, Triple<AminoAcid> codon) {
+    public BigDecimal getReverseEndPWMProbability(int index, Triple<AminoAcid> codon) {
         return reverseStopPWM.get(index).get(codon);
     }
 
@@ -195,7 +196,7 @@ public class HMMParameters {
      * @param codon The codon at the position index
      * @return The probability
      */
-    public double getForwardStartPWMProbability(int index, Triple<AminoAcid> codon) {
+    public BigDecimal getForwardStartPWMProbability(int index, Triple<AminoAcid> codon) {
         return forwardStartPWM.get(index).get(codon);
     }
 
@@ -205,7 +206,7 @@ public class HMMParameters {
      * @param codon The codon at the position index
      * @return The probability
      */
-    public double getReverseStartPWMProbability(int index, Triple<AminoAcid> codon) {
+    public BigDecimal getReverseStartPWMProbability(int index, Triple<AminoAcid> codon) {
         return reverseStartPWM.get(index).get(codon);
     }
 
@@ -215,7 +216,7 @@ public class HMMParameters {
      * @param argument The argument to get
      * @return The value
      */
-    public double getGaussianArgument(HMMState state, GaussianArgumentsRepository.GaussianArgument argument) {
+    public BigDecimal getGaussianArgument(HMMState state, GaussianArgumentsRepository.GaussianArgument argument) {
         return gaussianArguments.get(state).get(argument);
     }
 }

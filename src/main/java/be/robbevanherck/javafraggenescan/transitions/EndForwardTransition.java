@@ -3,6 +3,8 @@ package be.robbevanherck.javafraggenescan.transitions;
 import be.robbevanherck.javafraggenescan.StartStopUtil;
 import be.robbevanherck.javafraggenescan.entities.*;
 
+import java.math.BigDecimal;
+
 /**
  * Represents a transition to the E state
  */
@@ -29,34 +31,34 @@ public class EndForwardTransition extends EndTransition {
     }
 
     @Override
-    protected double getCodonDependantProbability(Triple<AminoAcid> codon) {
+    protected BigDecimal getCodonDependantProbability(Triple<AminoAcid> codon) {
         // TODO these are values from the paper, the original code uses different values!!
         // The first amino-acid is always T, no need to check that one
         if (codon.getSecondValue() == AminoAcid.A && codon.getThirdValue() == AminoAcid.G) {
-            return 0.54;
+            return BigDecimal.valueOf(0.54);
         } else if (codon.getSecondValue() == AminoAcid.A && codon.getThirdValue() == AminoAcid.A) {
-            return 0.33;
+            return BigDecimal.valueOf(0.33);
         } else if (codon.getSecondValue() == AminoAcid.G && codon.getThirdValue() == AminoAcid.A) {
-            return 0.16;
+            return BigDecimal.valueOf(0.16);
         } else {
-            return 0;
+            return BigDecimal.ZERO;
         }
     }
 
     @Override
-    protected double getGaussianProbability(ViterbiStep currStep) {
+    protected BigDecimal getGaussianProbability(ViterbiStep currStep) {
         HMMParameters parameters = currStep.getParameters();
 
         // Make sure the previous steps exist
         if (currStep.getPrevious().getPrevious() == null) {
-            return 0;
+            return BigDecimal.ZERO;
         }
         ViterbiStep firstStep = currStep;
         ViterbiStep secondStep = firstStep.getPrevious();
         ViterbiStep thirdStep = secondStep.getPrevious();
 
         int nucleotidesChecked = 1;
-        double tempProduct = parameters.getForwardEndPWMProbability(58, new Triple<>(
+        BigDecimal tempProduct = parameters.getForwardEndPWMProbability(58, new Triple<>(
                 firstStep.getInput(),
                 secondStep.getInput(),
                 thirdStep.getInput()
@@ -65,11 +67,11 @@ public class EndForwardTransition extends EndTransition {
         // TODO I'm not sure why this is 58 instead of 61, but I followed the original code
         // Read from the PWM until we reach te beginning or the end of our window
         while (thirdStep != null && nucleotidesChecked <= 58) {
-            tempProduct *= parameters.getForwardEndPWMProbability(58 - nucleotidesChecked, new Triple<>(
+            tempProduct = tempProduct.multiply(parameters.getForwardEndPWMProbability(58 - nucleotidesChecked, new Triple<>(
                     firstStep.getInput(),
                     secondStep.getInput(),
                     thirdStep.getInput()
-            ));
+            )));
 
             firstStep = secondStep;
             secondStep = thirdStep;
@@ -78,7 +80,7 @@ public class EndForwardTransition extends EndTransition {
             nucleotidesChecked++;
         }
 
-        double startFrequency = tempProduct * (58.0 / nucleotidesChecked);
+        BigDecimal startFrequency = tempProduct.multiply(BigDecimal.valueOf(58.0 / nucleotidesChecked));
 
         return calculateStatisticalProbability(parameters, startFrequency);
     }
@@ -88,11 +90,11 @@ public class EndForwardTransition extends EndTransition {
         super.overrideFutureValues(currStep, pathProbability);
 
         // It is also not possible to have 3 exact matches for this codon, so we override them here
-        currStep.setValueFor(HMMState.MATCH_1, new PathProbability(HMMState.NO_STATE, 0));
-        currStep.setValueFor(HMMState.MATCH_2, new PathProbability(HMMState.NO_STATE, 0), 1);
-        currStep.setValueFor(HMMState.MATCH_3, new PathProbability(HMMState.NO_STATE, 0), 2);
-        currStep.setValueFor(HMMState.MATCH_4, new PathProbability(HMMState.NO_STATE, 0));
-        currStep.setValueFor(HMMState.MATCH_5, new PathProbability(HMMState.NO_STATE, 0), 1);
-        currStep.setValueFor(HMMState.MATCH_6, new PathProbability(HMMState.NO_STATE, 0), 2);
+        currStep.setValueFor(HMMState.MATCH_1, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO));
+        currStep.setValueFor(HMMState.MATCH_2, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO), 1);
+        currStep.setValueFor(HMMState.MATCH_3, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO), 2);
+        currStep.setValueFor(HMMState.MATCH_4, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO));
+        currStep.setValueFor(HMMState.MATCH_5, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO), 1);
+        currStep.setValueFor(HMMState.MATCH_6, new PathProbability(HMMState.NO_STATE, BigDecimal.ZERO), 2);
     }
 }

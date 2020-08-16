@@ -15,8 +15,8 @@ public class InsertReverseSixthTransition extends InsertReverseTransition {
 
     @Override
     protected PathProbability getProbabilityFromMatch(HMMParameters parameters, ViterbiStep currStep) {
-        PathProbability ret = super.getProbabilityFromMatch(parameters, currStep);                                              // The probability is the same as the other I states
-        ret.setProbability(ret.getProbability() * parameters.getOuterTransitionProbability(HMMOuterTransition.GENE_GENE));      // Except for the extra outer transition probability
+        PathProbability ret = super.getProbabilityFromMatch(parameters, currStep);                                                  // The probability is the same as the other I states
+        ret.setProbability(ret.getProbability().multiply(parameters.getOuterTransitionProbability(HMMOuterTransition.GENE_GENE)));  // Except for the extra outer transition probability
         return ret;
     }
 }

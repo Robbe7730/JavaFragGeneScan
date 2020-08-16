@@ -3,6 +3,8 @@ package be.robbevanherck.javafraggenescan.transitions;
 import be.robbevanherck.javafraggenescan.StartStopUtil;
 import be.robbevanherck.javafraggenescan.entities.*;
 
+import java.math.BigDecimal;
+
 /**
  * Represents a transition to the E' state
  */
@@ -25,33 +27,33 @@ public class EndReverseTransition extends EndTransition {
     }
 
     @Override
-    protected double getCodonDependantProbability(Triple<AminoAcid> codon) {
+    protected BigDecimal getCodonDependantProbability(Triple<AminoAcid> codon) {
         // The first 2 amino-acids are always CA, so we only need to check the third value
         if (codon.getThirdValue() == AminoAcid.T) {
-            return 0.83;
+            return BigDecimal.valueOf(0.83);
         } else if (codon.getThirdValue() == AminoAcid.C) {
-            return 0.10;
+            return BigDecimal.valueOf(0.10);
         } else if (codon.getThirdValue() == AminoAcid.A) {
-            return 0.07;
+            return BigDecimal.valueOf(0.07);
         } else {
-            return 0;
+            return BigDecimal.ZERO;
         }
     }
 
     @Override
-    protected double getGaussianProbability(ViterbiStep currStep) {
+    protected BigDecimal getGaussianProbability(ViterbiStep currStep) {
         HMMParameters parameters = currStep.getParameters();
 
         // Make sure the previous steps exist
         if (currStep.getPrevious().getPrevious() == null) {
-            return 0;
+            return BigDecimal.ZERO;
         }
         ViterbiStep firstStep = currStep;
         ViterbiStep secondStep = firstStep.getPrevious();
         ViterbiStep thirdStep = secondStep.getPrevious();
 
         int nucleotidesChecked = 1;
-        double tempProduct = parameters.getReverseEndPWMProbability(58, new Triple<>(
+        BigDecimal tempProduct = parameters.getReverseEndPWMProbability(58, new Triple<>(
                 firstStep.getInput(),
                 secondStep.getInput(),
                 thirdStep.getInput()
@@ -60,11 +62,11 @@ public class EndReverseTransition extends EndTransition {
         // Instead of going from -30 to 30, I first go from 0 to -30 (using previous) and then from 0 to 30 (using nextValues)
 
         while (thirdStep != null && nucleotidesChecked < 30) {
-            tempProduct *= parameters.getReverseEndPWMProbability(29 - nucleotidesChecked, new Triple<>(
+            tempProduct = tempProduct.multiply(parameters.getReverseEndPWMProbability(29 - nucleotidesChecked, new Triple<>(
                     firstStep.getInput(),
                     secondStep.getInput(),
                     thirdStep.getInput()
-            ));
+            )));
 
             firstStep = secondStep;
             secondStep = thirdStep;
@@ -78,11 +80,11 @@ public class EndReverseTransition extends EndTransition {
         AminoAcid thirdValue = currStep.getNextInput();
 
         for(int i = 0; i <= 30 && (i+2) < currStep.getNextValues().size(); i++) {
-            tempProduct *= parameters.getReverseEndPWMProbability(nucleotidesChecked, new Triple<>(
+            tempProduct = tempProduct.multiply(parameters.getReverseEndPWMProbability(nucleotidesChecked, new Triple<>(
                     firstValue,
                     secondValue,
                     thirdValue
-            ));
+            )));
 
             firstValue = secondValue;
             secondValue = thirdValue;
@@ -91,7 +93,7 @@ public class EndReverseTransition extends EndTransition {
             nucleotidesChecked++;
         }
 
-        double startFrequency = tempProduct * (58.0 / nucleotidesChecked);
+        BigDecimal startFrequency = tempProduct.multiply(BigDecimal.valueOf(58.0 / nucleotidesChecked));
 
         return calculateStatisticalProbability(parameters, startFrequency);
     }
