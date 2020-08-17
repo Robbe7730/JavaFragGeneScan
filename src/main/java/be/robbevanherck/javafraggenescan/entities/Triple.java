@@ -1,5 +1,7 @@
 package be.robbevanherck.javafraggenescan.entities;
 
+import java.util.Objects;
+
 /**
  * Represents a triple
  * @param <T> The type of the elements
@@ -40,9 +42,9 @@ public class Triple<T> {
 
         Triple<?> triple = (Triple<?>) o;
 
-        if (firstValue != null ? !firstValue.equals(triple.firstValue) : triple.firstValue != null) return false;
-        if (secondValue != null ? !secondValue.equals(triple.secondValue) : triple.secondValue != null) return false;
-        return thirdValue != null ? thirdValue.equals(triple.thirdValue) : triple.thirdValue == null;
+        if (!Objects.equals(firstValue, triple.firstValue)) return false;
+        if (!Objects.equals(secondValue, triple.secondValue)) return false;
+        return Objects.equals(thirdValue, triple.thirdValue);
     }
 
     @Override
