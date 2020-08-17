@@ -5,9 +5,9 @@ package be.robbevanherck.javafraggenescan.entities;
  * @param <T> The type of the elements
  */
 public class Triple<T> {
-    private final T firstValue;
-    private final T secondValue;
-    private final T thirdValue;
+    private T firstValue;
+    private T secondValue;
+    private T thirdValue;
 
     /**
      * Create a triple
@@ -65,5 +65,22 @@ public class Triple<T> {
      */
     public boolean contains(T value) {
         return firstValue == value || secondValue == value || thirdValue == value;
+    }
+
+    /**
+     * Replace all occurrences of from to to
+     * @param from The value to replace
+     * @param to The value to replace it with
+     */
+    public void replaceAll(T from, T to) {
+        if (firstValue == from) {
+            firstValue = to;
+        }
+        if (secondValue == from) {
+            secondValue = to;
+        }
+        if (thirdValue == from) {
+            thirdValue = to;
+        }
     }
 }

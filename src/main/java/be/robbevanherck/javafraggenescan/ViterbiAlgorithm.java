@@ -86,6 +86,7 @@ public class ViterbiAlgorithm {
     public ViterbiStep run() {
         ViterbiStep currentStep = new ViterbiStep(parameters, input.getInputAcids());
         for (int i = 0; i < input.getInputAcids().size(); i++) {
+            // TODO: if there are more than 9 consecutive INVALID's, everything at this step is NON_CODING
             currentStep = currentStep.calculateNext();
         }
         return currentStep;
