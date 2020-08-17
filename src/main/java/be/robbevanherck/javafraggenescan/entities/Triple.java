@@ -57,4 +57,13 @@ public class Triple<T> {
     public String toString() {
         return "Triple(" + firstValue + "," + secondValue + "," + thirdValue + ')';
     }
+
+    /**
+     * Check if the triple contains a given value
+     * @param value The value to check
+     * @return True if it contains the value, false otherwise
+     */
+    public boolean contains(T value) {
+        return firstValue == value || secondValue == value || thirdValue == value;
+    }
 }
