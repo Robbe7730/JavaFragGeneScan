@@ -103,7 +103,7 @@ public class ViterbiAlgorithm {
         List<AminoAcid> currentDNAString = new ArrayList<>();
 
         HMMState currentState = currentStep.getHighestProbabilityState();
-        HMMState previousState = currentState;
+        HMMState previousState = HMMState.NO_STATE;
 
         DNAStrand currentStrand = DNAStrand.UNKNOWN_STRAND;
 
@@ -123,8 +123,22 @@ public class ViterbiAlgorithm {
 
             // If we have a match state, add it to the current DNA string
             if (currentStrand == DNAStrand.FORWARD && HMMState.isForwardMatchState(currentState)) {
+                // Check if we had deletions
+                while (HMMState.isForwardMatchState(previousState) && HMMState.nextState(currentState) != previousState) {
+                    previousState = HMMState.previousState(previousState);
+                    currentDNAString.add(0, AminoAcid.INVALID);
+                }
+
+                // Add the value in the front
                 currentDNAString.add(0, currentStep.getInput());
             } else if (currentStrand == DNAStrand.REVERSE && HMMState.isReverseMatchState(currentState)) {
+                // Check if we had deletions
+                while (HMMState.isReverseMatchState(previousState) && HMMState.nextState(currentState) != previousState) {
+                    previousState = HMMState.previousState(previousState);
+                    currentDNAString.add(AminoAcid.INVALID);
+                }
+
+                // Add the value in the back
                 currentDNAString.add(DNAUtil.complement(currentStep.getInput()));
             }
 

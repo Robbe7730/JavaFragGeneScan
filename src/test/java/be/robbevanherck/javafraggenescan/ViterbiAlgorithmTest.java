@@ -144,6 +144,7 @@ public class ViterbiAlgorithmTest {
         assertEquals(">TESTING_8_16_-\nTTTGAGTAC\n", outputPrintStream.getResult());
     }
 
+    @Test
     public void backTrackForwardDirty() {
         // Test a forward chain with insertions or deletions
 
@@ -180,14 +181,18 @@ public class ViterbiAlgorithmTest {
                         NON_CODING,
                         NO_STATE
                 ),
-                List.of(INVALID,G,C,C,A,A,T,A,A,C,T,C,A,T,A,G,G,T,A,T,G,C,T,A)
+                List.of(G,C,C,A,A,T,A,A,C,T,C,A,T,A,G,G,T,A,T,G,C,T,A,INVALID)
         ), 23);
 
         assertEquals(1, results.size());
 
         ViterbiResult firstResult = results.iterator().next();
 
-        assertEquals("GTACTCAAA", firstResult.getDNA());
+        DummyPrintStream outputPrintStream = new DummyPrintStream();
+
+        firstResult.writeFasta(outputPrintStream);
+
+        assertEquals(">TESTING_8_16_+\nGTACTCANA\n", outputPrintStream.getResult());
     }
 
 }
