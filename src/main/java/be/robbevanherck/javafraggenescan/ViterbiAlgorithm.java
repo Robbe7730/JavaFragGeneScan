@@ -84,7 +84,9 @@ public class ViterbiAlgorithm {
      * @return The last step, which can be used for backtracking
      */
     public ViterbiStep run() {
-        ViterbiStep currentStep = new ViterbiStep(parameters, input.getInputAcids());
+        List<AminoAcid> inputs = input.getInputAcids();
+        AminoAcid firstInput = inputs.remove(0);
+        ViterbiStep currentStep = new ViterbiStep(parameters, firstInput, inputs);
         for (int i = 0; i < input.getInputAcids().size(); i++) {
             // TODO: if there are more than 9 consecutive INVALID's, everything at this step is NON_CODING
             currentStep = currentStep.calculateNext();

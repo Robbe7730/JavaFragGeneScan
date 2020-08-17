@@ -68,7 +68,7 @@ public class MatchReverseTransition extends MatchTransition {
         HMMState previousMatch = HMMState.previousState(toState);
         double probability = previous.getProbabilityFor(previousMatch) *                                                     // Probability to be in the M' state at t-1
                                             parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_MATCH) *      // Probability of inner transition M -> M
-                                            parameters.getReverseMatchEmissionProbability(toState, codonEndingAtT);         // Probability of emission from M' sate
+                                            parameters.getReverseMatchEmissionProbability(previousMatch, codonEndingAtT);         // Probability of emission from M' sate
         return new PathProbability(previousMatch, probability);
     }
 }

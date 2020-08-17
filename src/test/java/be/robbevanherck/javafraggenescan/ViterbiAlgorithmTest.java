@@ -6,7 +6,7 @@ import be.robbevanherck.javafraggenescan.entities.*;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -27,8 +27,14 @@ public class ViterbiAlgorithmTest {
         // Set up the HMMParameters with an unused input file
         HMMParameters.setup(new File("train/454_10"));
 
+        // The (unused) inputs, need to be > 2 so the algorithm will run one step
+        List<AminoAcid> inputs = new ArrayList<>();
+
+        inputs.add(AminoAcid.G);
+        inputs.add(AminoAcid.A);
+
         // Create a new ViterbiAlgorithm
-        ViterbiInput input = new ViterbiInput("TESTING", List.of(AminoAcid.G, AminoAcid.A));
+        ViterbiInput input = new ViterbiInput("TESTING", inputs);
         ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true);
 
         // Make sure wholeGenome is passed to the HMMParameters
