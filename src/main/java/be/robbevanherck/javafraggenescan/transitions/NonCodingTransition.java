@@ -34,13 +34,15 @@ public class NonCodingTransition extends Transition {
                 new PathProbability(HMMState.END, probability)
         );
 
-        /* FROM E STATE */
+        /* FROM E' STATE */
 
         probability = previous.getProbabilityFor(HMMState.END_REVERSE) *                        // Probability to be in E' state at t-1
                 parameters.getOuterTransitionProbability(HMMOuterTransition.END_NONCODING);     // Probability of outer transition E -> R
         bestValue = PathProbability.max(bestValue,
                 new PathProbability(HMMState.END_REVERSE, probability)
         );
+
+        // The code multiplies by 0.95, but that decreases sensitivity and precision, so I've left it out
 
         return bestValue;
     }

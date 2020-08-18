@@ -61,10 +61,11 @@ public class ViterbiStep {
     /**
      * Create the initial ViterbiStep
      * @param parameters The parameters for the HMM
-     * @param inputs The inputs starting from (including) this step
+     * @param firstInput The input for this ViterbiStep
+     * @param nextInputs The inputs starting from (including) this step
      */
-    public ViterbiStep(HMMParameters parameters, List<AminoAcid> inputs) {
-        this(parameters, null, new HashMap<>(), inputs);
+    public ViterbiStep(HMMParameters parameters, AminoAcid firstInput, List<AminoAcid> nextInputs) {
+        this(parameters, null, new HashMap<>(), nextInputs);
 
         this.isInitialStep = true;
 
@@ -74,8 +75,8 @@ public class ViterbiStep {
         }
 
         Triple<AminoAcid> firstCodon;
-        if (inputs.size() > 2) {
-            firstCodon = new Triple<>(inputs.get(0), inputs.get(1), inputs.get(2));
+        if (nextInputs.size() > 1) {
+            firstCodon = new Triple<>(firstInput, nextInputs.get(0), nextInputs.get(1));
         } else {
             firstCodon = new Triple<>(AminoAcid.INVALID, AminoAcid.INVALID, AminoAcid.INVALID);
         }

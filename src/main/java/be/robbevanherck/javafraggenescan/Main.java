@@ -37,11 +37,8 @@ public class Main {
     @Parameter(names={"-t", "--model-parameters"}, description = "File with the model parameters", required = true)
     private File modelConfFile;
 
-    @Parameter(names={"-d", "--output-dna-fasta"}, description = "Output file for the DNA-FASTA. If not present, no output is written")
+    @Parameter(names={"-d", "--dna-file"}, description = "Output file for the DNA results. If not present, no output is written")
     private File outputDNAFASTA;
-
-    @Parameter(names={"-e", "--output-metadata"}, description = "[NOT YET SUPPORTED] Output file for the metadata. If not present, no output is written")
-    private File outputMetaData;
 
     @Parameter(names={"-h" , "-?", "--help", "--usage"}, description = "Show this help text and exit", help = true)
     private boolean help;
@@ -49,9 +46,8 @@ public class Main {
     /**
      * The entry function
      * @param args Command-line arguments
-     * @throws InterruptedException When interrupted
      */
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         Main main = new Main();
         JCommander jCommander = JCommander.newBuilder()
                 .addObject(main)
@@ -68,9 +64,8 @@ public class Main {
 
     /**
      * Run the program itself
-     * @throws InterruptedException When interrupted
      */
-    public void run() throws InterruptedException {
+    public void run() {
         ThreadManager.createInstance();
         ThreadManager.getInstance().run(modelConfFile, outputDNAFASTA, inputType, numThreads);
     }

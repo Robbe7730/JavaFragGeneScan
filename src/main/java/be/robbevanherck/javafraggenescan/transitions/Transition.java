@@ -51,9 +51,8 @@ public abstract class Transition {
 
         AminoAcid firstAcid;
 
-        // TODO: why is this?!
         if (previous.getPrevious() == null) {
-            firstAcid = AminoAcid.G;
+            firstAcid = AminoAcid.INVALID;
         } else {
             firstAcid = previous.getPrevious().getInput();
         }

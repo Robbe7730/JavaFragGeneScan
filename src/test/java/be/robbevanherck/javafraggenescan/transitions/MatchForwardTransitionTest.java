@@ -13,8 +13,8 @@ import static org.junit.Assert.*;
 
 public class MatchForwardTransitionTest {
     MatchForwardTransition matchForwardTransition = new MatchForwardTransition(HMMState.NO_STATE);
-    private DummyAcidsViterbiStep dummyAcidsViterbiStep = new DummyAcidsViterbiStep(AminoAcid.A, AminoAcid.T, AminoAcid.G);
-    private DummyHMMParameters dummyParameters = new DummyHMMParameters();
+    private final DummyAcidsViterbiStep dummyAcidsViterbiStep = new DummyAcidsViterbiStep(AminoAcid.A, AminoAcid.T, AminoAcid.G);
+    private final DummyHMMParameters dummyParameters = new DummyHMMParameters();
 
     @Test
     public void isCorrectStopCodon() {

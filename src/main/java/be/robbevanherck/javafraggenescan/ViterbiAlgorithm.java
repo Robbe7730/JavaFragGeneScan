@@ -84,8 +84,14 @@ public class ViterbiAlgorithm {
      * @return The last step, which can be used for backtracking
      */
     public ViterbiStep run() {
-        ViterbiStep currentStep = new ViterbiStep(parameters, input.getInputAcids());
+        List<AminoAcid> inputs = input.getInputAcids();
+        if (inputs.size() < 70) {
+            return null;
+        }
+        AminoAcid firstInput = inputs.remove(0);
+        ViterbiStep currentStep = new ViterbiStep(parameters, firstInput, inputs);
         for (int i = 0; i < input.getInputAcids().size(); i++) {
+            // TODO: if there are more than 9 consecutive INVALID's, everything at this step is NON_CODING
             currentStep = currentStep.calculateNext();
         }
         return currentStep;
@@ -102,11 +108,11 @@ public class ViterbiAlgorithm {
         List<AminoAcid> currentDNAString = new ArrayList<>();
 
         HMMState currentState = currentStep.getHighestProbabilityState();
-        HMMState previousState = currentState;
+        HMMState previousState = HMMState.NO_STATE;
 
         DNAStrand currentStrand = DNAStrand.UNKNOWN_STRAND;
 
-        int position = sequenceLength - 1;
+        int position = sequenceLength;
         int strandEndPosition = -1;
 
         while (currentState != HMMState.NO_STATE && currentStep.getPrevious() != null) {
@@ -122,8 +128,22 @@ public class ViterbiAlgorithm {
 
             // If we have a match state, add it to the current DNA string
             if (currentStrand == DNAStrand.FORWARD && HMMState.isForwardMatchState(currentState)) {
+                // Check if we had deletions
+                while (HMMState.isForwardMatchState(previousState) && HMMState.nextState(currentState) != previousState) {
+                    previousState = HMMState.previousState(previousState);
+                    currentDNAString.add(0, AminoAcid.INVALID);
+                }
+
+                // Add the value in the front
                 currentDNAString.add(0, currentStep.getInput());
             } else if (currentStrand == DNAStrand.REVERSE && HMMState.isReverseMatchState(currentState)) {
+                // Check if we had deletions
+                while (HMMState.isReverseMatchState(previousState) && HMMState.nextState(currentState) != previousState) {
+                    previousState = HMMState.previousState(previousState);
+                    currentDNAString.add(AminoAcid.INVALID);
+                }
+
+                // Add the value in the back
                 currentDNAString.add(DNAUtil.complement(currentStep.getInput()));
             }
 

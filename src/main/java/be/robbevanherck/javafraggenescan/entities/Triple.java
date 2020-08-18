@@ -1,13 +1,15 @@
 package be.robbevanherck.javafraggenescan.entities;
 
+import java.util.Objects;
+
 /**
  * Represents a triple
  * @param <T> The type of the elements
  */
 public class Triple<T> {
-    private final T firstValue;
-    private final T secondValue;
-    private final T thirdValue;
+    private T firstValue;
+    private T secondValue;
+    private T thirdValue;
 
     /**
      * Create a triple
@@ -40,9 +42,9 @@ public class Triple<T> {
 
         Triple<?> triple = (Triple<?>) o;
 
-        if (firstValue != null ? !firstValue.equals(triple.firstValue) : triple.firstValue != null) return false;
-        if (secondValue != null ? !secondValue.equals(triple.secondValue) : triple.secondValue != null) return false;
-        return thirdValue != null ? thirdValue.equals(triple.thirdValue) : triple.thirdValue == null;
+        if (!Objects.equals(firstValue, triple.firstValue)) return false;
+        if (!Objects.equals(secondValue, triple.secondValue)) return false;
+        return Objects.equals(thirdValue, triple.thirdValue);
     }
 
     @Override
@@ -56,5 +58,31 @@ public class Triple<T> {
     @Override
     public String toString() {
         return "Triple(" + firstValue + "," + secondValue + "," + thirdValue + ')';
+    }
+
+    /**
+     * Check if the triple contains a given value
+     * @param value The value to check
+     * @return True if it contains the value, false otherwise
+     */
+    public boolean contains(T value) {
+        return firstValue == value || secondValue == value || thirdValue == value;
+    }
+
+    /**
+     * Replace all occurrences of from to to
+     * @param from The value to replace
+     * @param to The value to replace it with
+     */
+    public void replaceAll(T from, T to) {
+        if (firstValue == from) {
+            firstValue = to;
+        }
+        if (secondValue == from) {
+            secondValue = to;
+        }
+        if (thirdValue == from) {
+            thirdValue = to;
+        }
     }
 }

@@ -52,8 +52,8 @@ public class MatchReverseTransition extends MatchTransition {
                 double probability = previous.getProbabilityFor(currState) *                                                    // Probability to be in currState at t-1
                         parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_DELETE) * 0.25 *                      // Probability of transition + emission of M -> D
                         Math.pow((parameters.getInnerTransitionProbability(HMMInnerTransition.DELETE_DELETE) * 0.25), numD) *   // Probability of numD transitions and emissions of D -> D
-                        parameters.getInnerTransitionProbability(HMMInnerTransition.DELETE_MATCH) *                             // Probability of transition of M -> D
-                        parameters.getReverseMatchEmissionProbability(currState, codonEndingAtT);                               // Probability of emission of M
+                        parameters.getInnerTransitionProbability(HMMInnerTransition.DELETE_MATCH) *                             // Probability of transition of D -> M
+                        parameters.getReverseMatchEmissionProbability(toState, codonEndingAtT);                                 // Probability of emission of M
                 bestValue = PathProbability.max(bestValue, new PathProbability(currState, probability));
 
                 numD++;
@@ -66,9 +66,9 @@ public class MatchReverseTransition extends MatchTransition {
     @Override
     protected PathProbability getProbabilityFromMatch(HMMParameters parameters, ViterbiStep previous, Triple<AminoAcid> codonEndingAtT) {
         HMMState previousMatch = HMMState.previousState(toState);
-        double probability = previous.getProbabilityFor(previousMatch) *                                                     // Probability to be in the M' state at t-1
+        double probability = previous.getProbabilityFor(previousMatch) *                                                    // Probability to be in the M' state at t-1
                                             parameters.getInnerTransitionProbability(HMMInnerTransition.MATCH_MATCH) *      // Probability of inner transition M -> M
-                                            parameters.getReverseMatchEmissionProbability(toState, codonEndingAtT);         // Probability of emission from M' sate
+                                            parameters.getReverseMatchEmissionProbability(previousMatch, codonEndingAtT);   // Probability of emission from M' sate
         return new PathProbability(previousMatch, probability);
     }
 }

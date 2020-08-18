@@ -60,7 +60,7 @@ public class HMMParameters {
         this.forwardStopPWM = ForwardEndRepository.getInstance().getValues(countGC);
         this.reverseStopPWM = ReverseEndRepository.getInstance().getValues(countGC);
         this.forwardStartPWM = ForwardStartRepository.getInstance().getValues(countGC);
-        this.reverseStartPWM = ReverseEndRepository.getInstance().getValues(countGC);
+        this.reverseStartPWM = ReverseStartRepository.getInstance().getValues(countGC);
 
         this.gaussianArguments = GaussianArgumentsRepository.getInstance().getValues(countGC);
 
@@ -106,6 +106,9 @@ public class HMMParameters {
      * @return The probability
      */
     public double getMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
+        //TODO: the original code replaces all INVALIDs with G's
+        // Why? I don't know...
+        aminoAcidEndingInT.replaceAll(AminoAcid.INVALID, AminoAcid.G);
         return this.forwardMatchEmissions.get(state).get(aminoAcidEndingInT);
     }
 
@@ -134,6 +137,12 @@ public class HMMParameters {
      * @return The probability
      */
     public double getInsertInsertEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
+        if (currentInput == AminoAcid.INVALID) {
+            currentInput = AminoAcid.G;
+        }
+        if(previousInput == AminoAcid.INVALID) {
+            previousInput = AminoAcid.G;
+        }
         return insertInsertEmissions.get(new Pair<>(previousInput, currentInput));
     }
 
@@ -144,6 +153,12 @@ public class HMMParameters {
      * @return The probability
      */
     public double getMatchInsertEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
+        if (currentInput == AminoAcid.INVALID) {
+            currentInput = AminoAcid.G;
+        }
+        if(previousInput == AminoAcid.INVALID) {
+            previousInput = AminoAcid.G;
+        }
         return matchInsertEmissions.get(new Pair<>(previousInput, currentInput));
     }
 
@@ -155,6 +170,12 @@ public class HMMParameters {
      * @return The probability
      */
     public double getNonCodingNonCodingEmissionProbability(AminoAcid previousInput, AminoAcid currentInput) {
+        if (currentInput == AminoAcid.INVALID) {
+            currentInput = AminoAcid.G;
+        }
+        if(previousInput == AminoAcid.INVALID) {
+            previousInput = AminoAcid.G;
+        }
         return nonCodingNonCodingEmissions.get(new Pair<>(previousInput, currentInput));
     }
 
@@ -162,10 +183,11 @@ public class HMMParameters {
     /**
      * Get the probability for an M' state to emit its value
      * @param aminoAcidEndingInT The trinucleotide starting at t-2 and ending at t
-     * @param state The state the transition is going to
+     * @param state The state the transition is coming from
      * @return The probability
      */
     public double getReverseMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
+        aminoAcidEndingInT.replaceAll(AminoAcid.INVALID, AminoAcid.G);
         return reverseMatchEmissions.get(state).get(aminoAcidEndingInT);
     }
 
@@ -176,6 +198,7 @@ public class HMMParameters {
      * @return The probability
      */
     public double getForwardEndPWMProbability(int index, Triple<AminoAcid> codon) {
+        codon.replaceAll(AminoAcid.INVALID, AminoAcid.G);
         return forwardStopPWM.get(index).get(codon);
     }
 
@@ -186,6 +209,7 @@ public class HMMParameters {
      * @return The probability
      */
     public double getReverseEndPWMProbability(int index, Triple<AminoAcid> codon) {
+        codon.replaceAll(AminoAcid.INVALID, AminoAcid.G);
         return reverseStopPWM.get(index).get(codon);
     }
 
@@ -196,6 +220,7 @@ public class HMMParameters {
      * @return The probability
      */
     public double getForwardStartPWMProbability(int index, Triple<AminoAcid> codon) {
+        codon.replaceAll(AminoAcid.INVALID, AminoAcid.G);
         return forwardStartPWM.get(index).get(codon);
     }
 
@@ -206,6 +231,7 @@ public class HMMParameters {
      * @return The probability
      */
     public double getReverseStartPWMProbability(int index, Triple<AminoAcid> codon) {
+        codon.replaceAll(AminoAcid.INVALID, AminoAcid.G);
         return reverseStartPWM.get(index).get(codon);
     }
 
