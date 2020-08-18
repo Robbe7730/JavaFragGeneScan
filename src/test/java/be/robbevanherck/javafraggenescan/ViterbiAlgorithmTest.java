@@ -43,9 +43,6 @@ public class ViterbiAlgorithmTest {
         // Run the algorithm
         // TODO: make tests with correct forward and reverse strands
         ViterbiStep lastStep = algorithm.run();
-
-        // TODO: backTrack is too complex, narrow it down and test separately
-        algorithm.backTrack(lastStep, 0);
     }
 
     @Test

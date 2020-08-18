@@ -2,6 +2,7 @@ package be.robbevanherck.javafraggenescan.threads;
 
 import be.robbevanherck.javafraggenescan.ViterbiAlgorithm;
 import be.robbevanherck.javafraggenescan.entities.ViterbiInput;
+import be.robbevanherck.javafraggenescan.entities.ViterbiStep;
 
 /**
  * Runnable for the calculating (Running) thread
@@ -29,7 +30,10 @@ public class RunnerThreadRunnable implements Runnable {
             int inputLength = input.getInputAcids().size();
 
             ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, wholeGenomes);
-            ThreadManager.getInstance().addToOutput(algorithm.backTrack(algorithm.run(), inputLength));
+            ViterbiStep lastStep = algorithm.run();
+            if (lastStep != null) {
+                ThreadManager.getInstance().addToOutput(algorithm.backTrack(lastStep, inputLength));
+            }
         }
     }
 }

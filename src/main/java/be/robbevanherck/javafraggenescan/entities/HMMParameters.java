@@ -183,7 +183,7 @@ public class HMMParameters {
     /**
      * Get the probability for an M' state to emit its value
      * @param aminoAcidEndingInT The trinucleotide starting at t-2 and ending at t
-     * @param state The state the transition is going to
+     * @param state The state the transition is coming from
      * @return The probability
      */
     public double getReverseMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
