@@ -112,7 +112,7 @@ public class ViterbiAlgorithm {
 
         DNAStrand currentStrand = DNAStrand.UNKNOWN_STRAND;
 
-        int position = sequenceLength - 1;
+        int position = sequenceLength;
         int strandEndPosition = -1;
 
         while (currentState != HMMState.NO_STATE && currentStep.getPrevious() != null) {

@@ -48,9 +48,8 @@ public class ThreadManager {
      * @param outputDNAFASTA The file where to output the DNA (or null)
      * @param inputType 1 if the input contains only full genomes, 0 otherwise
      * @param numThreads The maximum number of threads
-     * @throws InterruptedException When the program gets interrupted while waiting
      */
-    public void run(File modelConfFile, File outputDNAFASTA, int inputType, int numThreads) throws InterruptedException {
+    public void run(File modelConfFile, File outputDNAFASTA, int inputType, int numThreads) {
         this.wholeGenomes = inputType == 1;
 
         // Read in all the files
