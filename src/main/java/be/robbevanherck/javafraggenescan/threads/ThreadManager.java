@@ -64,6 +64,14 @@ public class ThreadManager {
         for (int threadCount = 0; threadCount < numThreads; threadCount++) {
             startRunnerThread();
         }
+
+
+        try {
+            // Since the writerThread is the last one to exit, join that one
+            writerThread.join();
+        } catch (InterruptedException unused) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private void startRunnerThread() {
