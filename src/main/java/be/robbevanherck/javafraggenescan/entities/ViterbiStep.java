@@ -247,7 +247,11 @@ public class ViterbiStep {
     }
 
     public AminoAcid getNextInput() {
-        return nextValues.get(1);
+        if (nextValues.size() > 1) {
+            return nextValues.get(1);
+        } else {
+            return AminoAcid.INVALID;
+        }
     }
 
     public List<AminoAcid> getNextValues() {

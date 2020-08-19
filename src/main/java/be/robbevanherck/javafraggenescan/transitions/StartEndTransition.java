@@ -19,7 +19,7 @@ public abstract class StartEndTransition extends Transition {
 
     @Override
     public void calculateStateTransition(ViterbiStep currentStep) {
-        if (isStartStopCodon(getCodonStartingAtT(currentStep))) {
+        if (isStartStopCodon(getCodonStartingOrEndingAtT(currentStep))) {
             PathProbability pathProbability = calculatePathProbability(currentStep);
             overrideFutureValues(currentStep, pathProbability);
         } else {
