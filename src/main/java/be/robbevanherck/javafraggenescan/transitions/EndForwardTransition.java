@@ -30,7 +30,7 @@ public class EndForwardTransition extends EndTransition {
 
     @Override
     protected double getCodonDependantProbability(Triple<AminoAcid> codon) {
-        // TODO these are values from the paper, the original code uses different values!!
+        // DIFFERENCE these are values from the paper, the original code uses different values!!
         // The first amino-acid is always T, no need to check that one
         if (codon.getSecondValue() == AminoAcid.A && codon.getThirdValue() == AminoAcid.G) {
             return 0.54;
@@ -62,7 +62,7 @@ public class EndForwardTransition extends EndTransition {
                 thirdStep.getInput()
         ));
 
-        // TODO I'm not sure why this is 58 instead of 61, but I followed the original code
+        // DIFFERENCE I'm not sure why this is 58 instead of 61, but I followed the original code
         // Read from the PWM until we reach te beginning or the end of our window
         while (thirdStep != null && nucleotidesChecked <= 58) {
             tempProduct *= parameters.getForwardEndPWMProbability(58 - nucleotidesChecked, new Triple<>(

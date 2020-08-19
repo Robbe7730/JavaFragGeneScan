@@ -27,13 +27,11 @@ public class DummyHMMParameters extends HMMParameters {
 
     @Override
     public double getOuterTransitionProbability(HMMOuterTransition transition) {
-        //TODO: make this dependent on the input
         return 0.4;
     }
 
     @Override
     public double getMatchEmissionProbability(HMMState state, Triple<AminoAcid> aminoAcidEndingInT) {
-        //TODO: make this dependent on the input
         return 0.5;
     }
 
