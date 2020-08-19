@@ -172,7 +172,9 @@ public class ViterbiAlgorithm {
                 }
             }
 
-            results.add(new ViterbiResult(currentDNAString, position + 1, strandEndPosition, currentStrand, input.getName()));
+            if (!currentDNAString.isEmpty()) {
+                results.add(new ViterbiResult(currentDNAString, position + 1, strandEndPosition, currentStrand, input.getName()));
+            }
         }
 
         return results;

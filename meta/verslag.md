@@ -1,51 +1,127 @@
 # Verslag Project Computationele Biologie
 # Robbe Van Herck
 
-## Focus
+## Proces
 
-Mijn project is vooral gefocust op leesbaarheid en uitbreidbaarheid. Aangezien de originele code niet gedocumenteerd was
-was het moeilijk om te debuggen of zelfs te lezen hoe het werkt. Hopelijk geeft JavaFragGeneScan hier meer duidelijkheid
-over. Een van de vereisten die ik mezelf gesteld heb is om dit project constant door SonarLint te laten checken. Op die
-manier is mijn code altijd gedocumenteerd en wordt ook voor een stuk de structuur en codestijl afgedwongen. Ik ben hier
-ook best ver mee geraakt, op een paar kleine meldingen na. Deze zijn voornamelijk Cognitive Complexity problemen. Deze
-zijn te wijten aan het feit dat het algoritme vaak veel stappen in 1 keer zet. Het was mogelijk om deze meer te
-modularizeren, maar wegens tijdsgebrek ben ik hier niet meer aan toe geraakt.
+In dit deel ga ik in grote lijnen de verschillende stappen beschrijven die ik
+ondernomen heb om tot deze versie van JavaFragGeneScan te geraken.
 
-## Opbouw
+### Analyse FragGeneScan
 
-In `meta/Class Diagram.svg` kan u een overzicht zien van de klassen en hoe deze interageren. De hoofdklasse is Main, die
-de andere klassen opstart en beheert. De klasse ViterbiAlgorithm voorziet alles dat nodig is om het algoritme uit te
-voeren. Deze zou dus in een thread gestoken kunnen worden om zo parallelizatie te bekomen. De rest van de code is
-geschreven met dit in het achterhoofd, maar ook hier ben ik niet aan toe gekomen. De ViterbiStep geeft een "stap" in het
-algoritme weer. Deze vraagt aan HMMParameters de data die nodig is om de berekeningen te kunnen doen. Deze vraagt dan
-weer op zijn beurt aan de juiste Repository deze data op. Op die manier zit alle data van de files op een
-gestructureerde manier in het geheugen en is er scheiding voor moest er hier later nog veranderingen aan gebeuren. De
-ViterbiStep kan ook gebruikt worden voor de ViterbiAlgorithm.backTrack functie, om zo een lijst van ViterbiResults te
-bekomen. Deze bevatten alle nodige info om de originele strands te bekomen en voorzien ook functies om naar bestanden
-te schrijven.
+Als eerste ben ik door de code van de originele FragGeneScan implementaties
+gegaan om een beeld te hebben van de effectieve implementatie. In de
+[paper][fgs-paper] staat namelijk weinig tot niets vermeld hierover. De
+HMM-structuur die ik daaruit gevonden heb is te zien in [figuur
+1](#figuur-1-hidden-markov-model). Deze verschilt lichtjes van degene die in de
+paper staat, aangezien D-staten niet effectief als staten gezien worden, maar
+afgeleid worden uit transities van M- naar M-staten (analoog voor M'). Daarnaast
+zijn er ook transities tussen de verschillende END en START states rechtstreeks,
+die niet getekend zijn in de paper.
 
-## Verbeteringen
+Hieruit kon ik dus afleiden dat elke transitie een transitie-kans en een
+emissie-kans heeft. Voor transities die binnen een GENE(') staat blijven of ze
+niet betreden is deze transitie-kans af te lezen uit de input-file. Voor
+transities die deze wel betreden of verlaten is deze kans het product van twee
+verschillende (binnen- en buiten-) kansen.
 
-Er zijn nog wel een aantal dingen die beter kunnen in het project.
+Mijn grootste probleem met de originele code was het gebrek aan structuur en
+documentatie. Om dit op te lossen heb ik besloten om een volledig nieuwe implementatie
+te maken die deftig gedocumenteerd en gestructureerd zou zijn.
 
-### Threading
+### Keuze van programmeertaal
 
-De SynchronousRepository is zo gemaakt dat writes en reads thread-safe zouden zijn. Op die manier zou Main dus meerdere
-threads kunnen opstarten die een ViterbiAlgorithm bevatten en een die de SynchronousRepository leest en naar de juiste
-bestanden wegschrijft. De ViterbiStep instanties schrijven nooit naar een gedeelde repository, dus deze moeten niet
-threadsafe zijn.
+Ik heb gekozen voor Java omdat de strikte typering van Java ervoor zorgt dat
+er altijd een rigide structuur gaat zijn in de code. Omdat ik hier ook nog eens
+de strenge linter SonarLint bij genomen heb werd ik meer gepusht om propere en
+gedocumenteerde code te schrijven.
 
-### Optimalisatie
+### Structuur
 
-Zoals vermeld in de Focus ben ik voornamelijk bezig geweest met leesbaarheid. Ik gebruik veel verschillende functies en
-klassen, wat mogelijk niet het snelst is, maar wel het leesbaarst. Zo gebruik ik ook absolute kansen in plaats van log-
-kansen, dit is hoogstwaarschijnlijk trager, maar maakt het lezen significant gemakkelijker.
+De algemene structuur van het programma is te zien in [figuur
+2](#figuur-2-algemene-structuur).
 
-## Slot
+Ik heb gekozen om de bestanden in te lezen in
+een Repository-structuur zodat deze maar 1 keer ingelezen moeten worden bij het
+opstarten en dat daarna elke runner-thread zijn eigen instantie van de
+parameters kan halen uit de repositories en met een leesbare interface
+gebruiken.
 
-Tot slot: mijn bedenkingen bij FragGeneScan. Ik ben oprecht verschoten hoeveel rare dingen en zelfs fouten in de
-originele code van FragGeneScan. Op bepaalde plaatsen gebruiken ze andere getallen dan in de paper, of vergeten ze de
-log van de kans te nemen. Ik vraag mij af wat voor effect zulke dingen hebben op de correctheid van het programma... Dat
-gezegd zijnde, mijn implementatie gaat hoogstwaarschijnlijk ook fouten hebben. Hopelijk geeft mijn implementatie wel een
-duidelijker beeld van wat er effectief gebeurt en kunnen mensen die het beter begrijpen dan mij hun aanpassingen doen op
- een gemakkelijkere manier.
+Daarnaast wordt het proces van het Viterbi-algoritme voorgesteld door
+de ViterbiAlgorithm klasse die de stappen bijhoudt als een gelinkte lijst van
+ViterbiStep-klassen. Deze ViterbiStep heeft een lijst met PathProbabilities, de
+combinatie van de vorige staat en de kans om in de staat te zijn op dat moment.
+
+De transities worden gedaan door de Transition klassen, de structuur hiervan
+staat in [figuur 3](#figuur-3-transitie-structuur). Deze klassen zijn
+verantwoordelijk voor het invullen van de PathProbabilities in de ViterbiStep.
+
+Om de threads te regelen is er een ThreadManager klasse die de threads met de
+RunnerThreadRunnable, WriterThreadRunnable en ReaderThreadRunnable start.
+Daarnaast heeft deze ThreadManager ook de input- en outputqueue die ervoor zorgt
+dat de threads zo min mogelijk van elkaar afhankelijk zijn. Een meer uitgebreid
+overzicht staat in [figuur 4](#figuur-4-threads-model).
+
+## Vergelijking FragGeneScan en JavaFragGeneScan
+
+### Documentatie en linting
+
+De algemene structuur van JavaFragGeneScan staat gedocumenteerd in de [figuren
+onderaan dit document](#figuren) en in [het vorige deel](#structuur). Daarnaast
+is elke functie gedocumenteerd met JavaDoc-annotaties en hebben ze namen die
+naar mijn mening descriptief genoeg zijn om een idee te hebben wat ze doen. Als
+SonarLint het volledige project analyseert vindt het op dit moment 2 meldingen,
+beide zijn "Cognitive Complexity of methods should not be too high". Dit komt
+omdat de backTrack en de initiële ViterbiStep setup complexe functies zijn. Door
+deze te refactoren zou de leesbaarheid verminderd kunnen worden.
+
+### Performantie
+
+| Runtime op 1 thread          | FGS     | JFGS    |
+|:----------------------------:|:-------:|:-------:|
+| HiSeq_input.fa / illumina_10 | 5,518s  | 6.487s |
+| NC_000913-454.fna / 454_10   | 13,285s | 14.646s |
+
+| Runtime op 4 threads         | FGS    | JFGS   |
+|:----------------------------:|:------:|:------:|
+| HiSeq_input.fa / illumina_10 | 1,857s | 3.871s |
+| NC_000913-454.fna / 454_10   | 5,013s | 6.207s |
+
+Zoals te zien is in de bovenstaande tabel is JavaFragGeneScan over het algemeen
+trager dan FragGeneScan, maar dit is deels te verklaren door de overhead van de
+programmeertaal. Daarnaast was dit ook voor mij geen prioriteit. Mijn focus lag
+meer op de leesbaarheid en documentatie van de code. Het was natuurlijk wel
+nodig om binnen redelijke tijd een resultaat te krijgen en de verschillen in
+tijd zijn niet zo significant groot.
+
+Uit deze waarden leid ik ook af dat mijn programma een langere setup-tijd heeft,
+aangezien de runtime niet proportioneel toeneemt met het aantal inputs, maar wel
+afneemt met het aantal threads.
+
+### Testen
+
+Voor een deel van de code heb ik unit tests geschreven met JUnit, deze waren
+niet bedoeld om de volledige codebase te coveren, maar eerder checks voor mezelf
+zodat dingen die gebroken en opgelost waren niet opnieuw zouden breken door
+andere dingen aan te passen. Op dit moment heb ik in totaal 81% class coverage
+volgens IntelliJ.
+
+## Figuren
+
+### Figuur 1: Hidden Markov Model
+
+![Structuur van het HMM](./HMM.svg)
+
+### Figuur 2: Algemene structuur
+
+![Structuur van JavaFragGeneScan](./class-diagram.svg)
+
+### Figuur 3: Transitie-structuur
+
+![Structuur van de Transtion-klassen](./transition-structure.svg)
+
+### Figuur 4: Threads model
+
+![Structuur van de threads](./thread-model.svg)
+
+[fgs-paper]: https://academic.oup.com/nar/article/38/20/e191/1317565
+"FragGeneScan: predicting genes in short and error-prone reads"

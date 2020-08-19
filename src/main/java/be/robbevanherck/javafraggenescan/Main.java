@@ -59,14 +59,16 @@ public class Main {
             return;
         }
         main.run();
-
     }
 
     /**
      * Run the program itself
      */
     public void run() {
+        long startTime = System.nanoTime();
         ThreadManager.createInstance();
         ThreadManager.getInstance().run(modelConfFile, outputDNAFASTA, inputType, numThreads);
+        long endTime = System.nanoTime();
+        System.err.println("Execution took " + ((endTime - startTime) / 1000000000.0) + " seconds");
     }
 }
