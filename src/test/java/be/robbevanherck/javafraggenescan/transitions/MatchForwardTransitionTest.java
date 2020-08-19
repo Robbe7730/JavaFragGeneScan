@@ -41,16 +41,4 @@ public class MatchForwardTransitionTest {
                 matchForwardTransition.getProbabilityFromMatch(dummyParameters, dummyAcidsViterbiStep.getPrevious(), null)
         );
     }
-
-    @Test
-    public void getProbabilityThroughDeletions() {
-        //TODO
-        assertFalse(false);
-    }
-
-    @Test
-    public void getProbabilityFromStart() {
-        //TODO
-        assertTrue(true);
-    }
 }
