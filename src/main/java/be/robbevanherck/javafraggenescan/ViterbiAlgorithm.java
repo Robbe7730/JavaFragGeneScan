@@ -9,7 +9,8 @@ import java.util.*;
  */
 public class ViterbiAlgorithm {
     private final ViterbiInput input;
-    HMMParameters parameters;
+    final HMMParameters parameters;
+    private final int minimumAcids;
 
     public static final List<Transition> TRANSITIONS = List.of(
             // M state
@@ -61,11 +62,12 @@ public class ViterbiAlgorithm {
     );
 
     /**
-     * Create a new ViterbiAlgorithm
+     * Create a new ViterbiAlgorithm with a custom minimum amount of matched acids
      * @param input The input for this calculation
      * @param wholeGenome If the input are whole genomes or partial genomes
+     * @param minimumAcids The minimum amount of amino acids needed to be considered a valid result
      */
-    public ViterbiAlgorithm(ViterbiInput input, boolean wholeGenome) {
+    public ViterbiAlgorithm(ViterbiInput input, boolean wholeGenome, int minimumAcids) {
         List<AminoAcid> acidList = input.getInputAcids();
 
         // The amount of times G or C occurs in the input
@@ -77,6 +79,18 @@ public class ViterbiAlgorithm {
         // Create the parameters
         this.parameters = new HMMParameters(countGC, wholeGenome);
         this.input = input;
+
+        this.minimumAcids = minimumAcids;
+    }
+
+    /**
+     * Create a new ViterbiAlgorithm
+     * @param input The input for this calculation
+     * @param wholeGenome If the input are whole genomes or partial genomes
+     */
+    public ViterbiAlgorithm(ViterbiInput input, boolean wholeGenome) {
+        // By default, consider only strings of more than 60
+        this(input, wholeGenome, 60);
     }
 
     /**
@@ -149,8 +163,11 @@ public class ViterbiAlgorithm {
 
             // If we have a start state and are matching, add the result to the set and stop matching
             if (currentStrand != DNAStrand.UNKNOWN_STRAND && (currentState == HMMState.START || currentState == HMMState.START_REVERSE)) {
-                // position is + 1 because we are now in a START(_REVERSE) state, so we actually started at the next state
-                results.add(new ViterbiResult(currentDNAString, position + 1, strandEndPosition, currentStrand, input.getName()));
+                // Only save strands that are big enough
+                if (currentDNAString.size() > this.minimumAcids) {
+                    // position is + 1 because we are now in a START(_REVERSE) state, so we actually started at the next state
+                    results.add(new ViterbiResult(currentDNAString, position + 1, strandEndPosition, currentStrand, input.getName()));
+                }
                 currentStrand = DNAStrand.UNKNOWN_STRAND;
                 strandEndPosition = -1;
             }
@@ -172,7 +189,8 @@ public class ViterbiAlgorithm {
                 }
             }
 
-            if (!currentDNAString.isEmpty()) {
+            // Only save strands that are big enough
+            if (currentDNAString.size() > this.minimumAcids) {
                 results.add(new ViterbiResult(currentDNAString, position + 1, strandEndPosition, currentStrand, input.getName()));
             }
         }

@@ -25,4 +25,8 @@ public class DummyPrintStream extends PrintStream {
     public String getResult() {
         return result;
     }
+
+    public void clear() {
+        result = "";
+    }
 }

@@ -22,6 +22,7 @@ public class ViterbiAlgorithmTest {
         assertEquals(29, ViterbiAlgorithm.TRANSITIONS.size());
     }
 
+
     @Test
     public void run() {
         // Set up the HMMParameters with an unused input file
@@ -35,7 +36,7 @@ public class ViterbiAlgorithmTest {
 
         // Create a new ViterbiAlgorithm
         ViterbiInput input = new ViterbiInput("TESTING", inputs);
-        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true);
+        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true, 0);
 
         // Make sure wholeGenome is passed to the HMMParameters
         assertTrue(algorithm.parameters.wholeGenome());
@@ -55,7 +56,7 @@ public class ViterbiAlgorithmTest {
         HMMParameters.setup(new File("train/454_10"));
         // Create a new ViterbiAlgorithm with unused ViterbiInput
         ViterbiInput input = new ViterbiInput("TESTING", List.of(A));
-        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true);
+        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true, 0);
 
         Set<ViterbiResult> results = algorithm.backTrack(new DummyPPViterbiStep(
                 List.of(
@@ -96,6 +97,12 @@ public class ViterbiAlgorithmTest {
         firstResult.writeFasta(outputPrintStream);
 
         assertEquals(">TESTING_9_17_+\nGTACTCAAA\n", outputPrintStream.getResult());
+
+        outputPrintStream.clear();
+
+        firstResult.writeProteins(outputPrintStream);
+
+        assertEquals(">TESTING_9_17_+\nVLK\n", outputPrintStream.getResult());
     }
 
     @Test
@@ -106,7 +113,7 @@ public class ViterbiAlgorithmTest {
         HMMParameters.setup(new File("train/454_10"));
         // Create a new ViterbiAlgorithm with unused ViterbiInput
         ViterbiInput input = new ViterbiInput("TESTING", List.of(A));
-        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true);
+        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true, 0);
 
         Set<ViterbiResult> results = algorithm.backTrack(new DummyPPViterbiStep(
                 List.of(
@@ -147,6 +154,12 @@ public class ViterbiAlgorithmTest {
         firstResult.writeFasta(outputPrintStream);
 
         assertEquals(">TESTING_9_17_-\nTTTGAGTAC\n", outputPrintStream.getResult());
+
+        outputPrintStream.clear();
+
+        firstResult.writeProteins(outputPrintStream);
+
+        assertEquals(">TESTING_9_17_-\nFEY\n", outputPrintStream.getResult());
     }
 
     @Test
@@ -157,7 +170,7 @@ public class ViterbiAlgorithmTest {
         HMMParameters.setup(new File("train/454_10"));
         // Create a new ViterbiAlgorithm with unused ViterbiInput
         ViterbiInput input = new ViterbiInput("TESTING", List.of(A));
-        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true);
+        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true, 0);
 
         Set<ViterbiResult> results = algorithm.backTrack(new DummyPPViterbiStep(
                 List.of(
@@ -208,7 +221,7 @@ public class ViterbiAlgorithmTest {
         HMMParameters.setup(new File("train/454_10"));
         // Create a new ViterbiAlgorithm with unused ViterbiInput
         ViterbiInput input = new ViterbiInput("TESTING", List.of(A));
-        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true);
+        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true, 0);
 
         Set<ViterbiResult> results = algorithm.backTrack(new DummyPPViterbiStep(
                 List.of(
@@ -251,7 +264,6 @@ public class ViterbiAlgorithmTest {
         assertEquals(">TESTING_9_17_-\nTNTGAGTAC\n", outputPrintStream.getResult());
     }
 
-
     @Test
     public void backtrackForwardPruning() {
         // Test a forward chain with left-over match states
@@ -260,7 +272,7 @@ public class ViterbiAlgorithmTest {
         HMMParameters.setup(new File("train/454_10"));
         // Create a new ViterbiAlgorithm with unused ViterbiInput
         ViterbiInput input = new ViterbiInput("TESTING", List.of(A));
-        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true);
+        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true, 0);
 
         Set<ViterbiResult> results = algorithm.backTrack(new DummyPPViterbiStep(
                 List.of(
@@ -296,7 +308,7 @@ public class ViterbiAlgorithmTest {
         HMMParameters.setup(new File("train/454_10"));
         // Create a new ViterbiAlgorithm with unused ViterbiInput
         ViterbiInput input = new ViterbiInput("TESTING", List.of(A));
-        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true);
+        ViterbiAlgorithm algorithm = new ViterbiAlgorithm(input, true, 0);
 
         Set<ViterbiResult> results = algorithm.backTrack(new DummyPPViterbiStep(
                 List.of(
